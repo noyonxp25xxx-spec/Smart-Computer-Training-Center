@@ -14,16 +14,23 @@ async function fetchCollection(col, orderField = 'createdAt', dir = 'desc', limi
 
 // HOME
 router.get('/', async (req, res) => {
-  const [sliders, courses, notices, teachers, posts, directors] = await Promise.all([
+  const [sliders, courses, notices, teachers, posts, directors, coursesCountSnap, studentsCountSnap] = await Promise.all([
     fetchCollection('sliders', 'order', 'asc', 10),
     fetchCollection('courses', 'createdAt', 'desc', 6),
     fetchCollection('notices', 'date', 'desc', 5),
     fetchCollection('teachers', 'order', 'asc', 8),
     fetchCollection('blogPosts', 'date', 'desc', 3),
     fetchCollection('directors', 'order', 'asc', 10),
+    db.collection('courses').count().get(),
+    db.collection('admissions').count().get(),
   ]);
   const settingsDoc = await db.collection('settings').doc('siteConfig').get();
   const counters = settingsDoc.exists ? (settingsDoc.data().counters || {}) : {};
+  
+  // Use actual counts from database instead of static settings
+  counters.courses = coursesCountSnap.data().count;
+  counters.students = studentsCountSnap.data().count;
+
   res.render('public/home', { title: res.locals.site.name, sliders, courses, notices, teachers, posts, directors, counters });
 });
 

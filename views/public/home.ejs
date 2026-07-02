@@ -184,16 +184,18 @@ const pageBody = `
       <div class="col-6 col-md-3">
         <div class="counter-card">
           <div class="counter-icon">🎓</div>
-          <div class="counter-number" data-target="<%= counters.students || 1500 %>">০</div>
+          <div class="counter-number" data-target="<%= counters.students || 0 %>">০</div>
           <div class="counter-label">সফল শিক্ষার্থী</div>
         </div>
       </div>
       <div class="col-6 col-md-3">
-        <div class="counter-card">
-          <div class="counter-icon">📚</div>
-          <div class="counter-number" data-target="<%= counters.courses || 12 %>">০</div>
-          <div class="counter-label">কোর্স সমূহ</div>
-        </div>
+        <a href="/courses" style="text-decoration: none; color: inherit; display: block;">
+          <div class="counter-card" style="cursor: pointer; transition: transform 0.3s ease; box-shadow: 0 4px 15px rgba(0,0,0,0.05);" onmouseover="this.style.transform='translateY(-5px)'" onmouseout="this.style.transform='translateY(0)'">
+            <div class="counter-icon">📚</div>
+            <div class="counter-number" data-target="<%= counters.courses || 0 %>">০</div>
+            <div class="counter-label">কোর্স সমূহ</div>
+          </div>
+        </a>
       </div>
       <div class="col-6 col-md-3">
         <div class="counter-card">
