@@ -1,0 +1,80 @@
+<%- include('../partials/admin-head') %>
+
+<div class="row g-4">
+  <!-- Add Slider -->
+  <div class="col-lg-4">
+    <div class="table-card">
+      <div class="table-card-header"><span class="table-card-title">নতুন ব্যানার/স্লাইডার যোগ করুন</span></div>
+      <div style="padding: 24px">
+        <form id="addSliderForm" enctype="multipart/form-data">
+          <div class="form-group-admin">
+            <label class="admin-label">স্লাইডার ছবি *</label>
+            <input type="file" name="image" class="admin-input" accept="image/*" data-preview="sliderPreview" required/>
+            <img id="sliderPreview" class="img-preview"/>
+          </div>
+          <div class="form-group-admin" style="margin-top:14px">
+            <label class="admin-label">ক্যাপশন / বিবরণ</label>
+            <input type="text" name="caption" class="admin-input" placeholder="যেমন: আমাদের নতুন ল্যাব উদ্বোধন"/>
+          </div>
+          <div class="form-group-admin" style="margin-top:14px">
+            <label class="admin-label">ক্রম (Order)</label>
+            <input type="number" name="order" class="admin-input" value="1" required/>
+          </div>
+          <button type="submit" class="btn-save" style="width:100%;margin-top:14px"><i class="bi bi-plus-lg me-2"></i>সংরক্ষণ করুন</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Sliders List -->
+  <div class="col-lg-8">
+    <div class="table-card">
+      <div class="table-card-header">
+        <span class="table-card-title">বিদ্যমান স্লাইডার সমূহ</span>
+      </div>
+      <table class="data-table" id="slidersTable">
+        <thead>
+          <tr>
+            <th>ছবি</th>
+            <th>ক্যাপশন</th>
+            <th>ক্রম</th>
+            <th>অ্যাকশন</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% if(sliders && sliders.length > 0) { sliders.forEach(s => { %>
+          <tr id="row-<%= s.id %>">
+            <td><img src="<%= s.imageUrl %>" class="thumb" alt="slider"></td>
+            <td><%= s.caption || '—' %></td>
+            <td><%= s.order %></td>
+            <td>
+              <button class="action-btn delete" onclick="deleteSlider('<%= s.id %>')"><i class="bi bi-trash"></i></button>
+            </td>
+          </tr>
+          <% }); } else { %>
+          <tr><td colspan="4" style="text-align:center;padding:24px;color:var(--admin-gray-500)">কোনো স্লাইডার পাওয়া যায়নি</td></tr>
+          <% } %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<script>
+document.getElementById('addSliderForm').addEventListener('submit', async e => {
+  e.preventDefault();
+  const fd = new FormData(e.target);
+  const res = await fetch('/admin/sliders', { method: 'POST', body: fd });
+  const data = await res.json();
+  showToast(data.message || 'সফল হয়েছে', data.success ? 'success' : 'error');
+  if(data.success) setTimeout(() => location.reload(), 1200);
+});
+
+function deleteSlider(id) {
+  confirmDelete(`/admin/sliders/${id}`, () => {
+    document.getElementById(`row-${id}`)?.remove();
+  });
+}
+</script>
+
+<%- include('../partials/admin-foot') %>

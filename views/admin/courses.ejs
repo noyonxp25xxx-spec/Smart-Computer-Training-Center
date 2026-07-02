@@ -1,0 +1,204 @@
+<%- include('../partials/admin-head') %>
+
+<div style="margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center;">
+  <div class="search-bar" style="max-width: 300px;">
+    <i class="bi bi-search"></i>
+    <input type="text" data-search-table="coursesTable" placeholder="কোর্স খুঁজুন...">
+  </div>
+  <button class="topbar-btn" onclick="openModal('addCourseModal')"><i class="bi bi-plus-lg me-2"></i>নতুন কোর্স যোগ করুন</button>
+</div>
+
+<div class="table-card">
+  <table class="data-table" id="coursesTable">
+    <thead>
+      <tr>
+        <th>ছবি</th>
+        <th>নাম</th>
+        <th>কোড</th>
+        <th>মেয়াদ</th>
+        <th>ফি</th>
+        <th>অবস্থা</th>
+        <th>অ্যাকশন</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% if(courses && courses.length > 0) { courses.forEach(c => { %>
+      <tr id="row-<%= c.id %>">
+        <td><img src="<%= c.imageUrl || '/images/course-default.jpg' %>" class="thumb" alt="course"></td>
+        <td style="font-weight:600;"><%= c.name %></td>
+        <td><%= c.code || '—' %></td>
+        <td><%= c.duration || '—' %></td>
+        <td>৳<%= c.fee || '০' %></td>
+        <td>
+          <span class="badge badge-<%= c.active ? 'success' : 'danger' %>">
+            <%= c.active ? 'সক্রিয়' : 'নিষ্ক্রিয়' %>
+          </span>
+        </td>
+        <td>
+          <button class="action-btn edit" onclick="editCourse(<%= JSON.stringify(c) %>)"><i class="bi bi-pencil"></i></button>
+          <button class="action-btn delete" onclick="deleteCourse('<%= c.id %>')"><i class="bi bi-trash"></i></button>
+        </td>
+      </tr>
+      <% }); } else { %>
+      <tr><td colspan="7" style="text-align:center;padding:24px;color:var(--admin-gray-500)">কোনো কোর্স পাওয়া যায়নি</td></tr>
+      <% } %>
+    </tbody>
+  </table>
+</div>
+
+<!-- Add Course Modal -->
+<div class="modal-overlay" id="addCourseModal">
+  <div class="modal-box">
+    <div class="modal-header">
+      <span class="modal-title">নতুন কোর্স যোগ করুন</span>
+      <button class="modal-close" data-modal-close="addCourseModal">&times;</button>
+    </div>
+    <form id="addCourseForm" enctype="multipart/form-data">
+      <div class="modal-body">
+        <div class="form-group-admin">
+          <label class="admin-label">কোর্সের নাম *</label>
+          <input type="text" name="name" class="admin-input" required/>
+        </div>
+        <div class="row">
+          <div class="col form-group-admin">
+            <label class="admin-label">কোর্স কোড</label>
+            <input type="text" name="code" class="admin-input"/>
+          </div>
+          <div class="col form-group-admin">
+            <label class="admin-label">মেয়াদ</label>
+            <input type="text" name="duration" class="admin-input" placeholder="যেমন: ৩ মাস"/>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col form-group-admin">
+            <label class="admin-label">ফি (টাকা)</label>
+            <input type="number" name="fee" class="admin-input" min="0"/>
+          </div>
+          <div class="col form-group-admin">
+            <label class="admin-label">স্ট্যাটাস</label>
+            <select name="active" class="admin-select">
+              <option value="true">সক্রিয়</option>
+              <option value="false">নিষ্ক্রিয়</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group-admin">
+          <label class="admin-label">কোর্সের বিবরণ</label>
+          <textarea name="description" class="admin-textarea" rows="4"></textarea>
+        </div>
+        <div class="form-group-admin">
+          <label class="admin-label">কোর্স ব্যানার ছবি</label>
+          <input type="file" name="image" class="admin-input" accept="image/*" data-preview="addCourseImgPreview"/>
+          <img id="addCourseImgPreview" class="img-preview"/>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn-cancel" data-modal-close="addCourseModal">বাতিল</button>
+        <button type="submit" class="btn-save">সংরক্ষণ করুন</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Edit Course Modal -->
+<div class="modal-overlay" id="editCourseModal">
+  <div class="modal-box">
+    <div class="modal-header">
+      <span class="modal-title">কোর্স সম্পাদন করুন</span>
+      <button class="modal-close" data-modal-close="editCourseModal">&times;</button>
+    </div>
+    <form id="editCourseForm" enctype="multipart/form-data">
+      <input type="hidden" id="editCourseId"/>
+      <div class="modal-body">
+        <div class="form-group-admin">
+          <label class="admin-label">কোর্সের নাম *</label>
+          <input type="text" name="name" id="editCourseName" class="admin-input" required/>
+        </div>
+        <div class="row">
+          <div class="col form-group-admin">
+            <label class="admin-label">কোর্স কোড</label>
+            <input type="text" name="code" id="editCourseCode" class="admin-input"/>
+          </div>
+          <div class="col form-group-admin">
+            <label class="admin-label">মেয়াদ</label>
+            <input type="text" name="duration" id="editCourseDuration" class="admin-input"/>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col form-group-admin">
+            <label class="admin-label">ফি (টাকা)</label>
+            <input type="number" name="fee" id="editCourseFee" class="admin-input"/>
+          </div>
+          <div class="col form-group-admin">
+            <label class="admin-label">স্ট্যাটাস</label>
+            <select name="active" id="editCourseActive" class="admin-select">
+              <option value="true">সক্রিয়</option>
+              <option value="false">নিষ্ক্রিয়</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group-admin">
+          <label class="admin-label">কোর্সের বিবরণ</label>
+          <textarea name="description" id="editCourseDescription" class="admin-textarea" rows="4"></textarea>
+        </div>
+        <div class="form-group-admin">
+          <label class="admin-label">কোর্স ব্যানার ছবি (পরিবর্তন করতে চাইলে)</label>
+          <input type="file" name="image" class="admin-input" accept="image/*" data-preview="editCourseImgPreview"/>
+          <img id="editCourseImgPreview" class="img-preview"/>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn-cancel" data-modal-close="editCourseModal">বাতিল</button>
+        <button type="submit" class="btn-save">আপডেট করুন</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+document.getElementById('addCourseForm').addEventListener('submit', async e => {
+  e.preventDefault();
+  const fd = new FormData(e.target);
+  const res = await fetch('/admin/courses', { method: 'POST', body: fd });
+  const data = await res.json();
+  showToast(data.message || 'কোর্স যোগ সফল হয়েছে', data.success ? 'success' : 'error');
+  if(data.success) setTimeout(() => location.reload(), 1200);
+});
+
+function editCourse(c) {
+  document.getElementById('editCourseId').value = c.id;
+  document.getElementById('editCourseName').value = c.name || '';
+  document.getElementById('editCourseCode').value = c.code || '';
+  document.getElementById('editCourseDuration').value = c.duration || '';
+  document.getElementById('editCourseFee').value = c.fee || 0;
+  document.getElementById('editCourseActive').value = c.active ? 'true' : 'false';
+  document.getElementById('editCourseDescription').value = c.description || '';
+  
+  const preview = document.getElementById('editCourseImgPreview');
+  if(c.imageUrl) {
+    preview.src = c.imageUrl;
+    preview.classList.add('show');
+  } else {
+    preview.classList.remove('show');
+  }
+  openModal('editCourseModal');
+}
+
+document.getElementById('editCourseForm').addEventListener('submit', async e => {
+  e.preventDefault();
+  const id = document.getElementById('editCourseId').value;
+  const fd = new FormData(e.target);
+  const res = await fetch(`/admin/courses/${id}`, { method: 'PUT', body: fd });
+  const data = await res.json();
+  showToast(data.message || 'আপডেট সফল হয়েছে', data.success ? 'success' : 'error');
+  if(data.success) setTimeout(() => location.reload(), 1200);
+});
+
+function deleteCourse(id) {
+  confirmDelete(`/admin/courses/${id}`, () => {
+    document.getElementById(`row-${id}`)?.remove();
+  });
+}
+</script>
+
+<%- include('../partials/admin-foot') %>

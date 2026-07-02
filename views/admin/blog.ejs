@@ -1,0 +1,168 @@
+<%- include('../partials/admin-head') %>
+
+<div style="margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center;">
+  <div class="search-bar" style="max-width: 300px;">
+    <i class="bi bi-search"></i>
+    <input type="text" data-search-table="blogTable" placeholder="ব্লগ পোস্ট খুঁজুন...">
+  </div>
+  <button class="topbar-btn" onclick="openModal('addBlogPostModal')"><i class="bi bi-plus-lg me-2"></i>নতুন ব্লগ পোস্ট</button>
+</div>
+
+<div class="table-card">
+  <table class="data-table" id="blogTable">
+    <thead>
+      <tr>
+        <th>ছবি</th>
+        <th>শিরোনাম</th>
+        <th>লেখক</th>
+        <th>তারিখ</th>
+        <th>অ্যাকশন</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% if(posts && posts.length > 0) { posts.forEach(p => { %>
+      <tr id="row-<%= p.id %>">
+        <td><img src="<%= p.imageUrl || '/images/blog-default.jpg' %>" class="thumb" alt="post"></td>
+        <td style="font-weight:600;"><%= p.title %></td>
+        <td><%= p.author || 'Admin' %></td>
+        <td><%= p.date %></td>
+        <td>
+          <button class="action-btn edit" onclick="editBlogPost(<%= JSON.stringify(p) %>)"><i class="bi bi-pencil"></i></button>
+          <button class="action-btn delete" onclick="deleteBlogPost('<%= p.id %>')"><i class="bi bi-trash"></i></button>
+        </td>
+      </tr>
+      <% }); } else { %>
+      <tr><td colspan="5" style="text-align:center;padding:24px;color:var(--admin-gray-500)">কোনো ব্লগ পোস্ট পাওয়া যায়নি</td></tr>
+      <% } %>
+    </tbody>
+  </table>
+</div>
+
+<!-- Add BlogPost Modal -->
+<div class="modal-overlay" id="addBlogPostModal">
+  <div class="modal-box" style="max-width: 700px;">
+    <div class="modal-header">
+      <span class="modal-title">নতুন ব্লগ পোস্ট যোগ করুন</span>
+      <button class="modal-close" data-modal-close="addBlogPostModal">&times;</button>
+    </div>
+    <form id="addBlogPostForm" enctype="multipart/form-data">
+      <div class="modal-body">
+        <div class="form-group-admin">
+          <label class="admin-label">শিরোনাম *</label>
+          <input type="text" name="title" class="admin-input" required/>
+        </div>
+        <div class="row">
+          <div class="col form-group-admin">
+            <label class="admin-label">লেখক</label>
+            <input type="text" name="author" class="admin-input" value="Admin"/>
+          </div>
+          <div class="col form-group-admin">
+            <label class="admin-label">তারিখ *</label>
+            <input type="date" name="date" class="admin-input" value="<%= new Date().toISOString().split('T')[0] %>" required/>
+          </div>
+        </div>
+        <div class="form-group-admin">
+          <label class="admin-label">ব্লগ কনটেন্ট (HTML বা সাধারণ টেক্সট) *</label>
+          <textarea name="content" class="admin-textarea" rows="8" required></textarea>
+        </div>
+        <div class="form-group-admin">
+          <label class="admin-label">ফিচার ছবি</label>
+          <input type="file" name="image" class="admin-input" accept="image/*" data-preview="addBlogImgPreview"/>
+          <img id="addBlogImgPreview" class="img-preview"/>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn-cancel" data-modal-close="addBlogPostModal">বাতিল</button>
+        <button type="submit" class="btn-save">সংরক্ষণ করুন</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Edit BlogPost Modal -->
+<div class="modal-overlay" id="editBlogPostModal">
+  <div class="modal-box" style="max-width: 700px;">
+    <div class="modal-header">
+      <span class="modal-title">ব্লগ পোস্ট সম্পাদন করুন</span>
+      <button class="modal-close" data-modal-close="editBlogPostModal">&times;</button>
+    </div>
+    <form id="editBlogPostForm" enctype="multipart/form-data">
+      <input type="hidden" id="editBlogPostId"/>
+      <div class="modal-body">
+        <div class="form-group-admin">
+          <label class="admin-label">শিরোনাম *</label>
+          <input type="text" name="title" id="editBlogPostTitle" class="admin-input" required/>
+        </div>
+        <div class="row">
+          <div class="col form-group-admin">
+            <label class="admin-label">লেখক</label>
+            <input type="text" name="author" id="editBlogPostAuthor" class="admin-input"/>
+          </div>
+          <div class="col form-group-admin">
+            <label class="admin-label">তারিখ *</label>
+            <input type="date" name="date" id="editBlogPostDate" class="admin-input" required/>
+          </div>
+        </div>
+        <div class="form-group-admin">
+          <label class="admin-label">ব্লগ কনটেন্ট *</label>
+          <textarea name="content" id="editBlogPostContent" class="admin-textarea" rows="8" required></textarea>
+        </div>
+        <div class="form-group-admin">
+          <label class="admin-label">ফিচার ছবি (পরিবর্তন করতে চাইলে)</label>
+          <input type="file" name="image" class="admin-input" accept="image/*" data-preview="editBlogImgPreview"/>
+          <img id="editBlogImgPreview" class="img-preview"/>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn-cancel" data-modal-close="editBlogPostModal">বাতিল</button>
+        <button type="submit" class="btn-save">আপডেট করুন</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+document.getElementById('addBlogPostForm').addEventListener('submit', async e => {
+  e.preventDefault();
+  const fd = new FormData(e.target);
+  const res = await fetch('/admin/blog', { method: 'POST', body: fd });
+  const data = await res.json();
+  showToast(data.message || 'ব্লগ পোস্ট যোগ সফল হয়েছে', data.success ? 'success' : 'error');
+  if(data.success) setTimeout(() => location.reload(), 1200);
+});
+
+function editBlogPost(p) {
+  document.getElementById('editBlogPostId').value = p.id;
+  document.getElementById('editBlogPostTitle').value = p.title || '';
+  document.getElementById('editBlogPostAuthor').value = p.author || 'Admin';
+  document.getElementById('editBlogPostDate').value = p.date || '';
+  document.getElementById('editBlogPostContent').value = p.content || '';
+  
+  const preview = document.getElementById('editBlogImgPreview');
+  if(p.imageUrl) {
+    preview.src = p.imageUrl;
+    preview.classList.add('show');
+  } else {
+    preview.classList.remove('show');
+  }
+  openModal('editBlogPostModal');
+}
+
+document.getElementById('editBlogPostForm').addEventListener('submit', async e => {
+  e.preventDefault();
+  const id = document.getElementById('editBlogPostId').value;
+  const fd = new FormData(e.target);
+  const res = await fetch(`/admin/blog/${id}`, { method: 'PUT', body: fd });
+  const data = await res.json();
+  showToast(data.message || 'আপডেট সফল হয়েছে', data.success ? 'success' : 'error');
+  if(data.success) setTimeout(() => location.reload(), 1200);
+});
+
+function deleteBlogPost(id) {
+  confirmDelete(`/admin/blog/${id}`, () => {
+    document.getElementById(`row-${id}`)?.remove();
+  });
+}
+</script>
+
+<%- include('../partials/admin-foot') %>

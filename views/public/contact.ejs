@@ -1,0 +1,64 @@
+<!DOCTYPE html><html lang="bn"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title><%= title %> | <%= site.name %></title><link rel="icon" href="<%= site.faviconUrl||'/images/favicon.png' %>"/>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"/>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"/>
+<link rel="stylesheet" href="/css/style.css"/>
+<style>.reveal{opacity:0;transform:translateY(24px);transition:.6s ease}.reveal.revealed{opacity:1;transform:none}</style>
+</head><body>
+<% if(tickerNotices&&tickerNotices.length>0){%><div class="notice-ticker"><div class="d-flex align-items-center"><span class="ticker-label"><i class="bi bi-bell-fill me-1"></i>নোটিশ</span><div class="ticker-wrap"><div class="ticker-track"><%tickerNotices.forEach(n=>{%><span><%=n.title%></span><%});tickerNotices.forEach(n=>{%><span><%=n.title%></span><%});%></div></div></div></div><%}%>
+<%- include('../partials/navbar') %>
+<main>
+<section class="breadcrumb-section"><div class="container"><h1 class="breadcrumb-title"><%=title%></h1><ul class="breadcrumb-nav"><li><a href="/">হোম</a></li><li><%=title%></li></ul></div></section>
+<section class="section"><div class="container">
+  <div class="row g-5">
+    <!-- Contact Form -->
+    <div class="col-lg-7 reveal">
+      <div class="form-card">
+        <h3 style="color:var(--navy);font-weight:800;margin-bottom:24px"><i class="bi bi-envelope-fill me-2" style="color:var(--blue)"></i>বার্তা পাঠান</h3>
+        <div class="alert-placeholder"></div>
+        <form id="contactForm">
+          <div class="row g-3">
+            <div class="col-md-6 form-group"><label class="form-label">নাম *</label><input type="text" name="name" class="form-input" placeholder="আপনার নাম" required/></div>
+            <div class="col-md-6 form-group"><label class="form-label">মোবাইল</label><input type="tel" name="phone" class="form-input" placeholder="01XXXXXXXXX"/></div>
+            <div class="col-12 form-group"><label class="form-label">ইমেইল</label><input type="email" name="email" class="form-input" placeholder="example@email.com"/></div>
+            <div class="col-12 form-group"><label class="form-label">বার্তা *</label><textarea name="message" class="form-textarea" rows="5" placeholder="আপনার বার্তা লিখুন..." required></textarea></div>
+            <div class="col-12"><button type="submit" class="btn-submit"><i class="bi bi-send-fill me-2"></i>বার্তা পাঠান</button></div>
+          </div>
+        </form>
+      </div>
+    </div>
+    <!-- Info -->
+    <div class="col-lg-5 reveal">
+      <div style="background:var(--navy);border-radius:16px;padding:28px;color:#fff;margin-bottom:20px">
+        <h5 style="font-weight:700;color:var(--gold);margin-bottom:20px">যোগাযোগের তথ্য</h5>
+        <div style="display:flex;align-items:flex-start;gap:14px;margin-bottom:18px">
+          <div style="width:42px;height:42px;background:rgba(30,144,255,.2);border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0"><i class="bi bi-geo-alt-fill" style="color:var(--blue)"></i></div>
+          <div><div style="font-size:.8rem;color:rgba(255,255,255,.5);margin-bottom:2px">ঠিকানা</div><div style="font-size:.92rem"><%= site.address||'ঠিকানা দেওয়া হয়নি' %></div></div>
+        </div>
+        <div style="display:flex;align-items:flex-start;gap:14px;margin-bottom:18px">
+          <div style="width:42px;height:42px;background:rgba(30,144,255,.2);border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0"><i class="bi bi-telephone-fill" style="color:var(--blue)"></i></div>
+          <div><div style="font-size:.8rem;color:rgba(255,255,255,.5);margin-bottom:2px">ফোন</div><a href="tel:<%= site.phone %>" style="color:#fff;text-decoration:none;font-size:.92rem"><%= site.phone||'—' %></a></div>
+        </div>
+        <div style="display:flex;align-items:flex-start;gap:14px">
+          <div style="width:42px;height:42px;background:rgba(30,144,255,.2);border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0"><i class="bi bi-envelope-fill" style="color:var(--blue)"></i></div>
+          <div><div style="font-size:.8rem;color:rgba(255,255,255,.5);margin-bottom:2px">ইমেইল</div><a href="mailto:<%= site.email %>" style="color:#fff;text-decoration:none;font-size:.92rem"><%= site.email||'—' %></a></div>
+        </div>
+      </div>
+      <% if(site.mapEmbed){ %>
+      <div style="border-radius:16px;overflow:hidden;box-shadow:var(--shadow-md)">
+        <%- site.mapEmbed %>
+      </div>
+      <% } else { %>
+      <div style="background:var(--gray-100);border-radius:16px;height:220px;display:flex;align-items:center;justify-content:center;color:var(--gray-500)">
+        <div class="text-center"><i class="bi bi-map fs-1 d-block mb-2 opacity-50"></i><small>Google Map Admin থেকে যোগ করুন</small></div>
+      </div>
+      <% } %>
+    </div>
+  </div>
+</div></section>
+</main>
+<%- include('../partials/footer') %>
+<div class="alert-placeholder" style="position:fixed;top:20px;left:50%;transform:translateX(-50%);z-index:9999;width:90%;max-width:500px;"></div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="/js/main.js"></script>
+</body></html>

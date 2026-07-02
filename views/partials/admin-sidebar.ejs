@@ -1,0 +1,39 @@
+<!-- Admin Sidebar Partial -->
+<aside class="admin-sidebar" id="adminSidebar">
+  <a href="/admin" class="sidebar-brand">
+    <img src="<%= site.logoUrl||'/images/default-logo.png' %>" alt="Logo" onerror="this.style.background='rgba(255,255,255,.1)'"/>
+    <div class="sidebar-brand-text"><div class="name"><%= site.name %></div><div class="sub">Admin Panel</div></div>
+  </a>
+  <nav class="sidebar-nav">
+    <div class="nav-section-label">প্রধান</div>
+    <a href="/admin" class="sidebar-link <%= currentPath==='/admin'?'active':'' %>"><i class="bi bi-speedometer2"></i> ড্যাশবোর্ড</a>
+    <a href="/admin/settings" class="sidebar-link <%= currentPath==='/admin/settings'?'active':'' %>"><i class="bi bi-gear-fill"></i> সাইট সেটিংস</a>
+    <div class="nav-section-label">কনটেন্ট</div>
+    <a href="/admin/sliders" class="sidebar-link <%= currentPath==='/admin/sliders'?'active':'' %>"><i class="bi bi-images"></i> ব্যানার/স্লাইডার</a>
+    <a href="/admin/courses" class="sidebar-link <%= currentPath==='/admin/courses'?'active':'' %>"><i class="bi bi-book-fill"></i> কোর্স</a>
+    <a href="/admin/notices" class="sidebar-link <%= currentPath==='/admin/notices'?'active':'' %>"><i class="bi bi-bell-fill"></i> নোটিশ</a>
+    <a href="/admin/blog" class="sidebar-link <%= currentPath==='/admin/blog'?'active':'' %>"><i class="bi bi-journal-text"></i> ব্লগ/আইটি তথ্য</a>
+    <a href="/admin/gallery" class="sidebar-link <%= currentPath==='/admin/gallery'?'active':'' %>"><i class="bi bi-camera-fill"></i> গ্যালারি</a>
+    <div class="nav-section-label">মানবসম্পদ</div>
+    <a href="/admin/directors" class="sidebar-link <%= currentPath==='/admin/directors'?'active':'' %>"><i class="bi bi-person-workspace"></i> পরিচালক</a>
+    <a href="/admin/teachers" class="sidebar-link <%= currentPath==='/admin/teachers'?'active':'' %>"><i class="bi bi-person-badge-fill"></i> শিক্ষক</a>
+    <a href="/admin/committee" class="sidebar-link <%= currentPath==='/admin/committee'?'active':'' %>"><i class="bi bi-people-fill"></i> কমিটি</a>
+    <a href="/admin/students" class="sidebar-link <%= currentPath==='/admin/students'?'active':'' %>"><i class="bi bi-mortarboard-fill"></i> শিক্ষার্থী</a>
+    <div class="nav-section-label">পরীক্ষা ও ভর্তি</div>
+    <a href="/admin/results" class="sidebar-link <%= currentPath==='/admin/results'?'active':'' %>"><i class="bi bi-clipboard2-check-fill"></i> রেজাল্ট</a>
+    <a href="/admin/admissions" class="sidebar-link <%= currentPath==='/admin/admissions'?'active':'' %>"><i class="bi bi-pen-fill"></i> ভর্তি আবেদন</a>
+    <div class="nav-section-label">সিস্টেম</div>
+    <a href="/admin/messages" class="sidebar-link <%= currentPath==='/admin/messages'?'active':'' %>"><i class="bi bi-chat-dots-fill"></i> বার্তা</a>
+    <a href="/admin/users" class="sidebar-link <%= currentPath==='/admin/users'?'active':'' %>"><i class="bi bi-shield-fill"></i> অ্যাডমিন</a>
+    <a href="/admin/account" class="sidebar-link <%= currentPath==='/admin/account'?'active':'' %>"><i class="bi bi-person-lock"></i> অ্যাকাউন্ট সেটিংস</a>
+    <a href="/admin/activity-log" class="sidebar-link <%= currentPath==='/admin/activity-log'?'active':'' %>"><i class="bi bi-clock-history"></i> কার্যক্রম লগ</a>
+    <a href="/" target="_blank" class="sidebar-link"><i class="bi bi-box-arrow-up-right"></i> সাইট দেখুন</a>
+  </nav>
+  <div class="sidebar-footer">
+    <div class="sidebar-admin-info">
+      <div class="admin-avatar"><%= (admin.email||'A').charAt(0).toUpperCase() %></div>
+      <div><div class="admin-email"><%= admin.email %></div><div class="admin-role"><%= admin.role||'admin' %></div></div>
+    </div>
+    <form action="/admin/logout" method="POST"><button type="submit" class="btn-logout"><i class="bi bi-box-arrow-left"></i> লগআউট</button></form>
+  </div>
+</aside>

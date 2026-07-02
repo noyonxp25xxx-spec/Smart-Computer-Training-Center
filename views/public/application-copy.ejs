@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Applicant Copy - <%= admission.applicationId || admission.id %></title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+    body {
+      background: #e9ecef;
+      margin: 0;
+      padding: 40px 20px;
+      font-family: 'Inter', Arial, sans-serif;
+    }
+    .print-container {
+      max-width: 800px;
+      margin: 0 auto;
+      background: #fff;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+      padding: 0;
+      position: relative;
+    }
+    /* Header */
+    .app-header {
+      background: #1E8449; /* Teletalk Green */
+      color: #fff;
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      justify-content: flex-start;
+      padding: 20px 30px;
+      text-align: left;
+    }
+    .app-header img {
+      height: 90px;
+      margin-right: 25px;
+      margin-bottom: 0;
+      background: #fff;
+      padding: 4px;
+      border-radius: 50%;
+    }
+    .app-header-text h3 {
+      margin: 0;
+      font-size: 1.1rem;
+      font-weight: 600;
+    }
+    .app-header-text h1 {
+      margin: 4px 0;
+      font-size: 1.6rem;
+      font-weight: 700;
+    }
+    .app-header-text p {
+      margin: 0;
+      font-size: 0.9rem;
+    }
+    /* Title Bar */
+    .title-bar-wrap {
+      text-align: center;
+      margin: 20px 0;
+    }
+    .title-bar {
+      display: inline-block;
+      border: 2px solid #ccc;
+      padding: 8px 24px;
+      font-weight: 700;
+      font-size: 1.1rem;
+      border-radius: 4px;
+      background: #f8f9fa;
+    }
+    .status-stamp {
+      font-weight: 800;
+      margin-left: 8px;
+    }
+    .status-unpaid { color: #dc2626; }
+    .status-paid { color: #16a34a; }
+    
+    /* Content */
+    .app-content {
+      padding: 0 30px 30px;
+    }
+    .section-title {
+      background: #1E8449;
+      color: #fff;
+      padding: 6px 15px;
+      font-weight: 600;
+      font-size: 0.95rem;
+      display: inline-block;
+      border-radius: 15px;
+      margin-bottom: 10px;
+    }
+    .info-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 25px;
+      border: 2px solid #1E8449;
+    }
+    .info-table td {
+      border: 1px solid #dee2e6;
+      padding: 8px 12px;
+      font-size: 0.9rem;
+      vertical-align: middle;
+    }
+    .info-table td.lbl {
+      width: 35%;
+      font-weight: 600;
+      background: #f8f9fa;
+    }
+    .info-table td.colon {
+      width: 2%;
+      text-align: center;
+      font-weight: 600;
+      border-left: none;
+      border-right: none;
+    }
+    .info-table td.val {
+      width: 63%;
+      font-weight: 600;
+    }
+    /* Photo styling inside table */
+    .photo-cell {
+      width: 130px;
+      text-align: center;
+      padding: 10px !important;
+      vertical-align: top !important;
+    }
+    .photo-cell img {
+      width: 120px;
+      height: 140px;
+      object-fit: cover;
+      border: 1px solid #ccc;
+      margin-bottom: 5px;
+    }
+    
+    /* Bottom Actions */
+    .action-bar {
+      text-align: center;
+      margin-top: 30px;
+    }
+    .btn {
+      padding: 10px 24px;
+      font-size: 1rem;
+      font-weight: 600;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      margin: 0 10px;
+      transition: opacity 0.2s;
+    }
+    .btn:hover { opacity: 0.9; }
+    .btn-save { background: #0A1628; color: #fff; }
+    .btn-home { background: #e5e7eb; color: #374151; text-decoration: none; display: inline-block; }
+
+    @media print {
+      body { background: #fff; padding: 0; }
+      .print-container { box-shadow: none; border: none; max-width: 100%; }
+      .action-bar { display: none; }
+    }
+  </style>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+</head>
+<body>
+
+  <div class="print-container" id="printableArea">
+    <!-- Header -->
+    <div class="app-header">
+      <img src="<%= site.logoUrl || '/images/default-logo.png' %>" alt="Logo">
+      <div class="app-header-text">
+        <h3>Bangladesh Technical Education Board</h3>
+        <h1><%= site.name || 'Smart Computer Training Center' %></h1>
+        <p><%= site.address || 'Pabna, Bangladesh' %> | <%= site.phone || '' %></p>
+      </div>
+    </div>
+
+    <!-- Title Bar -->
+    <div class="title-bar-wrap">
+      <div class="title-bar">
+        APPLICANT'S COPY 
+        <% if(admission.paymentStatus === 'paid') { %>
+          <span class="status-stamp status-paid">[PAID]</span>
+        <% } else { %>
+          <span class="status-stamp status-unpaid">[UNPAID]</span>
+        <% } %>
+      </div>
+    </div>
+
+    <div class="app-content">
+      <!-- Basic Info -->
+      <div class="section-title">Basic Information</div>
+      <table class="info-table">
+        <tr>
+          <td class="lbl">Application ID</td>
+          <td class="colon">:</td>
+          <td class="val" style="color:#dc2626; font-size:1.1rem;"><%= admission.applicationId || admission.id %></td>
+          <td rowspan="6" class="photo-cell">
+            <% if(admission.photoUrl) { %>
+              <img src="<%= admission.photoUrl %>" alt="Applicant Photo">
+            <% } else { %>
+              <div style="width:120px;height:140px;border:1px solid #ccc;background:#eee;display:flex;align-items:center;justify-content:center;font-size:0.8rem;color:#888;">No Photo</div>
+            <% } %>
+            <br>
+            <% if(admission.signatureUrl) { %>
+              <img src="<%= admission.signatureUrl %>" style="width:120px;height:40px;border:1px solid #ccc;object-fit:contain;" alt="Signature">
+            <% } %>
+          </td>
+        </tr>
+        <tr>
+          <td class="lbl">Applied Course/Trade</td>
+          <td class="colon">:</td>
+          <td class="val"><%= admission.trade || admission.course || '—' %></td>
+        </tr>
+        <tr>
+          <td class="lbl">Course Fee</td>
+          <td class="colon">:</td>
+          <td class="val">
+            <% if (typeof courseFeeBreakdown !== 'undefined' && courseFeeBreakdown.length > 1) { %>
+              <% courseFeeBreakdown.forEach(function(cf, idx) { %>
+                <div style="font-size:0.85rem; color:#555;"><%= cf.name %>: ৳<%= cf.fee %></div>
+              <% }); %>
+              <div style="margin-top:4px; font-weight:700; color:#dc2626; border-top:1px dashed #ccc; padding-top:4px;">মোট (Total): ৳<%= courseFee %> BDT</div>
+            <% } else { %>
+              <%= typeof courseFee !== 'undefined' && courseFee !== '—' ? '৳' + courseFee + ' BDT' : '—' %>
+            <% } %>
+          </td>
+        </tr>
+        <tr>
+          <td class="lbl">Applicant's Name</td>
+          <td class="colon">:</td>
+          <td class="val"><%= admission.name || '—' %></td>
+        </tr>
+        <tr>
+          <td class="lbl">Father's Name</td>
+          <td class="colon">:</td>
+          <td class="val"><%= admission.fatherName || '—' %></td>
+        </tr>
+        <tr>
+          <td class="lbl">Mother's Name</td>
+          <td class="colon">:</td>
+          <td class="val"><%= admission.motherName || '—' %></td>
+        </tr>
+        <tr>
+          <td class="lbl">Date of Birth</td>
+          <td class="colon">:</td>
+          <td class="val"><%= admission.dob || '—' %></td>
+        </tr>
+        <tr>
+          <td class="lbl">Nationality</td>
+          <td class="colon">:</td>
+          <td class="val" colspan="2"><%= admission.nationality || 'Bangladeshi' %></td>
+        </tr>
+        <tr>
+          <td class="lbl">Religion</td>
+          <td class="colon">:</td>
+          <td class="val" colspan="2"><%= admission.religion || '—' %></td>
+        </tr>
+        <tr>
+          <td class="lbl">Gender</td>
+          <td class="colon">:</td>
+          <td class="val" colspan="2"><%= admission.gender || '—' %></td>
+        </tr>
+        <tr>
+          <td class="lbl">National ID / Birth Reg.</td>
+          <td class="colon">:</td>
+          <td class="val" colspan="2"><%= admission.nid || '—' %></td>
+        </tr>
+        <tr>
+          <td class="lbl">Mobile Number</td>
+          <td class="colon">:</td>
+          <td class="val" colspan="2"><%= admission.phone || '—' %></td>
+        </tr>
+        <tr>
+          <td class="lbl">Email</td>
+          <td class="colon">:</td>
+          <td class="val" colspan="2"><%= admission.email || 'N/A' %></td>
+        </tr>
+      </table>
+
+      <!-- Address Info -->
+      <div class="section-title">Address Information</div>
+      <table class="info-table">
+        <tr>
+          <td class="lbl">Present / Permanent Address</td>
+          <td class="colon">:</td>
+          <td class="val"><%= admission.address || '—' %></td>
+        </tr>
+      </table>
+      
+      <!-- Education Info -->
+      <div class="section-title">Educational Qualification (JSC/SSC)</div>
+      <table class="info-table">
+        <tr>
+          <td class="lbl">Board</td>
+          <td class="colon">:</td>
+          <td class="val"><%= admission.jscBoard || '—' %></td>
+        </tr>
+        <tr>
+          <td class="lbl">Roll Number</td>
+          <td class="colon">:</td>
+          <td class="val"><%= admission.jscRoll || '—' %></td>
+        </tr>
+        <tr>
+          <td class="lbl">Passing Year</td>
+          <td class="colon">:</td>
+          <td class="val"><%= admission.jscYear || '—' %></td>
+        </tr>
+        <tr>
+          <td class="lbl">GPA / Result</td>
+          <td class="colon">:</td>
+          <td class="val"><%= admission.jscResult || '—' %></td>
+        </tr>
+      </table>
+      
+      <!-- Payment System Information -->
+      <% if (admission.paymentStatus !== 'paid') { %>
+      <div style="margin-top: 30px; border: 2px dashed #dc2626; padding: 20px; border-radius: 8px; background: #fff5f5;">
+        <h4 style="color: #dc2626; font-size: 1.1rem; font-weight: 700; margin-top: 0; margin-bottom: 10px;">Payment Instructions / পেমেন্ট নির্দেশিকা</h4>
+        <div style="background: #fff; border: 1px solid #fca5a5; border-radius: 6px; padding: 10px 16px; margin-bottom: 12px;">
+          <% if (typeof courseFeeBreakdown !== 'undefined' && courseFeeBreakdown.length > 1) { %>
+            <div style="font-weight: 600; color: #333; margin-bottom: 8px;">কোর্স ফি বিবরণ / Course Fee Breakdown:</div>
+            <% courseFeeBreakdown.forEach(function(cf) { %>
+              <div style="display: flex; justify-content: space-between; font-size: 0.88rem; color: #555; padding: 3px 0; border-bottom: 1px dotted #eee;">
+                <span><%= cf.name %></span>
+                <span>৳ <%= cf.fee %></span>
+              </div>
+            <% }); %>
+            <div style="display: flex; justify-content: space-between; font-size: 1.1rem; font-weight: 700; color: #dc2626; margin-top: 8px; padding-top: 6px; border-top: 2px solid #fca5a5;">
+              <span>মোট (Total):</span>
+              <span>৳ <%= courseFee %> BDT</span>
+            </div>
+          <% } else { %>
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <span style="font-weight: 600; color: #333;">কোর্স ফি / Course Fee:</span>
+              <span style="font-size: 1.2rem; font-weight: 700; color: #dc2626;">৳ <%= typeof courseFee !== 'undefined' && courseFee !== '—' ? courseFee : 'N/A' %></span>
+            </div>
+          <% } %>
+        </div>
+        <p style="margin-bottom: 0; white-space: pre-line; color: #333; line-height: 1.6;"><%= site.paymentInstructions || 'পেমেন্ট নির্দেশিকা অ্যাডমিন প্যানেল থেকে সেট করুন।' %></p>
+      </div>
+      <% } else { %>
+      <div style="margin-top: 30px; border: 2px dashed #16a34a; padding: 20px; border-radius: 8px; background: #f0fdf4; text-align: center;">
+        <h4 style="color: #16a34a; font-size: 1.2rem; font-weight: 700; margin: 0;">Payment Completed / পেমেন্ট সম্পন্ন হয়েছে</h4>
+      </div>
+      <% } %>
+      
+      <div style="font-size:0.85rem; color:#666; text-align:center; margin-top:40px;">
+        This is a system generated applicant's copy. Preserve the Application ID for future inquiries.
+      </div>
+    </div>
+  </div>
+
+  <div class="action-bar">
+    <a href="/" class="btn btn-home">Back to Home</a>
+    <button class="btn btn-save" onclick="saveAsJpg()">💾 Save as JPG</button>
+  </div>
+
+  <script>
+    function saveAsJpg() {
+      const btn = document.querySelector('.btn-save');
+      btn.innerText = 'Saving...';
+      const element = document.getElementById('printableArea');
+      
+      // html2canvas config to ensure images load and resolution is high
+      html2canvas(element, { 
+        scale: 2,
+        useCORS: true,
+        backgroundColor: '#ffffff'
+      }).then(canvas => {
+        const link = document.createElement('a');
+        link.download = 'Applicant_Copy_<%= admission.applicationId || admission.id %>.jpg';
+        link.href = canvas.toDataURL('image/jpeg', 0.9);
+        link.click();
+        btn.innerText = '💾 Save as JPG';
+      }).catch(err => {
+        alert('Failed to generate image. Please try Print (Ctrl+P) and Save as PDF instead.');
+        btn.innerText = '💾 Save as JPG';
+      });
+    }
+  </script>
+</body>
+</html>

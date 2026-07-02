@@ -1,0 +1,204 @@
+<%- include('../partials/admin-head') %>
+
+<div style="margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center;">
+  <div class="search-bar" style="max-width: 300px;">
+    <i class="bi bi-search"></i>
+    <input type="text" data-search-table="studentsTable" placeholder="শিক্ষার্থী খুঁজুন...">
+  </div>
+  <button class="topbar-btn" onclick="openModal('addStudentModal')"><i class="bi bi-plus-lg me-2"></i>নতুন শিক্ষার্থী যোগ করুন</button>
+</div>
+
+<div class="table-card">
+  <table class="data-table" id="studentsTable">
+    <thead>
+      <tr>
+        <th>ছবি</th>
+        <th>নাম</th>
+        <th>রেজিঃ নম্বর</th>
+        <th>কোর্স</th>
+        <th>সেশন</th>
+        <th>স্ট্যাটাস</th>
+        <th>অ্যাকশন</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% if(students && students.length > 0) { students.forEach(s => { %>
+      <tr id="row-<%= s.id %>">
+        <td><img src="<%= s.imageUrl || '/images/teacher-default.jpg' %>" class="thumb" alt="student"></td>
+        <td style="font-weight:600;"><%= s.name %></td>
+        <td><%= s.regNo || '—' %></td>
+        <td><%= s.course || '—' %></td>
+        <td><%= s.session || '—' %></td>
+        <td>
+          <span class="badge badge-<%= s.status === 'active' ? 'success' : 'danger' %>">
+            <%= s.status === 'active' ? 'অধ্যয়নরত' : 'প্রাক্তন' %>
+          </span>
+        </td>
+        <td>
+          <button class="action-btn edit" onclick="editStudent(<%= JSON.stringify(s) %>)"><i class="bi bi-pencil"></i></button>
+          <button class="action-btn delete" onclick="deleteStudent('<%= s.id %>')"><i class="bi bi-trash"></i></button>
+        </td>
+      </tr>
+      <% }); } else { %>
+      <tr><td colspan="7" style="text-align:center;padding:24px;color:var(--admin-gray-500)">কোনো শিক্ষার্থী পাওয়া যায়নি</td></tr>
+      <% } %>
+    </tbody>
+  </table>
+</div>
+
+<!-- Add Student Modal -->
+<div class="modal-overlay" id="addStudentModal">
+  <div class="modal-box">
+    <div class="modal-header">
+      <span class="modal-title">নতুন শিক্ষার্থী যোগ করুন</span>
+      <button class="modal-close" data-modal-close="addStudentModal">&times;</button>
+    </div>
+    <form id="addStudentForm" enctype="multipart/form-data">
+      <div class="modal-body">
+        <div class="form-group-admin">
+          <label class="admin-label">শিক্ষার্থীর নাম *</label>
+          <input type="text" name="name" class="admin-input" required/>
+        </div>
+        <div class="row">
+          <div class="col form-group-admin">
+            <label class="admin-label">রেজিঃ নম্বর *</label>
+            <input type="text" name="regNo" class="admin-input" required/>
+          </div>
+          <div class="col form-group-admin">
+            <label class="admin-label">মোবাইল নম্বর</label>
+            <input type="tel" name="phone" class="admin-input"/>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col form-group-admin">
+            <label class="admin-label">কোর্স</label>
+            <input type="text" name="course" class="admin-input" placeholder="যেমন: Computer Office Application"/>
+          </div>
+          <div class="col form-group-admin">
+            <label class="admin-label">সেশন</label>
+            <input type="text" name="session" class="admin-input" placeholder="যেমন: জানুয়ারি-জুন ২০২৪"/>
+          </div>
+        </div>
+        <div class="form-group-admin">
+          <label class="admin-label">স্ট্যাটাস</label>
+          <select name="status" class="admin-select">
+            <option value="active">অধ্যয়নরত (Active)</option>
+            <option value="completed">প্রাক্তন (Completed)</option>
+          </select>
+        </div>
+        <div class="form-group-admin">
+          <label class="admin-label">প্রোফাইল ছবি</label>
+          <input type="file" name="image" class="admin-input" accept="image/*" data-preview="addStudentImgPreview"/>
+          <img id="addStudentImgPreview" class="img-preview"/>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn-cancel" data-modal-close="addStudentModal">বাতিল</button>
+        <button type="submit" class="btn-save">সংরক্ষণ করুন</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Edit Student Modal -->
+<div class="modal-overlay" id="editStudentModal">
+  <div class="modal-box">
+    <div class="modal-header">
+      <span class="modal-title">শিক্ষার্থী তথ্য সম্পাদন করুন</span>
+      <button class="modal-close" data-modal-close="editStudentModal">&times;</button>
+    </div>
+    <form id="editStudentForm" enctype="multipart/form-data">
+      <input type="hidden" id="editStudentId"/>
+      <div class="modal-body">
+        <div class="form-group-admin">
+          <label class="admin-label">শিক্ষার্থীর নাম *</label>
+          <input type="text" name="name" id="editStudentName" class="admin-input" required/>
+        </div>
+        <div class="row">
+          <div class="col form-group-admin">
+            <label class="admin-label">রেজিঃ নম্বর *</label>
+            <input type="text" name="regNo" id="editStudentRegNo" class="admin-input" required/>
+          </div>
+          <div class="col form-group-admin">
+            <label class="admin-label">মোবাইল নম্বর</label>
+            <input type="tel" name="phone" id="editStudentPhone" class="admin-input"/>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col form-group-admin">
+            <label class="admin-label">কোর্স</label>
+            <input type="text" name="course" id="editStudentCourse" class="admin-input"/>
+          </div>
+          <div class="col form-group-admin">
+            <label class="admin-label">সেশন</label>
+            <input type="text" name="session" id="editStudentSession" class="admin-input"/>
+          </div>
+        </div>
+        <div class="form-group-admin">
+          <label class="admin-label">স্ট্যাটাস</label>
+          <select name="status" id="editStudentStatus" class="admin-select">
+            <option value="active">অধ্যয়নরত (Active)</option>
+            <option value="completed">প্রাক্তন (Completed)</option>
+          </select>
+        </div>
+        <div class="form-group-admin">
+          <label class="admin-label">প্রোফাইল ছবি (পরিবর্তন করতে চাইলে)</label>
+          <input type="file" name="image" class="admin-input" accept="image/*" data-preview="editStudentImgPreview"/>
+          <img id="editStudentImgPreview" class="img-preview"/>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn-cancel" data-modal-close="editStudentModal">বাতিল</button>
+        <button type="submit" class="btn-save">আপডেট করুন</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+document.getElementById('addStudentForm').addEventListener('submit', async e => {
+  e.preventDefault();
+  const fd = new FormData(e.target);
+  const res = await fetch('/admin/students', { method: 'POST', body: fd });
+  const data = await res.json();
+  showToast(data.message || 'শিক্ষার্থী যোগ সফল হয়েছে', data.success ? 'success' : 'error');
+  if(data.success) setTimeout(() => location.reload(), 1200);
+});
+
+function editStudent(s) {
+  document.getElementById('editStudentId').value = s.id;
+  document.getElementById('editStudentName').value = s.name || '';
+  document.getElementById('editStudentRegNo').value = s.regNo || '';
+  document.getElementById('editStudentPhone').value = s.phone || '';
+  document.getElementById('editStudentCourse').value = s.course || '';
+  document.getElementById('editStudentSession').value = s.session || '';
+  document.getElementById('editStudentStatus').value = s.status || 'active';
+  
+  const preview = document.getElementById('editStudentImgPreview');
+  if(s.imageUrl) {
+    preview.src = s.imageUrl;
+    preview.classList.add('show');
+  } else {
+    preview.classList.remove('show');
+  }
+  openModal('editStudentModal');
+}
+
+document.getElementById('editStudentForm').addEventListener('submit', async e => {
+  e.preventDefault();
+  const id = document.getElementById('editStudentId').value;
+  const fd = new FormData(e.target);
+  const res = await fetch(`/admin/students/${id}`, { method: 'PUT', body: fd });
+  const data = await res.json();
+  showToast(data.message || 'আপডেট সফল হয়েছে', data.success ? 'success' : 'error');
+  if(data.success) setTimeout(() => location.reload(), 1200);
+});
+
+function deleteStudent(id) {
+  confirmDelete(`/admin/students/${id}`, () => {
+    document.getElementById(`row-${id}`)?.remove();
+  });
+}
+</script>
+
+<%- include('../partials/admin-foot') %>

@@ -1,0 +1,91 @@
+<!DOCTYPE html><html lang="bn"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title><%= title %> — Admin | <%= site.name %></title>
+<link rel="icon" href="<%= site.faviconUrl||'/images/favicon.png' %>"/>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"/>
+<link rel="stylesheet" href="/css/admin.css"/>
+</head><body>
+<div id="toastContainer" class="toast-container"></div>
+<%- include('../../views/partials/admin-sidebar', {admin, site, currentPath}) %>
+
+<div class="admin-main">
+  <header class="admin-topbar">
+    <div class="d-flex align-items-center gap-3">
+      <button id="sidebarToggle" style="background:none;border:none;font-size:1.3rem;color:var(--admin-navy);cursor:pointer"><i class="bi bi-list"></i></button>
+      <span class="topbar-title"><%= title %></span>
+    </div>
+    <div class="topbar-actions"><span class="topbar-time" id="adminClock"></span></div>
+  </header>
+  <div class="admin-content">
+
+<!-- STAT CARDS -->
+<div class="stat-grid">
+  <div class="stat-card blue"><div class="stat-icon"><i class="bi bi-mortarboard-fill"></i></div><div><div class="stat-number"><%= stats.totalStudents||0 %></div><div class="stat-label">মোট শিক্ষার্থী</div></div></div>
+  <div class="stat-card gold"><div class="stat-icon"><i class="bi bi-pen-fill"></i></div><div><div class="stat-number"><%= stats.pendingAdmissions||0 %></div><div class="stat-label">নতুন আবেদন</div></div></div>
+  <div class="stat-card green"><div class="stat-icon"><i class="bi bi-clipboard2-check-fill"></i></div><div><div class="stat-number"><%= stats.totalResults||0 %></div><div class="stat-label">রেজাল্ট এন্ট্রি</div></div></div>
+  <div class="stat-card red"><div class="stat-icon"><i class="bi bi-chat-dots-fill"></i></div><div><div class="stat-number"><%= stats.unreadMessages||0 %></div><div class="stat-label">অপঠিত বার্তা</div></div></div>
+  <div class="stat-card purple"><div class="stat-icon"><i class="bi bi-book-fill"></i></div><div><div class="stat-number"><%= stats.totalCourses||0 %></div><div class="stat-label">মোট কোর্স</div></div></div>
+</div>
+
+<!-- QUICK LINKS -->
+<div class="row g-3 mb-4">
+  <div class="col-6 col-md-3"><a href="/admin/results" style="text-decoration:none"><div style="background:linear-gradient(135deg,#0A1628,#1E90FF);border-radius:12px;padding:20px;text-align:center;color:#fff;transition:.25s ease" onmouseover="this.style.transform='translateY(-3px)'" onmouseout="this.style.transform='none'"><i class="bi bi-clipboard2-check-fill fs-2 d-block mb-2"></i><div style="font-size:.85rem;font-weight:600">রেজাল্ট যোগ করুন</div></div></a></div>
+  <div class="col-6 col-md-3"><a href="/admin/admissions" style="text-decoration:none"><div style="background:linear-gradient(135deg,#065f46,#10B981);border-radius:12px;padding:20px;text-align:center;color:#fff;transition:.25s ease" onmouseover="this.style.transform='translateY(-3px)'" onmouseout="this.style.transform='none'"><i class="bi bi-pen-fill fs-2 d-block mb-2"></i><div style="font-size:.85rem;font-weight:600">ভর্তি আবেদন</div></div></a></div>
+  <div class="col-6 col-md-3"><a href="/admin/notices" style="text-decoration:none"><div style="background:linear-gradient(135deg,#92400e,#F59E0B);border-radius:12px;padding:20px;text-align:center;color:#fff;transition:.25s ease" onmouseover="this.style.transform='translateY(-3px)'" onmouseout="this.style.transform='none'"><i class="bi bi-bell-fill fs-2 d-block mb-2"></i><div style="font-size:.85rem;font-weight:600">নোটিশ দিন</div></div></a></div>
+  <div class="col-6 col-md-3"><a href="/admin/messages" style="text-decoration:none"><div style="background:linear-gradient(135deg,#4c1d95,#8B5CF6);border-radius:12px;padding:20px;text-align:center;color:#fff;transition:.25s ease" onmouseover="this.style.transform='translateY(-3px)'" onmouseout="this.style.transform='none'"><i class="bi bi-chat-dots-fill fs-2 d-block mb-2"></i><div style="font-size:.85rem;font-weight:600">বার্তা দেখুন</div></div></a></div>
+</div>
+
+<div class="row g-4">
+  <!-- Recent Admissions -->
+  <div class="col-lg-6">
+    <div class="table-card">
+      <div class="table-card-header">
+        <span class="table-card-title">সাম্প্রতিক আবেদন</span>
+        <a href="/admin/admissions" class="topbar-btn" style="font-size:.78rem;padding:6px 14px">সব দেখুন</a>
+      </div>
+      <table class="data-table">
+        <thead><tr><th>নাম</th><th>কোর্স</th><th>স্ট্যাটাস</th><th>তারিখ</th></tr></thead>
+        <tbody>
+          <% if(recentAdmissions&&recentAdmissions.length>0){ recentAdmissions.forEach(a=>{ %>
+          <tr>
+            <td style="font-weight:600"><%= a.name %></td>
+            <td><%= (a.course||'').substring(0,20) %></td>
+            <td><span class="badge badge-<%= a.status==='approved'?'success':a.status==='rejected'?'danger':'pending' %>"><%= a.status==='approved'?'অনুমোদিত':a.status==='rejected'?'প্রত্যাখ্যাত':'অপেক্ষমাণ' %></span></td>
+            <td style="font-size:.78rem;color:var(--admin-gray-500)"><%= (a.submittedAt||'').substring(0,10) %></td>
+          </tr>
+          <% }); } else { %>
+          <tr><td colspan="4" style="text-align:center;padding:24px;color:var(--admin-gray-500)">কোনো আবেদন নেই</td></tr>
+          <% } %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <!-- Recent Messages -->
+  <div class="col-lg-6">
+    <div class="table-card">
+      <div class="table-card-header">
+        <span class="table-card-title">সাম্প্রতিক বার্তা</span>
+        <a href="/admin/messages" class="topbar-btn" style="font-size:.78rem;padding:6px 14px">সব দেখুন</a>
+      </div>
+      <table class="data-table">
+        <thead><tr><th>নাম</th><th>বার্তা</th><th>তারিখ</th></tr></thead>
+        <tbody>
+          <% if(recentMessages&&recentMessages.length>0){ recentMessages.forEach(m=>{ %>
+          <tr>
+            <td style="font-weight:600"><%= m.name %><% if(!m.read){ %> <span style="width:8px;height:8px;background:var(--admin-blue);border-radius:50%;display:inline-block;margin-left:6px"></span><% } %></td>
+            <td style="color:var(--admin-gray-500);font-size:.85rem"><%= (m.message||'').substring(0,40) %>...</td>
+            <td style="font-size:.78rem;color:var(--admin-gray-500)"><%= (m.date||'').substring(0,10) %></td>
+          </tr>
+          <% }); } else { %>
+          <tr><td colspan="3" style="text-align:center;padding:24px;color:var(--admin-gray-500)">কোনো বার্তা নেই</td></tr>
+          <% } %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+  </div>
+</div>
+<%- include('./partials/admin-sidebar-script') %>
+<script src="/js/admin.js"></script>
+</body></html>

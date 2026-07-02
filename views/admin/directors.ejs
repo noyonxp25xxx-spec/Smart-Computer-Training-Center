@@ -1,0 +1,156 @@
+<%- include('../partials/admin-head') %>
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <h1 class="page-title mb-0">পরিচালক ম্যানেজমেন্ট</h1>
+  <button class="btn-save" onclick="resetForm(); openModal('addDirectorModal')">
+    <i class="bi bi-plus-circle me-2"></i>নতুন যোগ করুন
+  </button>
+</div>
+
+<div class="row g-4">
+  <% if(directors.length === 0){ %>
+    <div class="col-12 text-center text-muted" style="padding:40px;background:#fff;border-radius:12px;border:1px solid #e2e8f0">
+      কোনো পরিচালকের তথ্য পাওয়া যায়নি।
+    </div>
+  <% } else { directors.forEach(d => { %>
+  <div class="col-md-6 col-lg-4">
+    <div class="card" style="border:none;border-radius:12px;box-shadow:0 4px 15px rgba(0,0,0,.05);overflow:hidden">
+      <div style="height:200px;background:#f8fafc;position:relative">
+        <img src="<%= d.imageUrl || '/images/teacher-default.jpg' %>" style="width:100%;height:100%;object-fit:cover" />
+      </div>
+      <div class="card-body p-4">
+        <h5 style="font-weight:700;color:#0f172a;margin-bottom:4px"><%= d.name %></h5>
+        <p style="color:#3b82f6;font-size:.9rem;font-weight:600;margin-bottom:8px"><%= d.designation %></p>
+        <p style="font-size:.85rem;color:#64748b;margin-bottom:4px"><i class="bi bi-building me-1"></i><%= d.institution %></p>
+        <p style="font-size:.85rem;color:#64748b;margin-bottom:16px"><i class="bi bi-geo-alt me-1"></i><%= d.address %></p>
+        <div class="d-flex gap-2">
+          <button class="btn btn-sm btn-outline-primary flex-grow-1" onclick='editDirector(<%- JSON.stringify(d) %>)'>
+            <i class="bi bi-pencil me-1"></i>এডিট
+          </button>
+          <button class="btn btn-sm btn-outline-danger flex-grow-1" onclick="deleteDirector('<%= d.id %>')">
+            <i class="bi bi-trash me-1"></i>ডিলিট
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <% }) } %>
+</div>
+
+<!-- Add/Edit Modal -->
+<div class="modal-overlay" id="addDirectorModal">
+  <div class="modal-box">
+    <div class="modal-header">
+      <span class="modal-title" id="modalTitle">নতুন পরিচালক যোগ করুন</span>
+      <button class="modal-close" data-modal-close="addDirectorModal">&times;</button>
+    </div>
+    <form id="directorForm" enctype="multipart/form-data">
+      <div class="modal-body">
+        <input type="hidden" id="directorId" name="id">
+          
+          <div class="form-group-admin">
+            <label class="admin-label">নাম</label>
+            <input name="name" id="dirName" class="admin-input" required>
+          </div>
+          
+          <div class="row">
+            <div class="col-md-6 form-group-admin">
+              <label class="admin-label">পদবি</label>
+              <input name="designation" id="dirDesignation" class="admin-input" required>
+            </div>
+            <div class="col-md-6 form-group-admin">
+              <label class="admin-label">ক্রম (Order)</label>
+              <input type="number" name="order" id="dirOrder" class="admin-input" value="0">
+            </div>
+          </div>
+          
+          <div class="form-group-admin">
+            <label class="admin-label">প্রতিষ্ঠানের নাম</label>
+            <input name="institution" id="dirInstitution" class="admin-input">
+          </div>
+          
+          <div class="form-group-admin">
+            <label class="admin-label">ঠিকানা</label>
+            <input name="address" id="dirAddress" class="admin-input">
+          </div>
+          
+          <div class="form-group-admin">
+            <label class="admin-label">বাণী (ঐচ্ছিক)</label>
+            <textarea name="message" id="dirMessage" class="admin-textarea" rows="3"></textarea>
+          </div>
+
+          <div class="form-group-admin">
+            <label class="admin-label">ছবি আপলোড</label>
+            <input type="file" name="image" class="admin-input" accept="image/*" data-preview="imgPreview">
+            <img id="imgPreview" class="img-preview mt-2" style="max-height:150px">
+          </div>
+
+          <button type="submit" class="btn-save w-100 mt-3" id="saveBtn"><i class="bi bi-save me-2"></i>সেভ করুন</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+const form = document.getElementById('directorForm');
+
+function resetForm() {
+  form.reset();
+  document.getElementById('directorId').value = '';
+  document.getElementById('imgPreview').src = '';
+  document.getElementById('imgPreview').style.display = 'none';
+  document.getElementById('modalTitle').textContent = 'নতুন পরিচালক যোগ করুন';
+}
+
+document.querySelectorAll('[data-modal-close="addDirectorModal"]').forEach(btn => {
+  btn.addEventListener('click', resetForm);
+});
+
+function editDirector(d) {
+  document.getElementById('directorId').value = d.id;
+  document.getElementById('dirName').value = d.name || '';
+  document.getElementById('dirDesignation').value = d.designation || '';
+  document.getElementById('dirInstitution').value = d.institution || '';
+  document.getElementById('dirAddress').value = d.address || '';
+  document.getElementById('dirOrder').value = d.order || 0;
+  document.getElementById('dirMessage').value = d.message || '';
+  if(d.imageUrl) {
+    document.getElementById('imgPreview').src = d.imageUrl;
+    document.getElementById('imgPreview').style.display = 'block';
+  }
+  document.getElementById('modalTitle').textContent = 'পরিচালকের তথ্য এডিট করুন';
+  openModal('addDirectorModal');
+}
+
+form.addEventListener('submit', async e => {
+  e.preventDefault();
+  const btn = document.getElementById('saveBtn');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>সেভ হচ্ছে...';
+  
+  const id = document.getElementById('directorId').value;
+  const method = id ? 'PUT' : 'POST';
+  const url = id ? '/admin/directors/' + id : '/admin/directors';
+  
+  try {
+    const res = await fetch(url, { method, body: new FormData(form) });
+    const data = await res.json();
+    if(data.success) location.reload();
+    else alert(data.message);
+  } catch(err) {
+    alert('Error saving director');
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = '<i class="bi bi-save me-2"></i>সেভ করুন';
+  }
+});
+
+async function deleteDirector(id) {
+  if(!confirm('আপনি কি নিশ্চিত?')) return;
+  const res = await fetch('/admin/directors/'+id, { method: 'DELETE' });
+  const data = await res.json();
+  if(data.success) location.reload();
+}
+</script>
+
+<%- include('../partials/admin-foot') %>

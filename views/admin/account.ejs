@@ -1,0 +1,64 @@
+<%- include('../partials/admin-head') %>
+
+<div class="content-header">
+  <div>
+    <h1 class="page-title">অ্যাকাউন্ট সেটিংস</h1>
+    <p class="text-muted mb-0">আপনার ইমেইল এবং পাসওয়ার্ড পরিবর্তন করুন</p>
+  </div>
+</div>
+
+<div class="row">
+  <div class="col-md-6 col-lg-5">
+    <div class="card" style="border: none; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05);">
+      <div class="card-body p-4">
+        <form id="accountForm">
+          <div class="mb-3">
+            <label class="form-label" style="font-weight: 600; color: #1e293b;">নতুন ইমেইল</label>
+            <input type="email" class="form-control" id="accEmail" value="<%= admin.email || '' %>" required style="border-radius: 8px; padding: 12px;" />
+          </div>
+          <div class="mb-4">
+            <label class="form-label" style="font-weight: 600; color: #1e293b;">নতুন পাসওয়ার্ড</label>
+            <input type="password" class="form-control" id="accPassword" required style="border-radius: 8px; padding: 12px;" placeholder="নতুন পাসওয়ার্ড দিন" />
+          </div>
+          <button type="submit" class="btn btn-primary w-100" style="padding: 12px; border-radius: 8px; font-weight: 600;" id="saveBtn">
+            <i class="bi bi-save me-2"></i>সেভ করুন
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+document.getElementById('accountForm').addEventListener('submit', async e => {
+  e.preventDefault();
+  const btn = document.getElementById('saveBtn');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>সেভ হচ্ছে...';
+
+  try {
+    const res = await fetch('/admin/account', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        email: document.getElementById('accEmail').value,
+        password: document.getElementById('accPassword').value
+      })
+    });
+    const data = await res.json();
+    if (data.success) {
+      alert(data.message);
+      window.location.reload();
+    } else {
+      alert('Error: ' + data.message);
+    }
+  } catch (err) {
+    alert('Failed to save account settings.');
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = '<i class="bi bi-save me-2"></i>সেভ করুন';
+  }
+});
+</script>
+
+<%- include('../partials/admin-foot') %>

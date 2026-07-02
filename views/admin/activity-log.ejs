@@ -1,0 +1,44 @@
+<%- include('../partials/admin-head') %>
+
+<div style="margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center;">
+  <div class="search-bar" style="max-width: 300px;">
+    <i class="bi bi-search"></i>
+    <input type="text" data-search-table="logsTable" placeholder="লগ খুঁজুন...">
+  </div>
+</div>
+
+<div class="table-card">
+  <table class="data-table" id="logsTable">
+    <thead>
+      <tr>
+        <th>অ্যাডমিন ইমেইল</th>
+        <th>সম্পাদিত কাজ (Action)</th>
+        <th>টার্গেট (Target ID/RegNo)</th>
+        <th>তারিখ ও সময়</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% if(logs && logs.length > 0) { logs.forEach(log => { %>
+      <tr>
+        <td style="font-weight:600;"><%= log.adminEmail %></td>
+        <td>
+          <span class="badge badge-<%= 
+            log.action.includes('add') ? 'success' : 
+            log.action.includes('delete') ? 'danger' : 'blue' 
+          %>">
+            <%= log.action %>
+          </span>
+        </td>
+        <td><code><%= log.target %></code></td>
+        <td style="font-size:.82rem;color:var(--admin-gray-500);">
+          <%= new Date(log.timestamp).toLocaleString('bn-BD') %>
+        </td>
+      </tr>
+      <% }); } else { %>
+      <tr><td colspan="4" style="text-align:center;padding:24px;color:var(--admin-gray-500)">কোনো কার্যক্রম লগ পাওয়া যায়নি</td></tr>
+      <% } %>
+    </tbody>
+  </table>
+</div>
+
+<%- include('../partials/admin-foot') %>

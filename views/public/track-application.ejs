@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title><%= title %> | <%= site.name %></title>
+  <link rel="icon" href="<%= site.faviconUrl || '/images/favicon.png' %>" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
+  <link rel="stylesheet" href="/css/style.css" />
+</head>
+<body>
+<%- include('../partials/navbar') %>
+
+<main class="page-content" style="min-height: 70vh; background: var(--gray-50); padding: 60px 0;">
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-lg-6">
+        <div class="form-card text-center" style="box-shadow: 0 10px 30px rgba(0,0,0,0.05);">
+          <div style="font-size: 3rem; margin-bottom: 15px;">🔍</div>
+          <h2 style="font-weight: 800; color: var(--navy); margin-bottom: 10px;">আবেদন ট্র্যাক করুন</h2>
+          <p style="color: var(--gray-500); margin-bottom: 30px;">আপনার ভর্তি আবেদনের বর্তমান অবস্থা জানতে আবেদন আইডি (Application ID) প্রদান করুন।</p>
+
+          <form id="trackForm">
+            <div class="form-group" style="text-align: left;">
+              <label class="form-label">আবেদন আইডি *</label>
+              <input type="text" id="appIdInput" class="form-input" placeholder="উদাহরণ: SCT-XXXXXXX" required />
+            </div>
+            <button type="submit" class="btn-submit w-100 justify-content-center" id="trackBtn">
+              <i class="bi bi-search"></i> অনুসন্ধান করুন
+            </button>
+          </form>
+
+          <div id="trackSpinner" class="spinner" style="display:none; margin: 30px auto;"></div>
+
+          <div id="trackError" class="alert-custom alert-error-custom d-none mt-4" style="text-align: left;"></div>
+
+          <!-- Result Box -->
+          <div id="trackResultBox" class="d-none mt-4" style="background: #fff; border: 2px solid var(--gray-100); border-radius: var(--radius-md); padding: 24px; text-align: left;">
+            <h5 style="font-weight: 700; color: var(--navy); margin-bottom: 20px; border-bottom: 1px solid var(--gray-100); padding-bottom: 10px;">আবেদনের তথ্য</h5>
+            
+            <div style="margin-bottom: 12px;">
+              <span style="color: var(--gray-500); font-size: .85rem; display: block; font-weight: 600;">আবেদনকারীর নাম</span>
+              <strong style="color: var(--navy); font-size: 1.05rem;" id="trName"></strong>
+            </div>
+
+            <div style="margin-bottom: 12px;">
+              <span style="color: var(--gray-500); font-size: .85rem; display: block; font-weight: 600;">কোর্স / ট্রেড</span>
+              <strong style="color: var(--navy); font-size: 1rem;" id="trCourse"></strong>
+            </div>
+
+            <div style="margin-bottom: 12px;">
+              <span style="color: var(--gray-500); font-size: .85rem; display: block; font-weight: 600;">বর্তমান স্ট্যাটাস</span>
+              <div id="trStatus" style="margin-top: 4px;"></div>
+            </div>
+
+            <div style="margin-bottom: 12px;">
+              <span style="color: var(--gray-500); font-size: .85rem; display: block; font-weight: 600;">পেমেন্ট স্ট্যাটাস</span>
+              <div id="trPaymentStatus" style="margin-top: 4px;"></div>
+            </div>
+
+            <div id="trApprovedData" style="display: none; background: rgba(16,185,129,.05); border: 1px solid rgba(16,185,129,.2); border-radius: 8px; padding: 16px; margin-top: 20px;">
+              <div style="font-size: .9rem; color: #065f46; font-weight: 700; margin-bottom: 12px;"><i class="bi bi-check-circle-fill me-1"></i> অভিনন্দন! আপনার ভর্তি অনুমোদিত হয়েছে।</div>
+              
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                <div>
+                  <span style="color: var(--gray-500); font-size: .8rem; display: block;">সেশন</span>
+                  <strong style="color: var(--navy);" id="trSession"></strong>
+                </div>
+                <div>
+                  <span style="color: var(--gray-500); font-size: .8rem; display: block;">Class Roll</span>
+                  <strong style="color: var(--navy);" id="trRoll"></strong>
+                </div>
+              </div>
+              <div id="trRegNoBox" style="margin-top: 12px; display: none;">
+                <span style="color: var(--gray-500); font-size: .8rem; display: block;">রেজিস্ট্রেশন নম্বর (Registration No)</span>
+                <strong style="color: var(--navy); font-size: 1rem;" id="trRegNo"></strong>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  const form = document.getElementById('trackForm');
+  const btn = document.getElementById('trackBtn');
+  const spinner = document.getElementById('trackSpinner');
+  const errorBox = document.getElementById('trackError');
+  const resultBox = document.getElementById('trackResultBox');
+  const approvedData = document.getElementById('trApprovedData');
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const appId = document.getElementById('appIdInput').value.trim();
+    if (!appId) return;
+
+    errorBox.classList.add('d-none');
+    resultBox.classList.add('d-none');
+    spinner.style.display = 'block';
+    btn.disabled = true;
+
+    try {
+      const res = await fetch('/api/track/' + encodeURIComponent(appId));
+      const data = await res.json();
+      spinner.style.display = 'none';
+      btn.disabled = false;
+
+      if (data.success) {
+        document.getElementById('trName').textContent = data.data.name;
+        document.getElementById('trCourse').textContent = data.data.course;
+
+        const statusEl = document.getElementById('trStatus');
+        if (data.data.status === 'pending') {
+          statusEl.innerHTML = '<span class="badge" style="background: rgba(245,158,11,.1); color: #d97706; padding: 6px 12px;">অপেক্ষমাণ (Pending)</span>';
+          approvedData.style.display = 'none';
+        } else if (data.data.status === 'rejected') {
+          statusEl.innerHTML = '<span class="badge" style="background: rgba(239,68,68,.1); color: #dc2626; padding: 6px 12px;">প্রত্যাখ্যাত (Rejected)</span>';
+          approvedData.style.display = 'none';
+        } else if (data.data.status === 'approved') {
+          statusEl.innerHTML = '<span class="badge" style="background: rgba(16,185,129,.1); color: #059669; padding: 6px 12px;">অনুমোদিত (Approved)</span>';
+          document.getElementById('trSession').textContent = data.data.session;
+          document.getElementById('trRoll').textContent = data.data.classRoll;
+          if (data.data.registrationNo) {
+            document.getElementById('trRegNo').textContent = data.data.registrationNo;
+            document.getElementById('trRegNoBox').style.display = 'block';
+          } else {
+            document.getElementById('trRegNoBox').style.display = 'none';
+          }
+          approvedData.style.display = 'block';
+        }
+        
+        const paymentEl = document.getElementById('trPaymentStatus');
+        if (data.data.paymentStatus === 'paid') {
+          paymentEl.innerHTML = '<span class="badge" style="background: rgba(16,185,129,.1); color: #059669; padding: 6px 12px;">পরিশোধিত (Paid)</span>';
+        } else {
+          paymentEl.innerHTML = '<span class="badge" style="background: rgba(239,68,68,.1); color: #dc2626; padding: 6px 12px;">অপরিশোধিত (Unpaid)</span>';
+        }
+        
+        resultBox.classList.remove('d-none');
+      } else {
+        errorBox.textContent = data.message;
+        errorBox.classList.remove('d-none');
+      }
+    } catch (err) {
+      spinner.style.display = 'none';
+      btn.disabled = false;
+      errorBox.textContent = 'সংযোগ ত্রুটি। পুনরায় চেষ্টা করুন।';
+      errorBox.classList.remove('d-none');
+    }
+  });
+});
+</script>
+
+<%- include('../partials/footer') %>
+</body>
+</html>

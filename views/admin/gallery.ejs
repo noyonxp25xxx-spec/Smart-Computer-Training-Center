@@ -1,0 +1,113 @@
+<%- include('../partials/admin-head') %>
+
+<div class="row g-4">
+  <!-- Upload Gallery Item -->
+  <div class="col-lg-4">
+    <div class="table-card">
+      <div class="table-card-header"><span class="table-card-title">নতুন গ্যালারি আইটেম</span></div>
+      <div style="padding: 24px">
+        <form id="addGalleryForm" enctype="multipart/form-data">
+          <div class="form-group-admin">
+            <label class="admin-label">টাইপ</label>
+            <select name="type" id="galleryType" class="admin-select" onchange="toggleGallerySource()">
+              <option value="image">ছবি (Image)</option>
+              <option value="video">ভিডিও (Video URL)</option>
+            </select>
+          </div>
+          
+          <div class="form-group-admin" id="imageInputGroup" style="margin-top:14px">
+            <label class="admin-label">ছবি আপলোড করুন *</label>
+            <input type="file" name="image" id="galleryImage" class="admin-input" accept="image/*" data-preview="galleryPreview"/>
+            <img id="galleryPreview" class="img-preview"/>
+          </div>
+
+          <div class="form-group-admin" id="videoInputGroup" style="display:none;margin-top:14px">
+            <label class="admin-label">ভিডিও URL (YouTube / Direct Video Link) *</label>
+            <input type="url" name="videoUrl" id="galleryVideoUrl" class="admin-input" placeholder="https://..."/>
+          </div>
+
+          <div class="form-group-admin" style="margin-top:14px">
+            <label class="admin-label">ক্যাপশন / শিরোনাম</label>
+            <input type="text" name="caption" class="admin-input" placeholder="ক্যাপশন লিখুন..."/>
+          </div>
+
+          <button type="submit" class="btn-save" style="width:100%;margin-top:14px"><i class="bi bi-upload me-2"></i>আপলোড করুন</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Gallery List -->
+  <div class="col-lg-8">
+    <div class="table-card">
+      <div class="table-card-header"><span class="table-card-title">বিদ্যমান গ্যালারি আইটেম সমূহ</span></div>
+      <div style="padding: 20px;">
+        <div class="row g-3">
+          <% if(items && items.length > 0) { items.forEach(item => { %>
+          <div class="col-sm-6 col-md-4" id="item-<%= item.id %>">
+            <div style="border: 1px solid var(--admin-gray-300); border-radius: 8px; overflow:hidden; background:#fff; position: relative;">
+              <div style="height: 120px; overflow: hidden; background: #000; display:flex; align-items:center; justify-content:center;">
+                <% if(item.type === 'video') { %>
+                <div style="color: #fff; text-align:center;"><i class="bi bi-play-circle-fill fs-1"></i><br/><small style="font-size:.7rem">Video Link</small></div>
+                <% } else { %>
+                <img src="<%= item.url %>" style="width:100%; height:100%; object-fit:cover;" alt="gallery">
+                <% } %>
+              </div>
+              <div style="padding: 10px; display: flex; justify-content: space-between; align-items: center;">
+                <span style="font-size: .78rem; font-weight:600; color:var(--admin-navy); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:120px;">
+                  <%= item.caption || 'No caption' %>
+                </span>
+                <button class="action-btn delete" onclick="deleteGalleryItem('<%= item.id %>')"><i class="bi bi-trash"></i></button>
+              </div>
+            </div>
+          </div>
+          <% }); } else { %>
+          <div class="col-12 text-center text-muted py-4">গ্যালারিতে কোনো মিডিয়া ফাইল নেই</div>
+          <% } %>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+function toggleGallerySource() {
+  const type = document.getElementById('galleryType').value;
+  const imageGroup = document.getElementById('imageInputGroup');
+  const videoGroup = document.getElementById('videoInputGroup');
+  const imageInput = document.getElementById('galleryImage');
+  const videoInput = document.getElementById('galleryVideoUrl');
+
+  if(type === 'image') {
+    imageGroup.style.display = 'block';
+    videoGroup.style.display = 'none';
+    imageInput.required = true;
+    videoInput.required = false;
+  } else {
+    imageGroup.style.display = 'none';
+    videoGroup.style.display = 'block';
+    imageInput.required = false;
+    videoInput.required = true;
+  }
+}
+
+document.getElementById('addGalleryForm').addEventListener('submit', async e => {
+  e.preventDefault();
+  const fd = new FormData(e.target);
+  const res = await fetch('/admin/gallery', { method: 'POST', body: fd });
+  const data = await res.json();
+  showToast(data.message || 'মিডিয়া সফলভাবে আপলোড হয়েছে', data.success ? 'success' : 'error');
+  if(data.success) setTimeout(() => location.reload(), 1200);
+});
+
+function deleteGalleryItem(id) {
+  confirmDelete(`/admin/gallery/${id}`, () => {
+    document.getElementById(`item-${id}`)?.remove();
+  });
+}
+
+// Initial Call
+toggleGallerySource();
+</script>
+
+<%- include('../partials/admin-foot') %>

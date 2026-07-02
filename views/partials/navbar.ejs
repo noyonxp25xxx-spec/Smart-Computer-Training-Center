@@ -1,0 +1,71 @@
+<!-- Navbar -->
+<nav class="navbar-main navbar navbar-expand-lg">
+  <div class="container">
+    <!-- Brand -->
+    <a class="navbar-brand-wrap" href="/">
+      <img src="<%= site.logoUrl || '/images/default-logo.png' %>" alt="<%= site.name %> Logo" />
+      <div class="brand-text">
+        <div class="name"><%= site.name %></div>
+        <div class="tagline"><%= site.tagline || '' %></div>
+      </div>
+    </a>
+
+    <!-- Mobile toggle -->
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav" style="border-color:rgba(255,255,255,.3);">
+      <span class="navbar-toggler-icon" style="filter:invert(1)"></span>
+    </button>
+
+    <!-- Links -->
+    <div class="collapse navbar-collapse" id="mainNav">
+      <ul class="navbar-nav ms-auto align-items-lg-center gap-1">
+        <li class="nav-item">
+          <a class="nav-link-item nav-link <%= currentPath === '/' ? 'active' : '' %>" href="/">হোম</a>
+        </li>
+
+        <!-- প্রতিষ্ঠান Dropdown -->
+        <li class="nav-item dropdown">
+          <a class="nav-link-item nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">প্রতিষ্ঠান</a>
+          <ul class="dropdown-menu">
+            <li><a class="dropdown-item" href="/about"><i class="bi bi-info-circle me-2"></i>পরিচিতি</a></li>
+            <li><a class="dropdown-item" href="/director"><i class="bi bi-person-badge me-2"></i>পরিচালকের বাণী</a></li>
+            <li><a class="dropdown-item" href="/committee"><i class="bi bi-people me-2"></i>পরিচালনা কমিটি</a></li>
+            <li><a class="dropdown-item" href="/teachers"><i class="bi bi-mortarboard me-2"></i>শিক্ষকমণ্ডলী</a></li>
+          </ul>
+        </li>
+
+        <!-- ভর্তি Dropdown -->
+        <li class="nav-item dropdown">
+          <a class="nav-link-item nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">ভর্তি</a>
+          <ul class="dropdown-menu">
+            <li><a class="dropdown-item" href="/admission"><i class="bi bi-pen me-2"></i>অনলাইন ভর্তি</a></li>
+            <li><a class="dropdown-item" href="/track-application"><i class="bi bi-search me-2"></i>আবেদন ট্র্যাক করুন</a></li>
+          </ul>
+        </li>
+
+        <li class="nav-item">
+          <a class="nav-link-item nav-link <%= currentPath.startsWith('/courses') ? 'active' : '' %>" href="/courses">কোর্সসমূহ</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link-item nav-link <%= currentPath === '/notices' ? 'active' : '' %>" href="/notices">নোটিশ</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link-item nav-link <%= currentPath === '/blog' ? 'active' : '' %>" href="/blog">আইটি তথ্য</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link-item nav-link <%= currentPath === '/students' ? 'active' : '' %>" href="/students">শিক্ষার্থী</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link-item nav-link <%= currentPath === '/gallery' ? 'active' : '' %>" href="/gallery">গ্যালারি</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link-item nav-link <%= currentPath === '/contact' ? 'active' : '' %>" href="/contact">যোগাযোগ</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link-item nav-link nav-result-btn <%= currentPath === '/result' ? 'active' : '' %>" href="/result">
+            <i class="bi bi-search me-1"></i> ফলাফল দেখুন
+          </a>
+        </li>
+      </ul>
+    </div>
+  </div>
+</nav>

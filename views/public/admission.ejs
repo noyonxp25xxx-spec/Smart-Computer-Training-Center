@@ -1,0 +1,381 @@
+<!DOCTYPE html><html lang="bn"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title><%= title %> | <%= site.name %></title>
+<link rel="icon" href="<%= site.faviconUrl||'/images/favicon.png' %>"/>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"/>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"/>
+<link rel="stylesheet" href="/css/style.css"/>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap');
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:'Inter',sans-serif;background:#f0f4f8;}
+
+  /* ── Page wrapper ── */
+  .adm-page{max-width:900px;margin:32px auto;padding:0 16px 60px;}
+
+  /* ── Form Card ── */
+  .adm-card{background:#fff;border-radius:12px;box-shadow:0 4px 32px rgba(0,0,0,.10);overflow:hidden;}
+
+  /* ── Header band ── */
+  .adm-header{background:linear-gradient(135deg,#1a237e 0%,#283593 60%,#1565c0 100%);padding:24px 28px;display:flex;align-items:center;gap:20px;color:#fff;}
+  .adm-header-logo{width:76px;height:76px;object-fit:contain;border-radius:50%;border:3px solid rgba(255,255,255,.3);background:#fff;padding:4px;}
+  .adm-header-logo-placeholder{width:76px;height:76px;border-radius:50%;border:3px solid rgba(255,255,255,.3);background:rgba(255,255,255,.15);display:flex;align-items:center;justify-content:center;font-size:1.8rem;}
+  .adm-header-text{flex:1;}
+  .adm-header-text .board{font-size:.78rem;letter-spacing:.05em;opacity:.75;text-transform:uppercase;}
+  .adm-header-text .title{font-size:1.1rem;font-weight:800;line-height:1.3;}
+  .adm-header-text .subtitle{font-size:.82rem;opacity:.8;margin-top:3px;}
+  .adm-header-text .inst{font-size:.92rem;font-weight:700;color:#ffd54f;margin-top:4px;}
+  .adm-header-text .note{font-size:.76rem;opacity:.65;margin-top:2px;}
+
+  /* ── Photo/Sig boxes ── */
+  .adm-photo-col{display:flex;flex-direction:column;gap:10px;align-items:center;}
+  .adm-upload-box{width:110px;cursor:pointer;text-align:center;}
+  .adm-upload-preview{width:110px;height:130px;border:2px dashed rgba(255,255,255,.5);border-radius:8px;background:rgba(255,255,255,.08);display:flex;flex-direction:column;align-items:center;justify-content:center;color:rgba(255,255,255,.6);font-size:.72rem;transition:.2s;overflow:hidden;position:relative;}
+  .adm-upload-preview:hover{border-color:#ffd54f;color:#ffd54f;}
+  .adm-upload-preview img{width:100%;height:100%;object-fit:cover;position:absolute;top:0;left:0;}
+  .adm-upload-preview i{font-size:1.5rem;margin-bottom:4px;}
+  .adm-upload-label{font-size:.7rem;color:rgba(255,255,255,.6);margin-top:4px;text-align:center;}
+  .adm-sig-preview{width:110px;height:52px;border:2px dashed rgba(255,255,255,.5);border-radius:6px;background:rgba(255,255,255,.08);display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,.5);font-size:.65rem;cursor:pointer;overflow:hidden;position:relative;}
+  .adm-sig-preview img{width:100%;height:100%;object-fit:contain;position:absolute;top:0;left:0;}
+  input[type=file]{display:none;}
+
+  /* ── Form body ── */
+  .adm-body{padding:28px;}
+  .adm-section-title{font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:#1a237e;background:#e8eaf6;padding:6px 12px;border-radius:4px;margin:20px 0 14px;}
+
+  /* ── Field grid ── */
+  .adm-grid{display:grid;gap:14px;}
+  .adm-grid-2{grid-template-columns:1fr 1fr;}
+  .adm-grid-3{grid-template-columns:1fr 1fr 1fr;}
+  .adm-grid-4{grid-template-columns:1fr 1fr 1fr 1fr;}
+  @media(max-width:640px){.adm-grid-2,.adm-grid-3,.adm-grid-4{grid-template-columns:1fr;}}
+
+  /* ── Input styles ── */
+  .adm-field label{display:block;font-size:.74rem;font-weight:600;color:#455a64;margin-bottom:5px;}
+  .adm-field label span{color:#e53935;}
+  .adm-field input[type=text],.adm-field input[type=tel],.adm-field input[type=email],.adm-field input[type=date],.adm-field select,.adm-field textarea{
+    width:100%;padding:9px 12px;border:1.5px solid #cfd8dc;border-radius:7px;font-size:.85rem;font-family:inherit;color:#263238;background:#fafafa;transition:.2s;outline:none;}
+  .adm-field input:focus,.adm-field select:focus,.adm-field textarea:focus{border-color:#1565c0;background:#fff;box-shadow:0 0 0 3px rgba(21,101,192,.08);}
+  .adm-field textarea{resize:vertical;min-height:64px;}
+
+  /* ── Radio/Checkbox groups ── */
+  .adm-radio-group,.adm-check-group{display:flex;flex-wrap:wrap;gap:10px 18px;align-items:center;padding:9px 12px;border:1.5px solid #cfd8dc;border-radius:7px;background:#fafafa;min-height:42px;}
+  .adm-radio-group label,.adm-check-group label{display:flex;align-items:center;gap:5px;font-size:.83rem;font-weight:500;color:#37474f;cursor:pointer;white-space:nowrap;}
+  .adm-radio-group input,.adm-check-group input{accent-color:#1565c0;width:15px;height:15px;}
+
+  /* ── Session range ── */
+  .session-range{display:flex;align-items:center;gap:8px;}
+  .session-range span{font-size:.8rem;color:#78909c;white-space:nowrap;}
+  .session-range input{flex:1;}
+
+  /* ── Submit button ── */
+  .adm-submit-row{margin-top:28px;display:flex;justify-content:center;}
+  .adm-submit-btn{background:linear-gradient(135deg,#1565c0,#283593);color:#fff;border:none;padding:14px 48px;border-radius:30px;font-size:1rem;font-weight:700;cursor:pointer;letter-spacing:.03em;transition:.25s;display:flex;align-items:center;gap:10px;box-shadow:0 6px 20px rgba(21,101,192,.35);}
+  .adm-submit-btn:hover{transform:translateY(-2px);box-shadow:0 10px 28px rgba(21,101,192,.45);}
+  .adm-submit-btn:disabled{opacity:.6;cursor:not-allowed;transform:none;}
+
+  /* ── Success card ── */
+  .success-card{display:none;background:linear-gradient(135deg,#1a237e,#1565c0);color:#fff;border-radius:12px;padding:40px 32px;text-align:center;margin:0 28px 28px;}
+  .success-card.show{display:block;}
+  .success-icon{font-size:3.5rem;margin-bottom:16px;}
+  .success-id{background:rgba(255,255,255,.15);border:2px solid rgba(255,255,255,.4);border-radius:12px;padding:16px 28px;display:inline-block;margin:16px 0;}
+  .success-id-label{font-size:.8rem;opacity:.7;margin-bottom:6px;}
+  .success-id-value{font-size:2rem;font-weight:800;letter-spacing:.1em;color:#ffd54f;}
+  .success-msg{font-size:.9rem;opacity:.8;margin-top:12px;}
+  .success-print-btn{margin-top:20px;background:rgba(255,255,255,.2);border:1.5px solid rgba(255,255,255,.4);color:#fff;padding:10px 28px;border-radius:24px;font-size:.88rem;font-weight:600;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;gap:8px;}
+  .success-print-btn:hover{background:rgba(255,255,255,.3);}
+
+  /* ── Error alert ── */
+  .adm-error{background:#fce4ec;border:1px solid #e91e63;color:#880e4f;padding:12px 16px;border-radius:8px;font-size:.85rem;margin-bottom:16px;display:none;}
+  .adm-error.show{display:block;}
+
+  /* ── Required note ── */
+  .required-note{font-size:.75rem;color:#78909c;margin-bottom:18px;}
+</style>
+</head><body>
+
+<% if(tickerNotices&&tickerNotices.length>0){%><div class="notice-ticker"><div class="d-flex align-items-center"><span class="ticker-label"><i class="bi bi-bell-fill me-1"></i>নোটিশ</span><div class="ticker-wrap"><div class="ticker-track"><%tickerNotices.forEach(n=>{%><span><%=n.title%></span><%});tickerNotices.forEach(n=>{%><span><%=n.title%></span><%});%></div></div></div></div><%}%>
+<%- include('../partials/navbar') %>
+
+<main>
+<section class="breadcrumb-section"><div class="container"><h1 class="breadcrumb-title">অনলাইন ভর্তি আবেদন</h1><ul class="breadcrumb-nav"><li><a href="/">হোম</a></li><li>ভর্তি আবেদন</li></ul></div></section>
+
+<div class="adm-page">
+  <div class="adm-card">
+
+    <!-- ═══ HEADER ═══ -->
+    <div class="adm-header">
+      <div>
+        <% if(site.logoUrl && site.logoUrl !== '/images/default-logo.png'){ %>
+          <img src="<%= site.logoUrl %>" alt="Logo" class="adm-header-logo"/>
+        <% } else { %>
+          <div class="adm-header-logo-placeholder"><i class="bi bi-mortarboard-fill"></i></div>
+        <% } %>
+      </div>
+      <div class="adm-header-text">
+        <div class="board">Bangladesh Technical Education Board</div>
+        <div class="title">Electronic Registration Information Form</div>
+        <div class="inst"><%= site.name || 'Smart Computer & Technical Training Center' %></div>
+        <div class="note">Must be filled in English &amp; All Capital Letters</div>
+      </div>
+      <!-- Photo & Signature upload boxes -->
+      <div class="adm-photo-col">
+        <div class="adm-upload-box" onclick="document.getElementById('photoInput').click()">
+          <div class="adm-upload-preview" id="photoPreview">
+            <i class="bi bi-person-bounding-box"></i>
+            <span>Photograph</span>
+          </div>
+          <div class="adm-upload-label">ছবি আপলোড করুন</div>
+        </div>
+        <div class="adm-upload-box" onclick="document.getElementById('signatureInput').click()">
+          <div class="adm-sig-preview" id="sigPreview">
+            <span style="font-size:.65rem;text-align:center;padding:4px;">Student's<br>Signature</span>
+          </div>
+          <div class="adm-upload-label">স্বাক্ষর আপলোড করুন</div>
+        </div>
+        <input type="file" id="photoInput" accept="image/*" onchange="previewFile(this,'photoPreview')"/>
+        <input type="file" id="signatureInput" accept="image/*" onchange="previewFile(this,'sigPreview')"/>
+      </div>
+    </div>
+
+    <!-- ═══ SUCCESS CARD (hidden initially) ═══ -->
+    <div class="success-card" id="successCard">
+      <div class="success-icon">🎉</div>
+      <h2 style="font-weight:800;margin-bottom:8px">আবেদন সফলভাবে জমা হয়েছে!</h2>
+      <div class="success-id">
+        <div class="success-id-label">আপনার আবেদন নম্বর</div>
+        <div class="success-id-value" id="successAppId">—</div>
+      </div>
+      <p class="success-msg">এই নম্বরটি সংরক্ষণ করুন। ভবিষ্যতে এই নম্বর দিয়ে আবেদনের অবস্থা জানতে পারবেন।<br>আমরা শীঘ্রই আপনার সাথে যোগাযোগ করব।</p>
+      <button class="success-print-btn" onclick="window.print()"><i class="bi bi-printer"></i> প্রিন্ট করুন</button>
+    </div>
+
+    <!-- ═══ FORM BODY ═══ -->
+    <div class="adm-body" id="formBody">
+      <p class="required-note"><span style="color:#e53935">*</span> চিহ্নিত ঘরগুলো অবশ্যই পূরণ করতে হবে।</p>
+      <div class="adm-error" id="formError"></div>
+
+      <form id="admissionForm" enctype="multipart/form-data">
+
+
+        <!-- ── SECTION 2: Personal Info ── -->
+        <div class="adm-section-title">ব্যক্তিগত তথ্য</div>
+        <div class="adm-grid adm-grid-2">
+          <div class="adm-field">
+            <label>Student's Name <span>*</span></label>
+            <input type="text" name="name" placeholder="পুরো নাম (ইংরেজিতে)" required/>
+          </div>
+          <div class="adm-field">
+            <label>Father's Name <span>*</span></label>
+            <input type="text" name="fatherName" placeholder="পিতার নাম" required/>
+          </div>
+          <div class="adm-field">
+            <label>Mother's Name <span>*</span></label>
+            <input type="text" name="motherName" placeholder="মাতার নাম" required/>
+          </div>
+          <div class="adm-field">
+            <label>Date of Birth <span>*</span></label>
+            <input type="date" name="dob" required/>
+          </div>
+        </div>
+
+        <!-- ── Gender & Religion ── -->
+        <div class="adm-grid adm-grid-2" style="margin-top:14px;">
+          <div class="adm-field">
+            <label>Gender <span>*</span></label>
+            <div class="adm-radio-group">
+              <label><input type="radio" name="gender" value="Male" required/> Male</label>
+              <label><input type="radio" name="gender" value="Female"/> Female</label>
+              <label><input type="radio" name="gender" value="Other"/> Other</label>
+            </div>
+          </div>
+          <div class="adm-field">
+            <label>Religion</label>
+            <div class="adm-radio-group">
+              <label><input type="radio" name="religion" value="Islam"/> Islam</label>
+              <label><input type="radio" name="religion" value="Hindu"/> Hindu</label>
+              <label><input type="radio" name="religion" value="Other"/> Other</label>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── Nationality / Medium / Blood Group ── -->
+        <div class="adm-grid adm-grid-3" style="margin-top:14px;">
+          <div class="adm-field">
+            <label>Nationality <span>*</span></label>
+            <input type="text" name="nationality" placeholder="Bangladeshi" value="Bangladeshi" required/>
+          </div>
+          <div class="adm-field">
+            <label>Medium <span>*</span></label>
+            <input type="text" name="medium" placeholder="Bangla / English" required/>
+          </div>
+          <div class="adm-field">
+            <label>Blood Group <span>*</span></label>
+            <select name="bloodGroup" required>
+              <option value="">— Select —</option>
+              <option>A+</option><option>A−</option>
+              <option>B+</option><option>B−</option>
+              <option>AB+</option><option>AB−</option>
+              <option>O+</option><option>O−</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- ── SECTION 3: Trade ── -->
+        <div class="adm-section-title">Trade / কোর্স</div>
+        <div class="adm-field">
+          <label>Trade নির্বাচন করুন <span>*</span></label>
+          <div class="adm-check-group">
+            <% if(courses && courses.length > 0){ courses.forEach(c=>{ %>
+              <label><input type="checkbox" name="trade" value="<%= c.name %>"/> <%= c.name %></label>
+            <% }); } else { %>
+              <label><input type="checkbox" name="trade" value="COA"/> COA</label>
+              <label><input type="checkbox" name="trade" value="DBP"/> DBP</label>
+              <label><input type="checkbox" name="trade" value="H&N"/> H&amp;N</label>
+              <label><input type="checkbox" name="trade" value="GD&MP"/> GD&amp;MP</label>
+              <label><input type="checkbox" name="trade" value="Auto Cad"/> Auto Cad</label>
+              <label><input type="checkbox" name="trade" value="MPS"/> MPS</label>
+              <label><input type="checkbox" name="trade" value="Sec.Sc"/> Sec.Sc</label>
+            <% } %>
+          </div>
+        </div>
+
+        <!-- ── SECTION 4: Education ── -->
+        <div class="adm-section-title">শিক্ষাগত যোগ্যতা (JSC / SSC বা সমমান)</div>
+        <div class="adm-grid adm-grid-4">
+          <div class="adm-field">
+            <label>Board <span>*</span></label>
+            <input type="text" name="jscBoard" placeholder="Board Name" required/>
+          </div>
+          <div class="adm-field">
+            <label>Roll <span>*</span></label>
+            <input type="text" name="jscRoll" placeholder="Roll No." required/>
+          </div>
+          <div class="adm-field">
+            <label>Year <span>*</span></label>
+            <input type="text" name="jscYear" placeholder="Passing Year" required/>
+          </div>
+          <div class="adm-field">
+            <label>Result / GPA <span>*</span></label>
+            <input type="text" name="jscResult" placeholder="GPA / Grade" required/>
+          </div>
+        </div>
+
+        <!-- ── SECTION 5: Contact ── -->
+        <div class="adm-section-title">যোগাযোগের তথ্য</div>
+        <div class="adm-grid adm-grid-2">
+          <div class="adm-field">
+            <label>Student's Cell Phone No. <span>*</span></label>
+            <input type="tel" name="phone" placeholder="01XXXXXXXXX" required/>
+          </div>
+          <div class="adm-field">
+            <label>Email Address <span>*</span></label>
+            <input type="email" name="email" placeholder="example@email.com" required/>
+          </div>
+          <div class="adm-field">
+            <label>NID No. / Birth Reg. No. <span>*</span></label>
+            <input type="text" name="nid" placeholder="জাতীয় পরিচয়পত্র / জন্ম নিবন্ধন" required/>
+          </div>
+          <div class="adm-field">
+            <label>Address <span>*</span></label>
+            <input type="text" name="address" placeholder="বর্তমান ঠিকানা" required/>
+          </div>
+        </div>
+
+        <!-- ── Submit ── -->
+        <div class="adm-submit-row">
+          <button type="submit" class="adm-submit-btn" id="submitBtn">
+            <i class="bi bi-send-fill"></i> আবেদন জমা দিন
+          </button>
+        </div>
+      </form>
+    </div><!-- /adm-body -->
+
+  </div><!-- /adm-card -->
+</div><!-- /adm-page -->
+
+</main>
+<%- include('../partials/footer') %>
+
+<script>
+// ── File preview ──
+function previewFile(input, previewId) {
+  const preview = document.getElementById(previewId);
+  if (input.files && input.files[0]) {
+    const reader = new FileReader();
+    reader.onload = e => {
+      // Remove existing img if any
+      const existing = preview.querySelector('img');
+      if (existing) existing.remove();
+      // Hide placeholder content
+      Array.from(preview.children).forEach(c => { if(c.tagName !== 'IMG') c.style.display = 'none'; });
+      const img = document.createElement('img');
+      img.src = e.target.result;
+      preview.appendChild(img);
+    };
+    reader.readAsDataURL(input.files[0]);
+  }
+}
+
+// ── Form submit ──
+document.getElementById('admissionForm').addEventListener('submit', async function(e) {
+  e.preventDefault();
+  const btn = document.getElementById('submitBtn');
+  const errEl = document.getElementById('formError');
+  btn.disabled = true;
+  btn.innerHTML = '<i class="bi bi-hourglass-split"></i> জমা হচ্ছে...';
+  errEl.classList.remove('show');
+
+  // Validate at least one trade selected
+  const tradeChecks = document.querySelectorAll('input[name="trade"]:checked');
+  if (tradeChecks.length === 0) {
+    errEl.textContent = 'অনুগ্রহ করে অন্তত একটি Trade/কোর্স নির্বাচন করুন।';
+    errEl.classList.add('show');
+    btn.disabled = false;
+    btn.innerHTML = '<i class="bi bi-send-fill"></i> আবেদন জমা দিন';
+    return;
+  }
+
+  const fd = new FormData(this);
+
+  // Collect checked trades as comma-separated
+  fd.delete('trade');
+  const trades = Array.from(tradeChecks).map(c => c.value).join(', ');
+  fd.append('trade', trades);
+
+  // Attach files
+  const photoFile = document.getElementById('photoInput').files[0];
+  const sigFile = document.getElementById('signatureInput').files[0];
+  
+  if (!photoFile || !sigFile) {
+    errEl.textContent = 'অনুগ্রহ করে ছবি এবং স্বাক্ষর উভয়টি আপলোড করুন।';
+    errEl.classList.add('show');
+    btn.disabled = false;
+    btn.innerHTML = '<i class="bi bi-send-fill"></i> আবেদন জমা দিন';
+    return;
+  }
+  
+  if (photoFile) { fd.delete('photo'); fd.append('photo', photoFile); }
+  if (sigFile) { fd.delete('signature'); fd.append('signature', sigFile); }
+
+  try {
+    const res = await fetch('/api/admission', { method: 'POST', body: fd });
+    const data = await res.json();
+    if (data.success) {
+      window.location.href = '/application-copy/' + (data.applicationId || data.id);
+    } else {
+      errEl.textContent = data.message || 'আবেদন জমা দিতে সমস্যা হয়েছে।';
+      errEl.classList.add('show');
+      btn.disabled = false;
+      btn.innerHTML = '<i class="bi bi-send-fill"></i> আবেদন জমা দিন';
+    }
+  } catch(err) {
+    errEl.textContent = 'সার্ভারের সাথে সংযোগ ব্যর্থ হয়েছে। পুনরায় চেষ্টা করুন।';
+    errEl.classList.add('show');
+    btn.disabled = false;
+    btn.innerHTML = '<i class="bi bi-send-fill"></i> আবেদন জমা দিন';
+  }
+});
+</script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="/js/main.js"></script>
+</body></html>

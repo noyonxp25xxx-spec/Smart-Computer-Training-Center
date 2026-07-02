@@ -1,0 +1,168 @@
+<%- include('../partials/admin-head') %>
+
+<div style="margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center;">
+  <div class="search-bar" style="max-width: 300px;">
+    <i class="bi bi-search"></i>
+    <input type="text" data-search-table="noticesTable" placeholder="নোটিশ খুঁজুন...">
+  </div>
+  <button class="topbar-btn" onclick="openModal('addNoticeModal')"><i class="bi bi-plus-lg me-2"></i>নতুন নোটিশ যোগ করুন</button>
+</div>
+
+<div class="table-card">
+  <table class="data-table" id="noticesTable">
+    <thead>
+      <tr>
+        <th>শিরোনাম</th>
+        <th>তারিখ</th>
+        <th>অবস্থা</th>
+        <th>অ্যাকশন</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% if(notices && notices.length > 0) { notices.forEach(n => { %>
+      <tr id="row-<%= n.id %>">
+        <td style="font-weight:600;"><%= n.title %></td>
+        <td><%= n.date %></td>
+        <td>
+          <span class="badge badge-<%= n.status === 'published' ? 'success' : 'pending' %>">
+            <%= n.status === 'published' ? 'প্রকাশিত' : 'খসড়া' %>
+          </span>
+        </td>
+        <td>
+          <button class="action-btn edit" onclick="editNotice(<%= JSON.stringify(n) %>)"><i class="bi bi-pencil"></i></button>
+          <button class="action-btn delete" onclick="deleteNotice('<%= n.id %>')"><i class="bi bi-trash"></i></button>
+        </td>
+      </tr>
+      <% }); } else { %>
+      <tr><td colspan="4" style="text-align:center;padding:24px;color:var(--admin-gray-500)">কোনো নোটিশ পাওয়া যায়নি</td></tr>
+      <% } %>
+    </tbody>
+  </table>
+</div>
+
+<!-- Add Notice Modal -->
+<div class="modal-overlay" id="addNoticeModal">
+  <div class="modal-box">
+    <div class="modal-header">
+      <span class="modal-title">নতুন নোটিশ যোগ করুন</span>
+      <button class="modal-close" data-modal-close="addNoticeModal">&times;</button>
+    </div>
+    <form id="addNoticeForm">
+      <div class="modal-body">
+        <div class="form-group-admin">
+          <label class="admin-label">নোটিশ শিরোনাম *</label>
+          <input type="text" name="title" class="admin-input" required/>
+        </div>
+        <div class="row">
+          <div class="col form-group-admin">
+            <label class="admin-label">তারিখ *</label>
+            <input type="date" name="date" class="admin-input" value="<%= new Date().toISOString().split('T')[0] %>" required/>
+          </div>
+          <div class="col form-group-admin">
+            <label class="admin-label">স্ট্যাটাস</label>
+            <select name="status" class="admin-select">
+              <option value="published">প্রকাশিত</option>
+              <option value="draft">খসড়া</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group-admin">
+          <label class="admin-label">নোটিশের বিবরণ *</label>
+          <textarea name="body" class="admin-textarea" rows="6" required></textarea>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn-cancel" data-modal-close="addNoticeModal">বাতিল</button>
+        <button type="submit" class="btn-save">সংরক্ষণ করুন</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Edit Notice Modal -->
+<div class="modal-overlay" id="editNoticeModal">
+  <div class="modal-box">
+    <div class="modal-header">
+      <span class="modal-title">নোটিশ সম্পাদন করুন</span>
+      <button class="modal-close" data-modal-close="editNoticeModal">&times;</button>
+    </div>
+    <form id="editNoticeForm">
+      <input type="hidden" id="editNoticeId"/>
+      <div class="modal-body">
+        <div class="form-group-admin">
+          <label class="admin-label">নোটিশ শিরোনাম *</label>
+          <input type="text" name="title" id="editNoticeTitle" class="admin-input" required/>
+        </div>
+        <div class="row">
+          <div class="col form-group-admin">
+            <label class="admin-label">তারিখ *</label>
+            <input type="date" name="date" id="editNoticeDate" class="admin-input" required/>
+          </div>
+          <div class="col form-group-admin">
+            <label class="admin-label">স্ট্যাটাস</label>
+            <select name="status" id="editNoticeStatus" class="admin-select">
+              <option value="published">প্রকাশিত</option>
+              <option value="draft">খসড়া</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group-admin">
+          <label class="admin-label">নোটিশের বিবরণ *</label>
+          <textarea name="body" id="editNoticeBody" class="admin-textarea" rows="6" required></textarea>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn-cancel" data-modal-close="editNoticeModal">বাতিল</button>
+        <button type="submit" class="btn-save">আপডেট করুন</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+document.getElementById('addNoticeForm').addEventListener('submit', async e => {
+  e.preventDefault();
+  const formData = new FormData(e.target);
+  const payload = Object.fromEntries(formData.entries());
+  const res = await fetch('/admin/notices', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload)
+  });
+  const data = await res.json();
+  showToast(data.success ? 'নোটিশ সফলভাবে সংরক্ষিত হয়েছে' : 'ত্রুটি হয়েছে', data.success ? 'success' : 'error');
+  if(data.success) setTimeout(() => location.reload(), 1200);
+});
+
+function editNotice(n) {
+  document.getElementById('editNoticeId').value = n.id;
+  document.getElementById('editNoticeTitle').value = n.title;
+  document.getElementById('editNoticeDate').value = n.date;
+  document.getElementById('editNoticeStatus').value = n.status;
+  document.getElementById('editNoticeBody').value = n.body;
+  openModal('editNoticeModal');
+}
+
+document.getElementById('editNoticeForm').addEventListener('submit', async e => {
+  e.preventDefault();
+  const id = document.getElementById('editNoticeId').value;
+  const formData = new FormData(e.target);
+  const payload = Object.fromEntries(formData.entries());
+  const res = await fetch(`/admin/notices/${id}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload)
+  });
+  const data = await res.json();
+  showToast(data.success ? 'নোটিশ আপডেট সফল হয়েছে' : 'ত্রুটি হয়েছে', data.success ? 'success' : 'error');
+  if(data.success) setTimeout(() => location.reload(), 1200);
+});
+
+function deleteNotice(id) {
+  confirmDelete(`/admin/notices/${id}`, () => {
+    document.getElementById(`row-${id}`)?.remove();
+  });
+}
+</script>
+
+<%- include('../partials/admin-foot') %>

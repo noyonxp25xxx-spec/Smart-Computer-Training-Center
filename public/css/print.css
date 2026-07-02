@@ -1,0 +1,65 @@
+/* ============================================================
+   Smart Computer Training — Print-only Stylesheet
+   Used specifically for generating clean result sheets
+   ============================================================ */
+
+@media print {
+  body {
+    background: #fff;
+    color: #000;
+  }
+  
+  /* Hide navbar, footer, sidebar, scrollbars, and non-printable items */
+  header, footer, nav, aside, .navbar-main, .footer-main, .notice-ticker, .btn-print, .no-print, button, input, form {
+    display: none !important;
+  }
+
+  body * {
+    visibility: hidden;
+  }
+
+  /* Show only the marksheet */
+  .marksheet, .marksheet * {
+    visibility: visible;
+  }
+
+  .marksheet {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    border: none !important;
+    box-shadow: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  .marksheet-header {
+    background: #0A1628 !important;
+    color: #fff !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+    padding: 20px !important;
+  }
+
+  .student-info-grid {
+    background: #f8fafc !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+    border: 1px solid #e2e8f0;
+  }
+
+  .subject-table th {
+    background: #0A1628 !important;
+    color: #fff !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  .result-verdict {
+    background: #f8fafc !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+    border: 1px solid #e2e8f0;
+  }
+}

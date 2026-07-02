@@ -1,0 +1,320 @@
+<%- include('../partials/admin-head') %>
+
+<div style="margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center;">
+  <div class="search-bar" style="max-width: 300px;">
+    <i class="bi bi-search"></i>
+    <input type="text" data-search-table="admissionsTable" placeholder="আবেদনকারী খুঁজুন...">
+  </div>
+</div>
+
+<div class="table-card">
+  <table class="data-table" id="admissionsTable">
+    <thead>
+      <tr>
+        <th>আবেদন আইডি</th>
+        <th>নাম</th>
+        <th>মোবাইল নম্বর</th>
+        <th>নির্বাচিত ট্রেড</th>
+        <th>পেমেন্ট স্ট্যাটাস</th>
+        <th>ভর্তি স্ট্যাটাস</th>
+        <th>আবেদনের তারিখ</th>
+        <th>অ্যাকশন</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% if(admissions && admissions.length > 0) { admissions.forEach(a => { %>
+      <tr id="row-<%= a.id %>">
+        <td style="font-weight:700; color: var(--admin-blue);"><%= a.applicationId || 'N/A' %></td>
+        <td style="font-weight:600;"><%= a.name %></td>
+        <td><%= a.phone %></td>
+        <td><%= a.trade || a.course || '—' %></td>
+        <td>
+          <span class="badge badge-<%= a.paymentStatus==='paid'?'success':'danger' %>" id="paybadge-<%= a.id %>">
+            <%= a.paymentStatus==='paid'?'পরিশোধিত':'অপরিশোধিত' %>
+          </span>
+        </td>
+        <td>
+          <span class="badge badge-<%= a.status==='approved'?'success':a.status==='rejected'?'danger':'pending' %>">
+            <%= a.status==='pending'?'অপেক্ষমাণ':a.status==='approved'?'অনুমোদিত':'প্রত্যাখ্যাত' %>
+          </span>
+        </td>
+        <td style="font-size:.78rem;color:var(--admin-gray-500);"><%= (a.submittedAt||'').substring(0,10) %></td>
+        <td>
+          <button class="action-btn view" onclick="viewAdmissionDetails(<%= JSON.stringify(a) %>)" title="বিস্তারিত বিবরণ"><i class="bi bi-eye"></i></button>
+          <button class="action-btn edit" onclick="openApproveModal('<%= a.id %>')" title="অনুমোদন করুন" style="background:rgba(16,185,129,.1);color:var(--admin-success);"><i class="bi bi-check-lg"></i></button>
+          <button class="action-btn delete" onclick="updateAdmissionStatus('<%= a.id %>', 'rejected')" title="প্রত্যাখ্যান করুন"><i class="bi bi-x-lg"></i></button>
+          <button class="action-btn edit" onclick="togglePaymentStatus('<%= a.id %>', '<%= a.paymentStatus || 'unpaid' %>')" title="পেমেন্ট স্ট্যাটাস পরিবর্তন" style="background:rgba(245,158,11,.1);color:var(--admin-warning);"><i class="bi bi-currency-dollar"></i></button>
+          <button class="action-btn delete" onclick="deleteAdmissionRecord('<%= a.id %>')" title="মুছে ফেলুন"><i class="bi bi-trash"></i></button>
+        </td>
+      </tr>
+      <% }); } else { %>
+      <tr><td colspan="8" style="text-align:center;padding:24px;color:var(--admin-gray-500)">কোনো ভর্তি আবেদন পাওয়া যায়নি</td></tr>
+      <% } %>
+    </tbody>
+  </table>
+</div>
+
+<!-- Approve Admission Modal -->
+<div class="modal-overlay" id="approveModal">
+  <div class="modal-box" style="max-width: 450px;">
+    <div class="modal-header">
+      <span class="modal-title">আবেদন অনুমোদন করুন</span>
+      <button class="modal-close" data-modal-close="approveModal">&times;</button>
+    </div>
+    <form id="approveForm">
+      <div class="modal-body">
+        <input type="hidden" id="approveAdmissionId" />
+        <div class="form-group-admin" style="margin-bottom:14px;">
+          <label class="admin-label">সেশন নির্বাচন বা টাইপ করুন *</label>
+          <input type="text" id="approveSession" class="admin-input" list="sessionSuggestions" placeholder="যেমন: 2024-2025" required autocomplete="off" />
+          <datalist id="sessionSuggestions">
+            <% if(typeof activeSessions !== 'undefined' && activeSessions.length > 0) { %>
+              <% activeSessions.forEach(s => { %>
+                <option value="<%= s %>"></option>
+              <% }) %>
+            <% } else { %>
+              <option value="2024-2025"></option>
+              <option value="2025-2026"></option>
+            <% } %>
+          </datalist>
+        </div>
+        <div class="form-group-admin">
+          <label class="admin-label">Class Roll *</label>
+          <input type="text" id="approveClassRoll" class="admin-input" placeholder="Roll Number" required />
+        </div>
+        <div class="form-group-admin">
+          <label class="admin-label">রেজিস্ট্রেশন নম্বর (Registration No)</label>
+          <input type="text" id="approveRegNo" class="admin-input" placeholder="যেমন: REG-2024-001" />
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn-cancel" data-modal-close="approveModal">বাতিল</button>
+        <button type="submit" class="btn-save">অনুমোদন করুন</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- View Admission Details Modal -->
+<div class="modal-overlay" id="viewAdmissionModal">
+  <div class="modal-box" style="max-width: 650px;">
+    <div class="modal-header">
+      <span class="modal-title">ভর্তি আবেদনের পূর্ণাঙ্গ বিবরণ</span>
+      <button class="modal-close" data-modal-close="viewAdmissionModal">&times;</button>
+    </div>
+    <div class="modal-body" style="line-height: 1.8;">
+      
+      <!-- ID & Payment Row -->
+      <div class="row" style="margin-bottom: 16px;">
+        <div class="col-md-6"><strong>আবেদন আইডি:</strong> <span id="vAppId" style="font-weight:800;color:var(--admin-blue);"></span></div>
+        <div class="col-md-6"><strong>পেমেন্ট স্ট্যাটাস:</strong> <span id="vPaymentStatus" class="badge"></span></div>
+      </div>
+
+      <!-- Photo & Signature Row -->
+      <div class="row" style="margin-bottom: 20px; align-items: flex-end;">
+        <div class="col-md-6">
+          <strong style="display:block; margin-bottom: 6px;">আবেদনকারীর ছবি:</strong>
+          <div style="width:110px; height:130px; border:1.5px solid var(--admin-gray-300); border-radius:8px; overflow:hidden; background:#f8fafc; display:flex; align-items:center; justify-content:center;">
+            <img id="vPhoto" src="" alt="Student Photo" style="width:100%; height:100%; object-fit:cover; display:none;"/>
+            <span id="vPhotoPlaceholder" style="font-size:.78rem; color:var(--admin-gray-500);">কোনো ছবি নেই</span>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <strong style="display:block; margin-bottom: 6px;">আবেদনকারীর স্বাক্ষর:</strong>
+          <div style="width:110px; height:52px; border:1.5px solid var(--admin-gray-300); border-radius:6px; overflow:hidden; background:#f8fafc; display:flex; align-items:center; justify-content:center;">
+            <img id="vSignature" src="" alt="Student Signature" style="width:100%; height:100%; object-fit:contain; display:none;"/>
+            <span id="vSignaturePlaceholder" style="font-size:.72rem; color:var(--admin-gray-500);">কোনো স্বাক্ষর নেই</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Personal Info Section -->
+      <div style="font-weight:700; color:var(--admin-navy); border-bottom:1.5px solid var(--admin-gray-100); padding-bottom:4px; margin-bottom:10px;">ব্যক্তিগত তথ্য</div>
+      <div class="row">
+        <div class="col-md-6"><strong>আবেদনকারীর নাম:</strong> <span id="vName"></span></div>
+        <div class="col-md-6"><strong>মোবাইল নম্বর:</strong> <span id="vPhone"></span></div>
+      </div>
+      <div class="row">
+        <div class="col-md-6"><strong>পিতার নাম:</strong> <span id="vFather"></span></div>
+        <div class="col-md-6"><strong>মাতার নাম:</strong> <span id="vMother"></span></div>
+      </div>
+      <div class="row">
+        <div class="col-md-6"><strong>জন্ম তারিখ:</strong> <span id="vDob"></span></div>
+        <div class="col-md-6"><strong>ইমেইল:</strong> <span id="vEmail"></span></div>
+      </div>
+      <div class="row">
+        <div class="col-md-6"><strong>জেন্ডার (Gender):</strong> <span id="vGender"></span></div>
+        <div class="col-md-6"><strong>ধর্ম (Religion):</strong> <span id="vReligion"></span></div>
+      </div>
+      <div class="row">
+        <div class="col-md-6"><strong>জাতীয়তা:</strong> <span id="vNationality"></span></div>
+        <div class="col-md-6"><strong>মিডিয়াম:</strong> <span id="vMedium"></span></div>
+      </div>
+      <div class="row">
+        <div class="col-md-6"><strong>রক্তের গ্রুপ:</strong> <span id="vBloodGroup"></span></div>
+        <div class="col-md-6"><strong>NID / জন্ম নিবন্ধন:</strong> <span id="vNid"></span></div>
+      </div>
+
+      <!-- Trade & Session -->
+      <div style="font-weight:700; color:var(--admin-navy); border-bottom:1.5px solid var(--admin-gray-100); padding-bottom:4px; margin-top:16px; margin-bottom:10px;">ট্রেড ও সেশন তথ্য</div>
+      <div class="row">
+        <div class="col-md-6"><strong>নির্বাচিত ট্রেড:</strong> <span id="vCourse" style="font-weight:700;color:var(--admin-blue)"></span></div>
+        <div class="col-md-6"><strong>সেশন:</strong> <span id="vSession"></span></div>
+      </div>
+      <div class="row">
+        <div class="col-md-6"><strong>Class Roll:</strong> <span id="vClassRoll"></span></div>
+      </div>
+
+      <!-- Education info -->
+      <div style="font-weight:700; color:var(--admin-navy); border-bottom:1.5px solid var(--admin-gray-100); padding-bottom:4px; margin-top:16px; margin-bottom:10px;">শিক্ষাগত যোগ্যতা (JSC/SSC)</div>
+      <div class="row">
+        <div class="col-md-6"><strong>বোর্ড:</strong> <span id="vJscBoard"></span></div>
+        <div class="col-md-6"><strong>রোল নম্বর:</strong> <span id="vJscRoll"></span></div>
+      </div>
+      <div class="row">
+        <div class="col-md-6"><strong>পাশের সন:</strong> <span id="vJscYear"></span></div>
+        <div class="col-md-6"><strong>জিপিএ (Result):</strong> <span id="vJscResult"></span></div>
+      </div>
+
+      <!-- Address & Status -->
+      <div style="font-weight:700; color:var(--admin-navy); border-bottom:1.5px solid var(--admin-gray-100); padding-bottom:4px; margin-top:16px; margin-bottom:10px;">ঠিকানা ও স্ট্যাটাস</div>
+      <div class="row">
+        <div class="col-md-12"><strong>ঠিকানা:</strong> <span id="vAddress"></span></div>
+      </div>
+      <div class="row" style="margin-top: 6px;">
+        <div class="col-md-6"><strong>ভর্তি স্ট্যাটাস:</strong> <span id="vStatus" class="badge"></span></div>
+        <div class="col-md-6"><strong>আবেদনের সময়:</strong> <span id="vTime"></span></div>
+      </div>
+
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn-cancel" data-modal-close="viewAdmissionModal">বন্ধ করুন</button>
+    </div>
+  </div>
+</div>
+
+<script>
+function viewAdmissionDetails(a) {
+  document.getElementById('vAppId').textContent = a.applicationId || 'N/A';
+  document.getElementById('vName').textContent = a.name;
+  document.getElementById('vPhone').textContent = a.phone;
+  document.getElementById('vFather').textContent = a.fatherName || '—';
+  document.getElementById('vMother').textContent = a.motherName || '—';
+  document.getElementById('vDob').textContent = a.dob || '—';
+  document.getElementById('vEmail').textContent = a.email || '—';
+  document.getElementById('vGender').textContent = a.gender || '—';
+  document.getElementById('vReligion').textContent = a.religion || '—';
+  document.getElementById('vNationality').textContent = a.nationality || '—';
+  document.getElementById('vMedium').textContent = a.medium || '—';
+  document.getElementById('vBloodGroup').textContent = a.bloodGroup || '—';
+  document.getElementById('vNid').textContent = a.nid || '—';
+  
+  // Trades selected
+  document.getElementById('vCourse').textContent = a.trade || a.course || '—';
+  
+  // Session handling
+  const sessionText = a.sessionTo ? `${a.session} - ${a.sessionTo}` : (a.session || '—');
+  document.getElementById('vSession').textContent = sessionText;
+  document.getElementById('vClassRoll').textContent = a.classRoll || '—';
+  
+  // JSC/SSC info
+  document.getElementById('vJscBoard').textContent = a.jscBoard || '—';
+  document.getElementById('vJscRoll').textContent = a.jscRoll || '—';
+  document.getElementById('vJscYear').textContent = a.jscYear || '—';
+  document.getElementById('vJscResult').textContent = a.jscResult || '—';
+
+  document.getElementById('vAddress').textContent = a.address || '—';
+  document.getElementById('vTime').textContent = new Date(a.submittedAt).toLocaleString('bn-BD');
+  
+  // Photo rendering
+  const imgPhoto = document.getElementById('vPhoto');
+  const phPlaceholder = document.getElementById('vPhotoPlaceholder');
+  if (a.photoUrl) {
+    imgPhoto.src = a.photoUrl;
+    imgPhoto.style.display = 'block';
+    phPlaceholder.style.display = 'none';
+  } else {
+    imgPhoto.style.display = 'none';
+    phPlaceholder.style.display = 'block';
+  }
+
+  // Signature rendering
+  const imgSig = document.getElementById('vSignature');
+  const sigPlaceholder = document.getElementById('vSignaturePlaceholder');
+  if (a.signatureUrl) {
+    imgSig.src = a.signatureUrl;
+    imgSig.style.display = 'block';
+    sigPlaceholder.style.display = 'none';
+  } else {
+    imgSig.style.display = 'none';
+    sigPlaceholder.style.display = 'block';
+  }
+
+  // Payment Status
+  const payEl = document.getElementById('vPaymentStatus');
+  const isPaid = a.paymentStatus === 'paid';
+  payEl.textContent = isPaid ? 'পরিশোধিত' : 'অপরিশোধিত';
+  payEl.className = `badge badge-${isPaid ? 'success' : 'danger'}`;
+
+  // Admission Status
+  const statusEl = document.getElementById('vStatus');
+  statusEl.textContent = a.status === 'pending' ? 'অপেক্ষমাণ' : a.status === 'approved' ? 'অনুমোদিত' : 'প্রত্যাখ্যাত';
+  statusEl.className = `badge badge-${a.status==='approved'?'success':a.status==='rejected'?'danger':'pending'}`;
+
+  openModal('viewAdmissionModal');
+}
+
+async function updateAdmissionStatus(id, status, extraData = {}) {
+  try {
+    const res = await apiCall(`/admin/admissions/${id}`, 'PUT', { status, ...extraData });
+    if(res.success) {
+      showToast('আবেদনের অবস্থা আপডেট হয়েছে', 'success');
+      setTimeout(() => location.reload(), 1200);
+    } else {
+      showToast(res.message || 'আপডেট ব্যর্থ হয়েছে', 'error');
+    }
+  } catch {
+    showToast('সংযোগ ত্রুটি', 'error');
+  }
+}
+
+function openApproveModal(id) {
+  document.getElementById('approveAdmissionId').value = id;
+  document.getElementById('approveSession').value = '';
+  document.getElementById('approveClassRoll').value = '';
+  document.getElementById('approveRegNo').value = '';
+  openModal('approveModal');
+}
+
+document.getElementById('approveForm')?.addEventListener('submit', function(e) {
+  e.preventDefault();
+  const id = document.getElementById('approveAdmissionId').value;
+  const session = document.getElementById('approveSession').value;
+  const classRoll = document.getElementById('approveClassRoll').value;
+  const registrationNo = document.getElementById('approveRegNo').value;
+  updateAdmissionStatus(id, 'approved', { session, classRoll, registrationNo });
+});
+
+async function togglePaymentStatus(id, currentStatus) {
+  const newStatus = currentStatus === 'paid' ? 'unpaid' : 'paid';
+  try {
+    const res = await apiCall(`/admin/admissions/${id}/payment`, 'PUT', { paymentStatus: newStatus });
+    if(res.success) {
+      showToast('পেমেন্ট স্ট্যাটাস আপডেট হয়েছে', 'success');
+      setTimeout(() => location.reload(), 1200);
+    } else {
+      showToast('আপডেট ব্যর্থ হয়েছে', 'error');
+    }
+  } catch {
+    showToast('সংযোগ ত্রুটি', 'error');
+  }
+}
+
+function deleteAdmissionRecord(id) {
+  confirmDelete(`/admin/admissions/${id}`, () => {
+    document.getElementById(`row-${id}`)?.remove();
+  });
+}
+</script>
+
+<%- include('../partials/admin-foot') %>

@@ -1,0 +1,164 @@
+<%- include('../partials/admin-head') %>
+
+<div style="margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center;">
+  <div class="search-bar" style="max-width: 300px;">
+    <i class="bi bi-search"></i>
+    <input type="text" data-search-table="teachersTable" placeholder="শিক্ষক খুঁজুন...">
+  </div>
+  <button class="topbar-btn" onclick="openModal('addTeacherModal')"><i class="bi bi-plus-lg me-2"></i>নতুন শিক্ষক যোগ করুন</button>
+</div>
+
+<div class="table-card">
+  <table class="data-table" id="teachersTable">
+    <thead>
+      <tr>
+        <th>ছবি</th>
+        <th>নাম</th>
+        <th>পদবি</th>
+        <th>ক্রম</th>
+        <th>অ্যাকশন</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% if(teachers && teachers.length > 0) { teachers.forEach(t => { %>
+      <tr id="row-<%= t.id %>">
+        <td><img src="<%= t.imageUrl || '/images/teacher-default.jpg' %>" class="thumb" alt="teacher"></td>
+        <td style="font-weight:600;"><%= t.name %></td>
+        <td><%= t.designation || '—' %></td>
+        <td><%= t.order %></td>
+        <td>
+          <button class="action-btn edit" onclick="editTeacher(<%= JSON.stringify(t) %>)"><i class="bi bi-pencil"></i></button>
+          <button class="action-btn delete" onclick="deleteTeacher('<%= t.id %>')"><i class="bi bi-trash"></i></button>
+        </td>
+      </tr>
+      <% }); } else { %>
+      <tr><td colspan="5" style="text-align:center;padding:24px;color:var(--admin-gray-500)">কোনো শিক্ষক পাওয়া যায়নি</td></tr>
+      <% } %>
+    </tbody>
+  </table>
+</div>
+
+<!-- Add Teacher Modal -->
+<div class="modal-overlay" id="addTeacherModal">
+  <div class="modal-box">
+    <div class="modal-header">
+      <span class="modal-title">নতুন শিক্ষক যোগ করুন</span>
+      <button class="modal-close" data-modal-close="addTeacherModal">&times;</button>
+    </div>
+    <form id="addTeacherForm" enctype="multipart/form-data">
+      <div class="modal-body">
+        <div class="form-group-admin">
+          <label class="admin-label">শিক্ষকের নাম *</label>
+          <input type="text" name="name" class="admin-input" required/>
+        </div>
+        <div class="form-group-admin">
+          <label class="admin-label">পদবি *</label>
+          <input type="text" name="designation" class="admin-input" required/>
+        </div>
+        <div class="form-group-admin">
+          <label class="admin-label">ক্রম (Order)</label>
+          <input type="number" name="order" class="admin-input" value="1"/>
+        </div>
+        <div class="form-group-admin">
+          <label class="admin-label">সংক্ষিপ্ত পরিচিতি</label>
+          <textarea name="bio" class="admin-textarea" rows="3"></textarea>
+        </div>
+        <div class="form-group-admin">
+          <label class="admin-label">প্রোফাইল ছবি</label>
+          <input type="file" name="image" class="admin-input" accept="image/*" data-preview="addTeacherImgPreview"/>
+          <img id="addTeacherImgPreview" class="img-preview"/>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn-cancel" data-modal-close="addTeacherModal">বাতিল</button>
+        <button type="submit" class="btn-save">সংরক্ষণ করুন</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Edit Teacher Modal -->
+<div class="modal-overlay" id="editTeacherModal">
+  <div class="modal-box">
+    <div class="modal-header">
+      <span class="modal-title">শিক্ষক তথ্য সম্পাদন করুন</span>
+      <button class="modal-close" data-modal-close="editTeacherModal">&times;</button>
+    </div>
+    <form id="editTeacherForm" enctype="multipart/form-data">
+      <input type="hidden" id="editTeacherId"/>
+      <div class="modal-body">
+        <div class="form-group-admin">
+          <label class="admin-label">শিক্ষকের নাম *</label>
+          <input type="text" name="name" id="editTeacherName" class="admin-input" required/>
+        </div>
+        <div class="form-group-admin">
+          <label class="admin-label">পদবি *</label>
+          <input type="text" name="designation" id="editTeacherDesignation" class="admin-input" required/>
+        </div>
+        <div class="form-group-admin">
+          <label class="admin-label">ক্রম (Order)</label>
+          <input type="number" name="order" id="editTeacherOrder" class="admin-input"/>
+        </div>
+        <div class="form-group-admin">
+          <label class="admin-label">সংক্ষিপ্ত পরিচিতি</label>
+          <textarea name="bio" id="editTeacherBio" class="admin-textarea" rows="3"></textarea>
+        </div>
+        <div class="form-group-admin">
+          <label class="admin-label">প্রোফাইল ছবি (পরিবর্তন করতে চাইলে)</label>
+          <input type="file" name="image" class="admin-input" accept="image/*" data-preview="editTeacherImgPreview"/>
+          <img id="editTeacherImgPreview" class="img-preview"/>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn-cancel" data-modal-close="editTeacherModal">বাতিল</button>
+        <button type="submit" class="btn-save">আপডেট করুন</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+document.getElementById('addTeacherForm').addEventListener('submit', async e => {
+  e.preventDefault();
+  const fd = new FormData(e.target);
+  const res = await fetch('/admin/teachers', { method: 'POST', body: fd });
+  const data = await res.json();
+  showToast(data.message || 'শিক্ষক যোগ সফল হয়েছে', data.success ? 'success' : 'error');
+  if(data.success) setTimeout(() => location.reload(), 1200);
+});
+
+function editTeacher(t) {
+  document.getElementById('editTeacherId').value = t.id;
+  document.getElementById('editTeacherName').value = t.name || '';
+  document.getElementById('editTeacherDesignation').value = t.designation || '';
+  document.getElementById('editTeacherOrder').value = t.order || 1;
+  document.getElementById('editTeacherBio').value = t.bio || '';
+  
+  const preview = document.getElementById('editTeacherImgPreview');
+  if(t.imageUrl) {
+    preview.src = t.imageUrl;
+    preview.classList.add('show');
+  } else {
+    preview.classList.remove('show');
+  }
+  openModal('editTeacherModal');
+}
+
+document.getElementById('editTeacherForm').addEventListener('submit', async e => {
+  e.preventDefault();
+  const id = document.getElementById('editTeacherId').value;
+  const fd = new FormData(e.target);
+  const res = await fetch(`/admin/teachers/${id}`, { method: 'PUT', body: fd });
+  const data = await res.json();
+  showToast(data.message || 'আপডেট সফল হয়েছে', data.success ? 'success' : 'error');
+  if(data.success) setTimeout(() => location.reload(), 1200);
+});
+
+function deleteTeacher(id) {
+  confirmDelete(`/admin/teachers/${id}`, () => {
+    document.getElementById(`row-${id}`)?.remove();
+  });
+}
+</script>
+
+<%- include('../partials/admin-foot') %>

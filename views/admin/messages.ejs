@@ -1,0 +1,109 @@
+<%- include('../partials/admin-head') %>
+
+<div style="margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center;">
+  <div class="search-bar" style="max-width: 300px;">
+    <i class="bi bi-search"></i>
+    <input type="text" data-search-table="messagesTable" placeholder="বার্তা খুঁজুন...">
+  </div>
+</div>
+
+<div class="table-card">
+  <table class="data-table" id="messagesTable">
+    <thead>
+      <tr>
+        <th>প্রেরক</th>
+        <th>মোবাইল নম্বর</th>
+        <th>ইমেইল</th>
+        <th>বার্তা</th>
+        <th>তারিখ</th>
+        <th>অবস্থা</th>
+        <th>অ্যাকশন</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% if(messages && messages.length > 0) { messages.forEach(m => { %>
+      <tr id="row-<%= m.id %>" style="<%= !m.read ? 'background:rgba(30,144,255,.05);' : '' %>">
+        <td style="font-weight:600;"><%= m.name %></td>
+        <td><%= m.phone || '—' %></td>
+        <td><%= m.email || '—' %></td>
+        <td>
+          <span style="cursor:pointer; color:var(--admin-blue); font-weight: 500;" onclick="viewFullMessage(<%= JSON.stringify(m) %>)">
+            <%= (m.message || '').substring(0, 30) %><%= (m.message || '').length > 30 ? '...' : '' %>
+          </span>
+        </td>
+        <td style="font-size:.78rem;color:var(--admin-gray-500);"><%= new Date(m.date).toLocaleString('bn-BD') %></td>
+        <td>
+          <span class="badge badge-<%= m.read ? 'gray' : 'blue' %>">
+            <%= m.read ? 'পঠিত' : 'অপঠিত' %>
+          </span>
+        </td>
+        <td>
+          <% if(!m.read) { %>
+          <button class="action-btn view" onclick="markMessageAsRead('<%= m.id %>')" title="পঠিত হিসেবে চিহ্নিত করুন"><i class="bi bi-envelope-open"></i></button>
+          <% } %>
+          <button class="action-btn delete" onclick="deleteMessageRecord('<%= m.id %>')" title="মুছে ফেলুন"><i class="bi bi-trash"></i></button>
+        </td>
+      </tr>
+      <% }); } else { %>
+      <tr><td colspan="7" style="text-align:center;padding:24px;color:var(--admin-gray-500)">কোনো যোগাযোগের বার্তা পাওয়া যায়নি</td></tr>
+      <% } %>
+    </tbody>
+  </table>
+</div>
+
+<!-- View Message Modal -->
+<div class="modal-overlay" id="viewMessageModal">
+  <div class="modal-box">
+    <div class="modal-header">
+      <span class="modal-title">যোগাযোগ বার্তার বিবরণ</span>
+      <button class="modal-close" data-modal-close="viewMessageModal">&times;</button>
+    </div>
+    <div class="modal-body" style="line-height: 1.8;">
+      <p><strong>প্রেরকের নাম:</strong> <span id="msgName"></span></p>
+      <p><strong>মোবাইল নম্বর:</strong> <span id="msgPhone"></span></p>
+      <p><strong>ইমেইল:</strong> <span id="msgEmail"></span></p>
+      <p><strong>তারিখ ও সময়:</strong> <span id="msgTime"></span></p>
+      <hr/>
+      <p><strong>বার্তা:</strong></p>
+      <div style="background:var(--admin-gray-100); padding: 14px; border-radius:8px; white-space: pre-wrap; font-size:.9rem;" id="msgBody"></div>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn-cancel" data-modal-close="viewMessageModal">বন্ধ করুন</button>
+    </div>
+  </div>
+</div>
+
+<script>
+function viewFullMessage(m) {
+  document.getElementById('msgName').textContent = m.name;
+  document.getElementById('msgPhone').textContent = m.phone || '—';
+  document.getElementById('msgEmail').textContent = m.email || '—';
+  document.getElementById('msgTime').textContent = new Date(m.date).toLocaleString('bn-BD');
+  document.getElementById('msgBody').textContent = m.message;
+  
+  openModal('viewMessageModal');
+  if(!m.read) {
+    markMessageAsRead(m.id, false); // Mark read silently in background
+  }
+}
+
+async function markMessageAsRead(id, refresh = true) {
+  try {
+    const res = await apiCall(`/admin/messages/${id}/read`, 'PUT');
+    if(res.success && refresh) {
+      showToast('বার্তা পঠিত হিসেবে চিহ্নিত করা হয়েছে', 'success');
+      setTimeout(() => location.reload(), 1200);
+    }
+  } catch {
+    console.error('Error marking message read');
+  }
+}
+
+function deleteMessageRecord(id) {
+  confirmDelete(`/admin/messages/${id}`, () => {
+    document.getElementById(`row-${id}`)?.remove();
+  });
+}
+</script>
+
+<%- include('../partials/admin-foot') %>

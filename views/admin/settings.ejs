@@ -1,0 +1,73 @@
+<%- include('../partials/admin-head') %>
+
+<div class="row g-4">
+  <!-- Settings Form -->
+  <div class="col-lg-8">
+    <div class="table-card">
+      <div class="table-card-header"><span class="table-card-title">সাইটের তথ্য আপডেট করুন</span></div>
+      <div style="padding:24px">
+        <form id="settingsForm" enctype="multipart/form-data">
+          <div class="row g-3">
+            <div class="col-md-6 form-group-admin"><label class="admin-label">সাইটের নাম</label><input name="name" class="admin-input" value="<%= settings.name||'' %>" required/></div>
+            <div class="col-md-6 form-group-admin"><label class="admin-label">ট্যাগলাইন</label><input name="tagline" class="admin-input" value="<%= settings.tagline||'' %>"/></div>
+            <div class="col-md-6 form-group-admin"><label class="admin-label">প্রতিষ্ঠান কোড</label><input name="code" class="admin-input" value="<%= settings.code||'' %>"/></div>
+            <div class="col-md-6 form-group-admin"><label class="admin-label">ফোন নম্বর</label><input name="phone" class="admin-input" value="<%= settings.phone||'' %>"/></div>
+            <div class="col-md-6 form-group-admin"><label class="admin-label">ইমেইল</label><input name="email" class="admin-input" value="<%= settings.email||'' %>"/></div>
+            <div class="col-md-6 form-group-admin"><label class="admin-label">ফেসবুক URL</label><input name="fbUrl" class="admin-input" value="<%= settings.fbUrl||'' %>"/></div>
+            <div class="col-12 form-group-admin"><label class="admin-label">ঠিকানা</label><textarea name="address" class="admin-textarea" rows="2"><%= settings.address||'' %></textarea></div>
+            <div class="col-12 form-group-admin"><label class="admin-label">Google Map Embed কোড</label><textarea name="mapEmbed" class="admin-textarea" rows="3" placeholder="&lt;iframe src=...&gt;&lt;/iframe&gt;"><%= settings.mapEmbed||'' %></textarea></div>
+            <div class="col-12 form-group-admin"><label class="admin-label">ফুটার টেক্সট</label><input name="footerText" class="admin-input" value="<%= settings.footerText||'' %>"/></div>
+          </div>
+          <div style="margin-top:20px;display:flex;gap:10px">
+            <button type="submit" class="btn-save"><i class="bi bi-check-lg me-2"></i>সংরক্ষণ করুন</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+  <!-- Logo upload -->
+  <div class="col-lg-4">
+    <div class="table-card" style="padding:24px">
+      <h6 style="font-weight:700;color:var(--admin-navy);margin-bottom:18px">লোগো ও ফেভিকন</h6>
+      <form id="logoForm" enctype="multipart/form-data">
+        <div class="form-group-admin">
+          <label class="admin-label">লোগো আপলোড করুন</label>
+          <input type="file" name="logo" class="admin-input" accept="image/*" data-preview="logoPreview"/>
+          <img id="logoPreview" class="img-preview" src="<%= settings.logoUrl||'' %>"/>
+          <% if(settings.logoUrl){ %><img src="<%= settings.logoUrl %>" style="width:100%;border-radius:8px;margin-top:10px;max-height:100px;object-fit:contain"><%}%>
+        </div>
+        <div class="form-group-admin" style="margin-top:16px">
+          <label class="admin-label">ফেভিকন আপলোড করুন</label>
+          <input type="file" name="favicon" class="admin-input" accept="image/*"/>
+        </div>
+        <button type="submit" class="btn-save" style="width:100%;margin-top:14px"><i class="bi bi-upload me-2"></i>আপলোড করুন</button>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+document.getElementById('settingsForm').addEventListener('submit', async e => {
+  e.preventDefault();
+  const fd = new FormData(e.target);
+  const obj = {};
+  fd.forEach((v, k) => {
+    const keys = k.replace(/\[/g,'.').replace(/\]/g,'').split('.');
+    let cur = obj;
+    keys.forEach((key, i) => { if(i===keys.length-1) cur[key]=v; else { cur[key]=cur[key]||{}; cur=cur[key]; } });
+  });
+  const res  = await fetch('/admin/settings', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(obj)});
+  const data = await res.json();
+  showToast(data.message, data.success?'success':'error');
+});
+document.getElementById('logoForm').addEventListener('submit', async e => {
+  e.preventDefault();
+  const fd  = new FormData(e.target);
+  const res = await fetch('/admin/settings', {method:'POST', body:fd});
+  const data = await res.json();
+  showToast(data.message, data.success?'success':'error');
+  if(data.success) setTimeout(()=>location.reload(),1500);
+});
+</script>
+
+<%- include('../partials/admin-foot') %>

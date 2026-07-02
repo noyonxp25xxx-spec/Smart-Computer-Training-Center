@@ -1,0 +1,67 @@
+<!DOCTYPE html><html lang="bn"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title><%= title %></title>
+<link rel="icon" href="<%= site.faviconUrl||'/images/favicon.png' %>"/>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"/>
+<link rel="stylesheet" href="/css/admin.css"/>
+</head><body class="login-page">
+<div class="login-card">
+  <div class="login-logo">
+    <img src="<%= site.logoUrl||'/images/default-logo.png' %>" alt="Logo" onerror="this.style.display='none'"/>
+    <div style="color:#fff;font-size:1.1rem;font-weight:800;margin-top:8px"><%= site.name %></div>
+  </div>
+  <h1 class="login-title">অ্যাডমিন লগইন</h1>
+  <p class="login-sub">শুধুমাত্র অনুমোদিত ব্যবহারকারীদের জন্য</p>
+
+  <% if(error==='session_expired'){ %><div class="login-error">⚠️ সেশন মেয়াদ শেষ। পুনরায় লগইন করুন।</div><% } %>
+  <% if(error==='not_admin'){ %><div class="login-error">❌ এই অ্যাকাউন্টে অ্যাডমিন অ্যাক্সেস নেই।</div><% } %>
+  <% if(error==='invalid_token'){ %><div class="login-error">❌ লগইন ব্যর্থ হয়েছে। পুনরায় চেষ্টা করুন।</div><% } %>
+
+  <div id="loginError" class="login-error" style="display:none"></div>
+
+  <form id="loginForm">
+    <input type="email" id="loginEmail" class="login-input" placeholder="অ্যাডমিন ইমেইল" required autocomplete="username"/>
+    <input type="password" id="loginPassword" class="login-input" placeholder="অ্যাডমিন পাসওয়ার্ড" required autocomplete="current-password" style="margin-top: 10px;"/>
+    <button type="submit" class="btn-login" id="loginBtn"><i class="bi bi-shield-lock me-2"></i>লগইন করুন</button>
+  </form>
+  <p style="text-align:center;margin-top:20px;font-size:.8rem;color:rgba(255,255,255,.3)">
+    <a href="/" style="color:rgba(255,255,255,.35);text-decoration:none"><i class="bi bi-arrow-left me-1"></i>ওয়েবসাইটে ফিরুন</a>
+  </p>
+</div>
+
+<script>
+  document.getElementById('loginForm').addEventListener('submit', async e => {
+    e.preventDefault();
+    const btn = document.getElementById('loginBtn');
+    const errEl = document.getElementById('loginError');
+    btn.disabled = true;
+    btn.textContent = 'লগইন হচ্ছে...';
+    errEl.style.display = 'none';
+
+    const email = document.getElementById('loginEmail').value;
+    const password = document.getElementById('loginPassword').value;
+
+    try {
+      const res = await fetch('/admin/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password })
+      });
+      const data = await res.json();
+
+      if (data.success) {
+        window.location.href = data.redirect || '/admin';
+      } else {
+        errEl.textContent = data.message;
+        errEl.style.display = 'block';
+        btn.disabled = false;
+        btn.innerHTML = '<i class="bi bi-shield-lock me-2"></i>লগইন করুন';
+      }
+    } catch (err) {
+      errEl.textContent = 'লগইন ব্যর্থ: ' + err.message;
+      errEl.style.display = 'block';
+      btn.disabled = false;
+      btn.innerHTML = '<i class="bi bi-shield-lock me-2"></i>লগইন করুন';
+    }
+  });
+</script>
+</body></html>

@@ -1,0 +1,50 @@
+<%- include('../partials/admin-head') %>
+
+<!-- STAT CARDS -->
+<div class="stat-grid">
+  <div class="stat-card blue"><div class="stat-icon"><i class="bi bi-mortarboard-fill"></i></div><div><div class="stat-number"><%= stats.totalStudents||0 %></div><div class="stat-label">মোট শিক্ষার্থী</div></div></div>
+  <div class="stat-card gold"><div class="stat-icon"><i class="bi bi-pen-fill"></i></div><div><div class="stat-number"><%= stats.pendingAdmissions||0 %></div><div class="stat-label">নতুন আবেদন</div></div></div>
+  <div class="stat-card green"><div class="stat-icon"><i class="bi bi-clipboard2-check-fill"></i></div><div><div class="stat-number"><%= stats.totalResults||0 %></div><div class="stat-label">রেজাল্ট এন্ট্রি</div></div></div>
+  <div class="stat-card red"><div class="stat-icon"><i class="bi bi-chat-dots-fill"></i></div><div><div class="stat-number"><%= stats.unreadMessages||0 %></div><div class="stat-label">অপঠিত বার্তা</div></div></div>
+  <div class="stat-card purple"><div class="stat-icon"><i class="bi bi-book-fill"></i></div><div><div class="stat-number"><%= stats.totalCourses||0 %></div><div class="stat-label">মোট কোর্স</div></div></div>
+</div>
+
+<!-- QUICK ACTION TILES -->
+<div class="row g-3 mb-4">
+  <div class="col-6 col-md-3"><a href="/admin/results" style="text-decoration:none"><div class="quick-tile" style="background:linear-gradient(135deg,#0A1628,#1E90FF);border-radius:12px;padding:20px;text-align:center;color:#fff;transition:.25s ease;cursor:pointer" onmouseover="this.style.transform='translateY(-3px)'" onmouseout="this.style.transform='none'"><i class="bi bi-clipboard2-check-fill" style="font-size:1.8rem;display:block;margin-bottom:8px"></i><div style="font-size:.83rem;font-weight:600">রেজাল্ট যোগ করুন</div></div></a></div>
+  <div class="col-6 col-md-3"><a href="/admin/admissions" style="text-decoration:none"><div style="background:linear-gradient(135deg,#065f46,#10B981);border-radius:12px;padding:20px;text-align:center;color:#fff;transition:.25s ease" onmouseover="this.style.transform='translateY(-3px)'" onmouseout="this.style.transform='none'"><i class="bi bi-pen-fill" style="font-size:1.8rem;display:block;margin-bottom:8px"></i><div style="font-size:.83rem;font-weight:600">ভর্তি আবেদন</div></div></a></div>
+  <div class="col-6 col-md-3"><a href="/admin/notices" style="text-decoration:none"><div style="background:linear-gradient(135deg,#92400e,#F59E0B);border-radius:12px;padding:20px;text-align:center;color:#fff;transition:.25s ease" onmouseover="this.style.transform='translateY(-3px)'" onmouseout="this.style.transform='none'"><i class="bi bi-bell-fill" style="font-size:1.8rem;display:block;margin-bottom:8px"></i><div style="font-size:.83rem;font-weight:600">নোটিশ দিন</div></div></a></div>
+  <div class="col-6 col-md-3"><a href="/admin/messages" style="text-decoration:none"><div style="background:linear-gradient(135deg,#4c1d95,#8B5CF6);border-radius:12px;padding:20px;text-align:center;color:#fff;transition:.25s ease" onmouseover="this.style.transform='translateY(-3px)'" onmouseout="this.style.transform='none'"><i class="bi bi-chat-dots-fill" style="font-size:1.8rem;display:block;margin-bottom:8px"></i><div style="font-size:.83rem;font-weight:600">বার্তা দেখুন</div></div></a></div>
+</div>
+
+<!-- RECENT TABLES -->
+<div class="row g-4">
+  <div class="col-lg-6">
+    <div class="table-card">
+      <div class="table-card-header"><span class="table-card-title">সাম্প্রতিক ভর্তি আবেদন</span><a href="/admin/admissions" class="topbar-btn" style="font-size:.78rem;padding:6px 14px">সব দেখুন</a></div>
+      <table class="data-table">
+        <thead><tr><th>নাম</th><th>কোর্স</th><th>স্ট্যাটাস</th><th>তারিখ</th></tr></thead>
+        <tbody>
+          <% if(recentAdmissions&&recentAdmissions.length>0){ recentAdmissions.forEach(a=>{ %>
+          <tr><td style="font-weight:600"><%= a.name %></td><td style="font-size:.83rem"><%= (a.course||'').substring(0,22) %></td><td><span class="badge badge-<%= a.status==='approved'?'success':a.status==='rejected'?'danger':'pending' %>"><%= a.status==='pending'?'অপেক্ষমাণ':a.status==='approved'?'অনুমোদিত':'প্রত্যাখ্যাত' %></span></td><td style="font-size:.78rem;color:var(--admin-gray-500)"><%= (a.submittedAt||'').substring(0,10) %></td></tr>
+          <% }); } else { %><tr><td colspan="4" style="text-align:center;padding:24px;color:var(--admin-gray-500)">কোনো আবেদন নেই</td></tr><% } %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div class="col-lg-6">
+    <div class="table-card">
+      <div class="table-card-header"><span class="table-card-title">সাম্প্রতিক বার্তা</span><a href="/admin/messages" class="topbar-btn" style="font-size:.78rem;padding:6px 14px">সব দেখুন</a></div>
+      <table class="data-table">
+        <thead><tr><th>নাম</th><th>বার্তা</th><th>তারিখ</th></tr></thead>
+        <tbody>
+          <% if(recentMessages&&recentMessages.length>0){ recentMessages.forEach(m=>{ %>
+          <tr><td style="font-weight:600"><%= m.name %><% if(!m.read){ %><span style="width:7px;height:7px;background:var(--admin-blue);border-radius:50%;display:inline-block;margin-left:6px;vertical-align:middle"></span><%}%></td><td style="color:var(--admin-gray-500);font-size:.83rem"><%= (m.message||'').substring(0,38) %>...</td><td style="font-size:.78rem;color:var(--admin-gray-500)"><%= (m.date||'').substring(0,10) %></td></tr>
+          <% }); } else { %><tr><td colspan="3" style="text-align:center;padding:24px;color:var(--admin-gray-500)">কোনো বার্তা নেই</td></tr><% } %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<%- include('../partials/admin-foot') %>
