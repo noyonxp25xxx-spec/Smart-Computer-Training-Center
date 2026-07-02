@@ -11,11 +11,12 @@ async function requireAdmin(req, res, next) {
     return res.redirect('/admin/login?error=session_expired');
   }
 
+  if (req.session && req.session.mockUser) {
+    req.admin = req.session.mockUser;
+    return next();
+  }
+
   try {
-    if (req.session && req.session.mockUser) {
-      req.admin = req.session.mockUser;
-      return next();
-    }
     const decoded = await auth.verifyIdToken(idToken);
     const adminDoc = await db.collection('admins').doc(decoded.uid).get();
 
@@ -29,12 +30,13 @@ async function requireAdmin(req, res, next) {
       email: decoded.email,
       ...adminDoc.data(),
     };
-    next();
   } catch (err) {
     console.error('Auth error:', err.message);
     req.session = null;
     return res.redirect('/admin/login?error=invalid_token');
   }
+
+  next();
 }
 
 /**
