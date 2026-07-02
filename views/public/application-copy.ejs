@@ -359,26 +359,56 @@
   </div>
 
   <script>
-    function saveAsJpg() {
+    async function convertImagesToBase64() {
+      const images = document.getElementById('printableArea').querySelectorAll('img');
+      for (let img of images) {
+        if (img.src && !img.src.startsWith('data:')) {
+          try {
+            const res = await fetch(img.src);
+            const blob = await res.blob();
+            const base64 = await new Promise((resolve) => {
+              const reader = new FileReader();
+              reader.onloadend = () => resolve(reader.result);
+              reader.readAsDataURL(blob);
+            });
+            img.src = base64;
+          } catch (e) {
+            console.error('Failed to convert image to base64', img.src, e);
+          }
+        }
+      }
+    }
+
+    async function saveAsJpg() {
       const btn = document.querySelector('.btn-save');
-      btn.innerText = 'Saving...';
-      const element = document.getElementById('printableArea');
+      const originalText = btn.innerText;
+      btn.innerText = 'Processing Images...';
+      btn.disabled = true;
       
-      // html2canvas config to ensure images load and resolution is high
-      html2canvas(element, { 
-        scale: 2,
-        useCORS: true,
-        backgroundColor: '#ffffff'
-      }).then(canvas => {
+      try {
+        await convertImagesToBase64();
+        
+        btn.innerText = 'Saving...';
+        const element = document.getElementById('printableArea');
+        
+        // html2canvas config
+        const canvas = await html2canvas(element, { 
+          scale: 2,
+          useCORS: true,
+          backgroundColor: '#ffffff'
+        });
+        
         const link = document.createElement('a');
         link.download = 'Applicant_Copy_<%= admission.applicationId || admission.id %>.jpg';
         link.href = canvas.toDataURL('image/jpeg', 0.9);
         link.click();
-        btn.innerText = '💾 Save as JPG';
-      }).catch(err => {
+      } catch (err) {
+        console.error(err);
         alert('Failed to generate image. Please try Print (Ctrl+P) and Save as PDF instead.');
-        btn.innerText = '💾 Save as JPG';
-      });
+      } finally {
+        btn.innerText = originalText;
+        btn.disabled = false;
+      }
     }
   </script>
 </body>
