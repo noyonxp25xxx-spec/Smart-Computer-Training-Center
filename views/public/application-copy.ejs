@@ -159,11 +159,17 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 </head>
 <body>
-
+<% 
+  function getImgSrc(url) {
+    if (!url) return '';
+    if (url.startsWith('http')) return '/proxy-image?url=' + encodeURIComponent(url);
+    return url;
+  }
+%>
   <div class="print-container" id="printableArea">
     <!-- Header -->
     <div class="app-header">
-      <img src="<%= site.logoUrl || '/images/default-logo.png' %>" alt="Logo">
+      <img src="<%= getImgSrc(site.logoUrl || '/images/default-logo.png') %>" crossorigin="anonymous" alt="Logo">
       <div class="app-header-text">
         <h3>Bangladesh Technical Education Board</h3>
         <h1><%= site.name || 'Smart Computer Training Center' %></h1>
@@ -193,13 +199,13 @@
           <td class="val" style="color:#dc2626; font-size:1.1rem;"><%= admission.applicationId || admission.id %></td>
           <td rowspan="6" class="photo-cell">
             <% if(admission.photoUrl) { %>
-              <img src="<%= admission.photoUrl %>" alt="Applicant Photo">
+              <img src="<%= getImgSrc(admission.photoUrl) %>" crossorigin="anonymous" alt="Applicant Photo">
             <% } else { %>
               <div style="width:120px;height:140px;border:1px solid #ccc;background:#eee;display:flex;align-items:center;justify-content:center;font-size:0.8rem;color:#888;">No Photo</div>
             <% } %>
             <br>
             <% if(admission.signatureUrl) { %>
-              <img src="<%= admission.signatureUrl %>" style="width:120px;height:40px;border:1px solid #ccc;object-fit:contain;" alt="Signature">
+              <img src="<%= getImgSrc(admission.signatureUrl) %>" crossorigin="anonymous" style="width:120px;height:40px;border:1px solid #ccc;object-fit:contain;" alt="Signature">
             <% } %>
           </td>
         </tr>
