@@ -22,9 +22,10 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use(morgan('dev'));
+const sessionPath = process.env.VERCEL ? '/tmp/.sessions' : './.sessions';
 app.use(
   session({
-    store: new FileStore({ path: './.sessions', retries: 0 }),
+    store: new FileStore({ path: sessionPath, retries: 0 }),
     secret: process.env.SESSION_SECRET || 'fallback_secret',
     resave: false,
     saveUninitialized: false,
@@ -58,6 +59,10 @@ app.use((err, req, res, next) => {
   });
 });
 
-app.listen(PORT, () => {
-  console.log(`✅ Smart Computer Training server running at http://localhost:${PORT}`);
-});
+if (process.env.NODE_ENV !== 'production') {
+  app.listen(PORT, () => {
+    console.log(`✅ Smart Computer Training server running at http://localhost:${PORT}`);
+  });
+}
+
+module.exports = app;
