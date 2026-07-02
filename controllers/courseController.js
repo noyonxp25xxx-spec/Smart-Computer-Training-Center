@@ -15,12 +15,16 @@ async function listCourses(req, res) {
 // Add course
 async function addCourse(req, res) {
   try {
-    const { name, duration, code, description, fee, active } = req.body;
+    const { name, code, description, active, durationsData } = req.body;
     let imageUrl = '';
     if (req.file) imageUrl = await uploadImage(req.file, 'courses');
 
+    let durations = [];
+    if (durationsData) durations = JSON.parse(durationsData);
+
     const ref = await db.collection('courses').add({
-      name, duration, code, description, fee,
+      name, code, description,
+      durations,
       imageUrl,
       active: active === 'true' || active === true,
       createdAt: new Date().toISOString(),
@@ -36,8 +40,12 @@ async function addCourse(req, res) {
 async function updateCourse(req, res) {
   try {
     const { id } = req.params;
-    const { name, duration, code, description, fee, active } = req.body;
-    const update = { name, duration, code, description, fee, active: active === 'true' || active === true, updatedAt: new Date().toISOString() };
+    const { name, code, description, active, durationsData } = req.body;
+    
+    let durations = [];
+    if (durationsData) durations = JSON.parse(durationsData);
+
+    const update = { name, code, description, durations, active: active === 'true' || active === true, updatedAt: new Date().toISOString() };
     if (req.file) update.imageUrl = await uploadImage(req.file, 'courses');
     await db.collection('courses').doc(id).update(update);
     await logActivity(req, 'update_course', id);

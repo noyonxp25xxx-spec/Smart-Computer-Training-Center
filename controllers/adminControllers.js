@@ -24,7 +24,8 @@ const admissionController = {
         name, fatherName, motherName, classRoll, gender, dob, religion,
         trade, nationality, medium, bloodGroup,
         jscBoard, jscRoll, jscYear, jscResult,
-        phone, nid, session, sessionTo, address, email
+        phone, nid, session, sessionTo, address, email,
+        duration, fee
       } = req.body;
 
       // Handle photo and signature uploads
@@ -46,6 +47,7 @@ const admissionController = {
         phone, nid: nid || '',
         session: session || '', sessionTo: sessionTo || '',
         address: address || '', email: email || '',
+        duration: duration || '', fee: fee || '',
         photoUrl, signatureUrl,
         status: 'pending',
         paymentStatus: 'unpaid',
@@ -73,7 +75,7 @@ const admissionController = {
   updateStatus: async (req, res) => {
     try {
       const { id } = req.params;
-      const { status, session, classRoll, registrationNo } = req.body;
+      const { status, session, sessionId, classRoll, registrationNo } = req.body;
       
       const doc = await db.collection('admissions').doc(id).get();
       if (!doc.exists) return res.status(404).json({ success: false, message: 'আবেদন খুঁজে পাওয়া যায়নি' });
@@ -82,31 +84,35 @@ const admissionController = {
 
       if (status === 'approved') {
         if (!session || !classRoll) {
-          return res.status(400).json({ success: false, message: 'অনুমোদনের জন্য সেশন এবং রোল নম্বর আবশ্যক।' });
+          return res.status(400).json({ success: false, message: 'অনুমোদনের জন্য সেশন ও রোল আবশ্যক' });
         }
       }
 
       const updates = { status, updatedAt: new Date().toISOString() };
       if (status === 'approved') {
         updates.session = session;
+        if (sessionId) updates.sessionId = sessionId;
         updates.classRoll = classRoll;
         if (registrationNo) updates.registrationNo = registrationNo;
       }
 
-      // If approved and wasn't already approved, add to students collection
+      // If approved and wasn't already approved, add/update to students collection
       if (status === 'approved' && admission.status !== 'approved') {
-        await db.collection('students').add({
+        const finalRegNo = registrationNo || admission.applicationId || id;
+        await db.collection('students').doc(finalRegNo).set({
+          ...admission,
           name: admission.name,
-          regNo: registrationNo || admission.applicationId || id,
+          regNo: finalRegNo,
           course: admission.trade || admission.course || '—',
           session: session,
+          sessionId: sessionId || '',
           classRoll: classRoll,
           registrationNo: registrationNo || '',
           phone: admission.phone || '',
           imageUrl: admission.photoUrl || '',
           status: 'active',
           createdAt: new Date().toISOString()
-        });
+        }, { merge: true });
       }
       
       await db.collection('admissions').doc(id).update(updates);
@@ -248,16 +254,38 @@ const adminController = {
   },
   addAdmin: async (req, res) => {
     try {
-      if (req.admin.uid !== 'system-admin') {
-        return res.status(403).json({ success: false, message: 'শুধুমাত্র প্রধান অ্যাডমিন নতুন অ্যাকাউন্ট তৈরি করতে পারবেন।' });
-      }
-      
-      const { email, password, role } = req.body;
+      const { email, password, role, isMainAdmin } = req.body;
       if (!password || !email) return res.status(400).json({ success: false, message: 'ইমেইল এবং পাসওয়ার্ড প্রদান করুন' });
       
-      const ref = await db.collection('admins').add({ email, password, role: role || 'admin', createdAt: new Date().toISOString() });
+      const ref = await db.collection('admins').add({ 
+        email, 
+        password, 
+        role: 'admin',
+        isAdmin: true,
+        createdAt: new Date().toISOString() 
+      });
       await logActivity(req, 'add_admin', ref.id);
       return res.json({ success: true, uid: ref.id });
+    } catch (err) {
+      return res.status(500).json({ success: false, message: err.message });
+    }
+  },
+  updateAdmin: async (req, res) => {
+    try {
+      const { uid } = req.params;
+      const { email, password, role, isMainAdmin } = req.body;
+      if (uid === 'system-admin') {
+         return res.status(403).json({ success: false, message: 'সিস্টেম অ্যাডমিন অ্যাকাউন্ট পরিবর্তন করা যাবে না।' });
+      }
+      const updates = { updatedAt: new Date().toISOString() };
+      if (email) updates.email = email;
+      if (password) updates.password = password;
+      if (role) updates.role = role;
+      if (isMainAdmin !== undefined) updates.isMainAdmin = isMainAdmin === 'true' || isMainAdmin === true;
+      
+      await db.collection('admins').doc(uid).update(updates);
+      await logActivity(req, 'update_admin', uid);
+      return res.json({ success: true });
     } catch (err) {
       return res.status(500).json({ success: false, message: err.message });
     }
@@ -265,8 +293,8 @@ const adminController = {
   deleteAdmin: async (req, res) => {
     try {
       const { uid } = req.params;
-      if (req.admin.uid !== 'system-admin') {
-        return res.status(403).json({ success: false, message: 'শুধুমাত্র প্রধান অ্যাডমিন অন্যান্য অ্যাকাউন্ট মুছতে পারবেন।' });
+      if (uid === 'system-admin' || uid === req.admin.uid) {
+        return res.status(403).json({ success: false, message: 'এই অ্যাকাউন্ট মুছে ফেলা যাবে না।' });
       }
       
       await db.collection('admins').doc(uid).delete();
@@ -286,23 +314,18 @@ const adminController = {
   },
   updateAccount: async (req, res) => {
     try {
-      const { email, password } = req.body;
+      const { password } = req.body;
       const uid = req.admin.uid;
       
-      if (!email || !password) {
-        return res.status(400).json({ success: false, message: 'ইমেইল এবং পাসওয়ার্ড আবশ্যক।' });
+      if (!password) {
+        return res.status(400).json({ success: false, message: 'পাসওয়ার্ড প্রদান করুন।' });
       }
 
       if (uid === 'system-admin') {
-        // System admin uses .env or default fallback, but we can't write to .env easily.
-        // Actually, if it's 'system-admin', we shouldn't allow changing it from the DB unless we create a DB record for them.
-        // Let's create an admin record if it doesn't exist.
         const docRef = db.collection('admins').doc('system-admin');
-        await docRef.set({ email, password, role: 'superadmin', updatedAt: new Date().toISOString() }, { merge: true });
-        req.session.mockUser.email = email;
+        await docRef.set({ password, role: 'superadmin', updatedAt: new Date().toISOString() }, { merge: true });
       } else {
-        await db.collection('admins').doc(uid).update({ email, password, updatedAt: new Date().toISOString() });
-        req.session.mockUser.email = email;
+        await db.collection('admins').doc(uid).update({ password, updatedAt: new Date().toISOString() });
       }
 
       await logActivity(req, 'update_account', uid);

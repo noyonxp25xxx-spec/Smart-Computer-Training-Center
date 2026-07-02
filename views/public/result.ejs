@@ -48,38 +48,38 @@
           <div class="result-title">📋 পরীক্ষার ফলাফল</div>
         </div>
         <div class="marksheet-body">
-          <div class="student-info-grid">
+          <div class="student-info-grid" style="margin-bottom: 24px;">
             <div class="info-row"><span class="info-label">শিক্ষার্থীর নাম</span><span class="info-value" id="ms-name">—</span></div>
             <div class="info-row"><span class="info-label">রেজিস্ট্রেশন নম্বর</span><span class="info-value" id="ms-regno">—</span></div>
-            <div class="info-row"><span class="info-label">রোল নম্বর</span><span class="info-value" id="ms-roll">—</span></div>
             <div class="info-row"><span class="info-label">কোর্সের নাম</span><span class="info-value" id="ms-course">—</span></div>
             <div class="info-row"><span class="info-label">সেশন</span><span class="info-value" id="ms-session">—</span></div>
             <div class="info-row"><span class="info-label">পিতার নাম</span><span class="info-value" id="ms-father">—</span></div>
-            <div class="info-row"><span class="info-label">ফলাফল প্রকাশের তারিখ</span><span class="info-value" id="ms-publish">—</span></div>
           </div>
 
-          <table class="subject-table">
-            <thead>
-              <tr>
-                <th>#</th>
-                <th>বিষয়</th>
-                <th>নম্বর</th>
-                <th>গ্রেড</th>
-              </tr>
-            </thead>
-            <tbody id="ms-subjects"></tbody>
-          </table>
+          <div id="pfBannerContainer" style="display:none; text-align: center; border-radius: 12px; padding: 24px; margin-bottom: 24px;">
+            <i id="pfBannerIcon" class="bi" style="font-size: 3rem; margin-bottom: 12px; display: inline-block;"></i>
+            <h4 id="pfBannerTitle" style="font-weight: 700; margin-bottom: 8px;"></h4>
+            <p id="pfBannerText" style="font-size: 0.95rem; margin-bottom: 0;"></p>
+          </div>
 
-          <div class="result-verdict">
-            <div>
-              <div class="gpa-label">মোট GPA / গ্রেড</div>
-              <div class="gpa-display" id="ms-gpa">—</div>
+          <div id="certificateContainer" style="display:none;">
+            <h5 style="color:var(--admin-navy); font-weight:600; margin-bottom:12px; border-bottom:1px solid #eee; padding-bottom:10px;">
+              <i class="bi bi-file-earmark-pdf-fill me-2" style="color:var(--red);"></i>আপনার সার্টিফিকেট
+            </h5>
+            
+            <!-- PDF Live Preview -->
+            <div style="width: 100%; aspect-ratio: 1.414 / 1; max-height: 700px; border: 1px solid #ddd; border-radius: 8px; overflow: hidden; margin-bottom: 16px;">
+              <iframe id="pdfPreviewIframe" src="" width="100%" height="100%" style="border: none; min-width: 100%;"></iframe>
             </div>
-            <div id="ms-verdict" class="verdict-pass">—</div>
-          </div>
-
-          <div class="text-center mt-4 no-print">
-            <button class="btn-print" id="btnPrint"><i class="bi bi-printer"></i> প্রিন্ট / PDF সংরক্ষণ</button>
+            
+            <div style="display: flex; gap: 16px; justify-content: center; flex-wrap: wrap;">
+              <button id="btnPrintCert" onclick="printCertificate()" class="btn btn-outline-primary" style="padding: 10px 24px; font-weight: 600; border-radius: 8px; min-width: 140px;">
+                <i class="bi bi-printer-fill me-2"></i> প্রিন্ট করুন
+              </button>
+              <a href="#" id="btnDownloadCert" onclick="forceDownloadCert(event)" class="btn btn-primary" style="padding: 10px 24px; font-weight: 600; border-radius: 8px; box-shadow: 0 4px 15px rgba(30,144,255,0.3); min-width: 140px;">
+                <i class="bi bi-cloud-arrow-down-fill me-2"></i> পিডিএফ ডাউনলোড
+              </a>
+            </div>
           </div>
         </div>
       </div>
@@ -103,5 +103,78 @@
 document.getElementById('resultSearchForm').addEventListener('submit', () => {
   document.getElementById('resultEmptyState').style.display = 'none';
 });
+
+async function printCertificate() {
+  const url = document.getElementById('btnDownloadCert').href;
+  if(!url || url === '#' || url.endsWith('#')) return;
+  
+  const btn = document.getElementById('btnPrintCert');
+  const originalText = btn.innerHTML;
+  btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span> প্রস্তুত হচ্ছে...';
+  btn.disabled = true;
+  
+  try {
+    const response = await fetch(url);
+    const blob = await response.blob();
+    const blobUrl = URL.createObjectURL(blob);
+    
+    const iframe = document.createElement('iframe');
+    iframe.style.display = 'none';
+    iframe.src = blobUrl;
+    document.body.appendChild(iframe);
+    
+    iframe.onload = function() {
+      setTimeout(() => {
+        iframe.contentWindow.focus();
+        iframe.contentWindow.print();
+        btn.innerHTML = originalText;
+        btn.disabled = false;
+        // Optionally remove after printing: document.body.removeChild(iframe);
+      }, 500);
+    };
+  } catch(e) {
+    console.error('Direct print failed, falling back to new window', e);
+    const printWindow = window.open(url, '_blank');
+    if (printWindow) {
+      printWindow.onload = function() {
+        try { printWindow.print(); } catch(err) {}
+      };
+    }
+    btn.innerHTML = originalText;
+    btn.disabled = false;
+  }
+}
+
+async function forceDownloadCert(e) {
+  e.preventDefault();
+  const url = e.currentTarget.href;
+  if(!url || url === '#' || url.endsWith('#')) return;
+  
+  const btn = e.currentTarget;
+  const originalText = btn.innerHTML;
+  btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span> ডাউনলোড হচ্ছে...';
+  btn.style.pointerEvents = 'none';
+  
+  try {
+    const response = await fetch(url);
+    const blob = await response.blob();
+    const blobUrl = URL.createObjectURL(blob);
+    
+    const a = document.createElement('a');
+    a.href = blobUrl;
+    const regNo = document.getElementById('ms-regno').textContent || 'Certificate';
+    a.download = `Certificate_${regNo}.pdf`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(blobUrl);
+  } catch(err) {
+    console.error('Direct download failed, opening in new tab', err);
+    window.open(url, '_blank');
+  } finally {
+    btn.innerHTML = originalText;
+    btn.style.pointerEvents = 'auto';
+  }
+}
 </script>
 </body></html>

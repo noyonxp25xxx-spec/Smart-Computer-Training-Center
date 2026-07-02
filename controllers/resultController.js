@@ -1,14 +1,44 @@
 const { db } = require('../config/firebase');
 
-// GET /result/:regNo — Fetch result by registration number
 async function getResult(req, res) {
   const { regNo } = req.params;
   try {
-    const doc = await db.collection('results').doc(regNo.trim()).get();
-    if (!doc.exists) {
-      return res.status(404).json({ success: false, message: 'এই রেজিস্ট্রেশন নম্বরে কোনো রেজাল্ট পাওয়া যায়নি।' });
+    const rNo = regNo.trim();
+    
+    // 1. Find student directly using regNo as Document ID
+    const studentDoc = await db.collection('students').doc(rNo).get();
+    if (!studentDoc.exists) {
+      return res.status(404).json({ success: false, message: 'এই রেজিস্ট্রেশন নম্বরে কোনো স্টুডেন্ট পাওয়া যায়নি।' });
     }
-    return res.json({ success: true, result: { id: doc.id, ...doc.data() } });
+    const student = studentDoc.data();
+    
+    // 2. Check if Pass/Fail status is updated
+    if (typeof student.isPassed !== 'boolean') {
+      return res.status(404).json({ success: false, message: 'আপনার রেজাল্ট এখনো পাবলিশ করা হয়নি।' });
+    }
+
+    // 3. Try to get Certificate URL if available
+    let certificateUrl = null;
+    if (student.sessionId) {
+      const resultDoc = await db.collection('results').doc(student.sessionId).get();
+      if (resultDoc.exists && resultDoc.data().certificates && resultDoc.data().certificates[rNo]) {
+        certificateUrl = resultDoc.data().certificates[rNo];
+      }
+    }
+    
+    // Return success with pass/fail status and optional certificate
+    return res.json({ 
+      success: true, 
+      result: { 
+        studentName: student.name,
+        regNo: student.regNo,
+        session: student.session,
+        courseName: student.course,
+        fatherName: student.fatherName || '—',
+        isPassed: student.isPassed,
+        certificateUrl 
+      } 
+    });
   } catch (err) {
     console.error('getResult error:', err);
     return res.status(500).json({ success: false, message: 'সার্ভার ত্রুটি। পুনরায় চেষ্টা করুন।' });

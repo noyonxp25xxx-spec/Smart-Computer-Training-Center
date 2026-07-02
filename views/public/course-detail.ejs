@@ -11,7 +11,7 @@
 <section class="section"><div class="container">
   <div class="row g-5">
     <div class="col-lg-8">
-      <% if(course.imageUrl){ %><img src="<%= course.imageUrl %>" alt="<%= course.name %>" class="img-fluid rounded-3 w-100 mb-4" style="max-height:380px;object-fit:cover"/><%}%>
+      <% if(course.imageUrl){ %><img src="<%= course.imageUrl %>" alt="<%= course.name %>" class="img-fluid rounded-3 w-100 mb-4" style="max-height:450px;object-fit:contain;background:#f1f5f9;padding:10px;"/><%}%>
       <div style="background:#fff;border-radius:16px;padding:32px;box-shadow:var(--shadow-sm)">
         <h2 style="color:var(--navy);font-weight:800;margin-bottom:16px"><%= course.name %></h2>
         <div style="color:var(--gray-500);line-height:2"><%- (course.description||'কোর্সের বিবরণ পাওয়া যায়নি।').replace(/\n/g,'<br>') %></div>
@@ -21,8 +21,17 @@
       <div style="background:var(--navy);border-radius:16px;padding:28px;color:#fff;position:sticky;top:90px">
         <h4 style="font-weight:700;margin-bottom:20px;color:var(--gold)">কোর্সের তথ্য</h4>
         <div style="border-bottom:1px solid rgba(255,255,255,.1);padding:12px 0;display:flex;justify-content:space-between"><span style="color:rgba(255,255,255,.6)">কোর্স কোড</span><span style="font-weight:700"><%= course.code||'—' %></span></div>
-        <div style="border-bottom:1px solid rgba(255,255,255,.1);padding:12px 0;display:flex;justify-content:space-between"><span style="color:rgba(255,255,255,.6)">মেয়াদ</span><span style="font-weight:700"><%= course.duration||'—' %></span></div>
-        <div style="border-bottom:1px solid rgba(255,255,255,.1);padding:12px 0;display:flex;justify-content:space-between"><span style="color:rgba(255,255,255,.6)">ফি</span><span style="font-weight:700;color:var(--gold)">৳ <%= course.fee||'—' %></span></div>
+        <% if(course.durations && course.durations.length > 0) { %>
+          <% course.durations.forEach((d, i) => { %>
+            <div style="border-bottom:1px solid rgba(255,255,255,.1);padding:12px 0;display:flex;justify-content:space-between">
+              <span style="color:rgba(255,255,255,.6)">মেয়াদ: <%= d.duration %></span>
+              <span style="font-weight:700;color:var(--gold)">৳ <%= d.fee %></span>
+            </div>
+          <% }); %>
+        <% } else { %>
+          <div style="border-bottom:1px solid rgba(255,255,255,.1);padding:12px 0;display:flex;justify-content:space-between"><span style="color:rgba(255,255,255,.6)">মেয়াদ</span><span style="font-weight:700"><%= course.duration||'—' %></span></div>
+          <div style="border-bottom:1px solid rgba(255,255,255,.1);padding:12px 0;display:flex;justify-content:space-between"><span style="color:rgba(255,255,255,.6)">ফি</span><span style="font-weight:700;color:var(--gold)">৳ <%= course.fee||'—' %></span></div>
+        <% } %>
         <a href="/admission" class="btn-hero-primary d-block text-center mt-4"><i class="bi bi-pen me-2"></i>ভর্তি হন</a>
         <a href="/contact" class="btn-hero-secondary d-block text-center mt-3"><i class="bi bi-telephone me-2"></i>যোগাযোগ করুন</a>
       </div>

@@ -215,17 +215,15 @@
           <td class="val"><%= admission.trade || admission.course || '—' %></td>
         </tr>
         <tr>
+          <td class="lbl">Course Duration</td>
+          <td class="colon">:</td>
+          <td class="val"><%= admission.duration || '—' %></td>
+        </tr>
+        <tr>
           <td class="lbl">Course Fee</td>
           <td class="colon">:</td>
           <td class="val">
-            <% if (typeof courseFeeBreakdown !== 'undefined' && courseFeeBreakdown.length > 1) { %>
-              <% courseFeeBreakdown.forEach(function(cf, idx) { %>
-                <div style="font-size:0.85rem; color:#555;"><%= cf.name %>: ৳<%= cf.fee %></div>
-              <% }); %>
-              <div style="margin-top:4px; font-weight:700; color:#dc2626; border-top:1px dashed #ccc; padding-top:4px;">মোট (Total): ৳<%= courseFee %> BDT</div>
-            <% } else { %>
-              <%= typeof courseFee !== 'undefined' && courseFee !== '—' ? '৳' + courseFee + ' BDT' : '—' %>
-            <% } %>
+            <%= admission.fee ? '৳' + admission.fee + ' BDT' : '—' %>
           </td>
         </tr>
         <tr>

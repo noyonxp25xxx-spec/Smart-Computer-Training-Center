@@ -113,30 +113,55 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   function renderMarksheet(r) {
-    document.getElementById('ms-name').textContent        = r.studentName || '—';
-    document.getElementById('ms-regno').textContent       = r.regNo       || '—';
-    document.getElementById('ms-roll').textContent        = r.rollNo      || '—';
-    document.getElementById('ms-course').textContent      = r.courseName  || '—';
-    document.getElementById('ms-session').textContent     = r.session     || '—';
-    document.getElementById('ms-father').textContent      = r.fatherName  || '—';
-    document.getElementById('ms-publish').textContent     = r.publishDate || '—';
-    document.getElementById('ms-gpa').textContent         = r.totalGPA    || '—';
+    document.getElementById('ms-name').textContent    = r.studentName || '—';
+    document.getElementById('ms-regno').textContent   = r.regNo       || '—';
+    document.getElementById('ms-course').textContent  = r.courseName  || '—';
+    document.getElementById('ms-session').textContent = r.session     || '—';
+    document.getElementById('ms-father').textContent  = r.fatherName  || '—';
 
-    const verdict = document.getElementById('ms-verdict');
-    if (verdict) {
-      verdict.textContent  = r.status === 'Pass' ? '✅ উত্তীর্ণ' : '❌ অনুত্তীর্ণ';
-      verdict.className    = r.status === 'Pass' ? 'verdict-pass' : 'verdict-fail';
+    // Pass/Fail Banner Logic
+    const bannerContainer = document.getElementById('pfBannerContainer');
+    const bannerIcon = document.getElementById('pfBannerIcon');
+    const bannerTitle = document.getElementById('pfBannerTitle');
+    const bannerText = document.getElementById('pfBannerText');
+    
+    bannerContainer.style.display = 'block';
+    
+    if (r.isPassed === true) {
+      bannerContainer.style.background = 'rgba(16, 185, 129, 0.1)';
+      bannerContainer.style.border = '1px solid #10B981';
+      bannerIcon.className = 'bi bi-patch-check-fill';
+      bannerIcon.style.color = '#10B981';
+      bannerTitle.textContent = 'অভিনন্দন! আপনি উত্তীর্ণ হয়েছেন।';
+      bannerTitle.style.color = '#065F46';
+      bannerText.textContent = r.certificateUrl 
+        ? 'আপনার সার্টিফিকেট নিচে দেওয়া হলো। আপনি চাইলে এটি প্রিন্ট বা ডাউনলোড করতে পারেন।' 
+        : 'আপনার রেজাল্ট সফলভাবে প্রকাশিত হয়েছে।';
+      bannerText.style.color = '#047857';
+    } else {
+      bannerContainer.style.background = 'rgba(239, 68, 68, 0.1)';
+      bannerContainer.style.border = '1px solid #EF4444';
+      bannerIcon.className = 'bi bi-x-circle-fill';
+      bannerIcon.style.color = '#EF4444';
+      bannerTitle.textContent = 'দুঃখিত! আপনি উত্তীর্ণ হতে পারেননি।';
+      bannerTitle.style.color = '#991B1B';
+      bannerText.textContent = 'আপনার রেজাল্ট অকৃতকার্য এসেছে। অনুগ্রহ করে প্রতিষ্ঠান কর্তৃপক্ষের সাথে যোগাযোগ করুন।';
+      bannerText.style.color = '#7F1D1D';
     }
 
-    const tbody = document.getElementById('ms-subjects');
-    if (tbody && r.subjects) {
-      tbody.innerHTML = r.subjects.map((s, i) => `
-        <tr>
-          <td>${i + 1}</td>
-          <td>${s.name || ''}</td>
-          <td>${s.marks || ''}</td>
-          <td class="grade-${s.grade?.charAt(0) || 'A'}">${s.grade || ''}</td>
-        </tr>`).join('');
+    // Certificate Preview Logic
+    const certContainer = document.getElementById('certificateContainer');
+    if (r.certificateUrl) {
+      certContainer.style.display = 'block';
+      const iframe = document.getElementById('pdfPreviewIframe');
+      if (iframe) iframe.src = r.certificateUrl + '#toolbar=0'; // #toolbar=0 hides default PDF tools
+      
+      const btnDownload = document.getElementById('btnDownloadCert');
+      if (btnDownload) {
+        btnDownload.href = r.certificateUrl;
+      }
+    } else {
+      certContainer.style.display = 'none';
     }
   }
 

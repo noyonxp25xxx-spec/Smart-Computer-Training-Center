@@ -58,4 +58,19 @@ function requirePermission(permission) {
   };
 }
 
-module.exports = { requireAdmin, requirePermission };
+/**
+ * Middleware to strictly require Main Admin access.
+ */
+function requireMainAdmin(req, res, next) {
+  if (!req.admin) return res.redirect('/admin/login');
+  if (req.admin.isMainAdmin === true || req.admin.uid === 'system-admin') {
+    return next();
+  }
+  return res.status(403).render('admin/error', {
+    title: 'অ্যাক্সেস নেই',
+    message: 'শুধুমাত্র প্রধান অ্যাডমিন (Main Admin) এই পেজে প্রবেশ করতে পারবেন।',
+    admin: req.admin
+  });
+}
+
+module.exports = { requireAdmin, requirePermission, requireMainAdmin };

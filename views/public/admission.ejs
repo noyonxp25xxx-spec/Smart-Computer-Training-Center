@@ -222,21 +222,29 @@
 
         <!-- ── SECTION 3: Trade ── -->
         <div class="adm-section-title">Trade / কোর্স</div>
-        <div class="adm-field">
-          <label>Trade নির্বাচন করুন <span>*</span></label>
-          <div class="adm-check-group">
-            <% if(courses && courses.length > 0){ courses.forEach(c=>{ %>
-              <label><input type="checkbox" name="trade" value="<%= c.name %>"/> <%= c.name %></label>
-            <% }); } else { %>
-              <label><input type="checkbox" name="trade" value="COA"/> COA</label>
-              <label><input type="checkbox" name="trade" value="DBP"/> DBP</label>
-              <label><input type="checkbox" name="trade" value="H&N"/> H&amp;N</label>
-              <label><input type="checkbox" name="trade" value="GD&MP"/> GD&amp;MP</label>
-              <label><input type="checkbox" name="trade" value="Auto Cad"/> Auto Cad</label>
-              <label><input type="checkbox" name="trade" value="MPS"/> MPS</label>
-              <label><input type="checkbox" name="trade" value="Sec.Sc"/> Sec.Sc</label>
-            <% } %>
+        <div class="adm-grid adm-grid-2">
+          <div class="adm-field">
+            <label>Trade/কোর্স নির্বাচন করুন <span>*</span></label>
+            <select name="trade" id="courseSelect" required>
+              <option value="">— Select Course —</option>
+              <% if(courses && courses.length > 0){ courses.forEach((c, idx) => { %>
+                <option value="<%= c.name %>" data-idx="<%= idx %>"><%= c.name %></option>
+              <% }); } else { %>
+                <option value="COA">COA</option>
+                <option value="DBP">DBP</option>
+              <% } %>
+            </select>
           </div>
+          <div class="adm-field">
+            <label>মেয়াদ নির্বাচন করুন <span>*</span></label>
+            <select name="duration" id="durationSelect" required>
+              <option value="">— Select Duration —</option>
+            </select>
+          </div>
+        </div>
+        <div class="adm-field" style="margin-top: 14px; background: rgba(10,38,71,0.05); padding: 16px; border-radius: 8px; text-align: center; border: 1px dashed rgba(10,38,71,0.2);">
+          <label style="margin-bottom: 0;">কোর্স ফি: <span id="feeDisplay" style="font-size: 1.25rem; font-weight: 700; color: var(--gold); margin-left: 10px;">—</span></label>
+          <input type="hidden" name="fee" id="feeInput" value="">
         </div>
 
         <!-- ── SECTION 4: Education ── -->
@@ -296,11 +304,28 @@
 </main>
 <%- include('../partials/footer') %>
 
+<script type="application/json" id="coursesDataJson"><%- JSON.stringify(courses || []) %></script>
+
 <script>
 // ── File preview ──
 function previewFile(input, previewId) {
   const preview = document.getElementById(previewId);
   if (input.files && input.files[0]) {
+    const file = input.files[0];
+    
+    // Check file size (5MB limit = 5 * 1024 * 1024 bytes)
+    if (file.size > 5 * 1024 * 1024) {
+      alert('ফাইল সাইজ ৫ মেগাবাইট (5 MB) এর চেয়ে বেশি হতে পারবে না। দয়া করে ছোট সাইজের ছবি আপলোড করুন।');
+      input.value = ''; // Clear the input
+      
+      // Remove existing preview if any
+      const existing = preview.querySelector('img');
+      if (existing) existing.remove();
+      // Show placeholder content back
+      Array.from(preview.children).forEach(c => { if(c.tagName !== 'IMG') c.style.display = ''; });
+      return;
+    }
+
     const reader = new FileReader();
     reader.onload = e => {
       // Remove existing img if any
@@ -312,7 +337,7 @@ function previewFile(input, previewId) {
       img.src = e.target.result;
       preview.appendChild(img);
     };
-    reader.readAsDataURL(input.files[0]);
+    reader.readAsDataURL(file);
   }
 }
 
@@ -325,22 +350,16 @@ document.getElementById('admissionForm').addEventListener('submit', async functi
   btn.innerHTML = '<i class="bi bi-hourglass-split"></i> জমা হচ্ছে...';
   errEl.classList.remove('show');
 
-  // Validate at least one trade selected
-  const tradeChecks = document.querySelectorAll('input[name="trade"]:checked');
-  if (tradeChecks.length === 0) {
-    errEl.textContent = 'অনুগ্রহ করে অন্তত একটি Trade/কোর্স নির্বাচন করুন।';
+  // Collect selected trade and duration
+  const tradeVal = document.getElementById('courseSelect').value;
+  const durVal = document.getElementById('durationSelect').value;
+  if (!tradeVal || !durVal) {
+    errEl.textContent = 'অনুগ্রহ করে কোর্স এবং মেয়াদ নির্বাচন করুন।';
     errEl.classList.add('show');
     btn.disabled = false;
     btn.innerHTML = '<i class="bi bi-send-fill"></i> আবেদন জমা দিন';
     return;
   }
-
-  const fd = new FormData(this);
-
-  // Collect checked trades as comma-separated
-  fd.delete('trade');
-  const trades = Array.from(tradeChecks).map(c => c.value).join(', ');
-  fd.append('trade', trades);
 
   // Attach files
   const photoFile = document.getElementById('photoInput').files[0];
@@ -354,6 +373,7 @@ document.getElementById('admissionForm').addEventListener('submit', async functi
     return;
   }
   
+  const fd = new FormData(this);
   if (photoFile) { fd.delete('photo'); fd.append('photo', photoFile); }
   if (sigFile) { fd.delete('signature'); fd.append('signature', sigFile); }
 
@@ -373,6 +393,51 @@ document.getElementById('admissionForm').addEventListener('submit', async functi
     errEl.classList.add('show');
     btn.disabled = false;
     btn.innerHTML = '<i class="bi bi-send-fill"></i> আবেদন জমা দিন';
+  }
+});
+
+// 🌟 Dynamic Course & Duration JS 🌟
+const coursesDataStr = document.getElementById('coursesDataJson').textContent;
+const coursesData = coursesDataStr ? JSON.parse(coursesDataStr) : [];
+const courseSelect = document.getElementById('courseSelect');
+const durationSelect = document.getElementById('durationSelect');
+const feeDisplay = document.getElementById('feeDisplay');
+const feeInput = document.getElementById('feeInput');
+
+courseSelect.addEventListener('change', function() {
+  durationSelect.innerHTML = '<option value="">— Select Duration —</option>';
+  feeDisplay.textContent = '—';
+  feeInput.value = '';
+  
+  const idx = this.options[this.selectedIndex].getAttribute('data-idx');
+  if (idx !== null && coursesData[idx]) {
+    const c = coursesData[idx];
+    if (c.durations && c.durations.length > 0) {
+      c.durations.forEach(d => {
+        const opt = document.createElement('option');
+        opt.value = d.duration;
+        opt.textContent = d.duration;
+        opt.dataset.fee = d.fee;
+        durationSelect.appendChild(opt);
+      });
+    } else if (c.duration) {
+      const opt = document.createElement('option');
+      opt.value = c.duration;
+      opt.textContent = c.duration;
+      opt.dataset.fee = c.fee || 0;
+      durationSelect.appendChild(opt);
+    }
+  }
+});
+
+durationSelect.addEventListener('change', function() {
+  if (this.selectedIndex > 0) {
+    const fee = this.options[this.selectedIndex].dataset.fee;
+    feeDisplay.textContent = '৳' + fee;
+    feeInput.value = fee;
+  } else {
+    feeDisplay.textContent = '—';
+    feeInput.value = '';
   }
 });
 </script>

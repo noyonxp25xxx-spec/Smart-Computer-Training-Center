@@ -134,6 +134,16 @@
             <input type="text" name="session" id="editStudentSession" class="admin-input"/>
           </div>
         </div>
+        <div class="row">
+          <div class="col form-group-admin">
+            <label class="admin-label">পিতার নাম</label>
+            <input type="text" name="fatherName" id="editStudentFatherName" class="admin-input"/>
+          </div>
+          <div class="col form-group-admin">
+            <label class="admin-label">ক্লাস রোল</label>
+            <input type="text" name="classRoll" id="editStudentClassRoll" class="admin-input"/>
+          </div>
+        </div>
         <div class="form-group-admin">
           <label class="admin-label">স্ট্যাটাস</label>
           <select name="status" id="editStudentStatus" class="admin-select">
@@ -172,6 +182,8 @@ function editStudent(s) {
   document.getElementById('editStudentPhone').value = s.phone || '';
   document.getElementById('editStudentCourse').value = s.course || '';
   document.getElementById('editStudentSession').value = s.session || '';
+  document.getElementById('editStudentFatherName').value = s.fatherName || '';
+  document.getElementById('editStudentClassRoll').value = s.classRoll || '';
   document.getElementById('editStudentStatus').value = s.status || 'active';
   
   const preview = document.getElementById('editStudentImgPreview');

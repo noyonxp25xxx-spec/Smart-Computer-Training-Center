@@ -1,0 +1,272 @@
+<%- include('../partials/admin-head') %>
+
+<div class="content-header">
+  <div>
+    <h1 class="page-title">সেশন ম্যানেজার</h1>
+    <p class="text-muted mb-0">সকল সেশন (যেমন: January - June 2024) ম্যানেজ করুন</p>
+  </div>
+  <button class="btn" style="background: linear-gradient(135deg, var(--admin-blue) 0%, #2563eb 100%); color: #fff; border: none; padding: 10px 20px; border-radius: 10px; font-weight: 600; box-shadow: 0 4px 15px rgba(37,99,235,0.3); transition: all 0.3s ease;" onclick="openAddSessionModal()" onmouseover="this.style.transform='translateY(-2px)';" onmouseout="this.style.transform='translateY(0)';">
+    <i class="bi bi-plus-lg me-1"></i> নতুন সেশন যোগ করুন
+  </button>
+</div>
+
+<style>
+  .session-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 20px;
+  }
+  .session-card {
+    background: #fff;
+    border-radius: 16px;
+    border: 1px solid rgba(0,0,0,0.04);
+    box-shadow: 0 8px 24px rgba(10,22,40,0.04);
+    padding: 20px;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s ease;
+  }
+  .session-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 30px rgba(10,22,40,0.08);
+  }
+  .session-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; width: 4px; height: 100%;
+    background: linear-gradient(to bottom, var(--admin-blue), #2563eb);
+    border-radius: 4px 0 0 4px;
+  }
+  .session-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 16px;
+  }
+  .session-title {
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: #1e293b;
+    margin: 0;
+  }
+  .session-year-badge {
+    background: rgba(30,144,255,0.1);
+    color: var(--admin-blue);
+    font-size: 0.75rem;
+    font-weight: 700;
+    padding: 4px 10px;
+    border-radius: 20px;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .session-body {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #f8fafc;
+    border-radius: 10px;
+    padding: 12px 16px;
+  }
+  .session-month {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #64748b;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+  .session-month-label {
+    font-size: 0.7rem;
+    color: #94a3b8;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .session-divider {
+    color: #cbd5e1;
+    font-size: 1.2rem;
+  }
+  .btn-delete-session {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    background: rgba(239,68,68,0.1);
+    color: #ef4444;
+    border: none;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    opacity: 0;
+  }
+  .session-card:hover .btn-delete-session {
+    opacity: 1;
+  }
+  .btn-delete-session:hover {
+    background: #ef4444;
+    color: #fff;
+  }
+</style>
+
+<div class="mt-4">
+  <div class="session-grid">
+    <% if (sessions && sessions.length > 0) { %>
+      <% sessions.forEach(s => { %>
+        <div class="session-card">
+          <button class="btn-delete-session" onclick="deleteSession('<%= s.id %>')" title="Delete Session">
+            <i class="bi bi-trash-fill"></i>
+          </button>
+          
+          <div class="session-header">
+            <div>
+              <h3 class="session-title"><%= s.name %></h3>
+            </div>
+            <div class="session-year-badge">
+              <i class="bi bi-calendar3"></i> <%= s.year %>
+            </div>
+          </div>
+          
+          <div class="session-body">
+            <div class="session-month">
+              <span class="session-month-label">Starts</span>
+              <span style="color:#0f172a;"><%= s.startMonth %></span>
+            </div>
+            <i class="bi bi-arrow-right session-divider"></i>
+            <div class="session-month" style="text-align: right;">
+              <span class="session-month-label">Ends</span>
+              <span style="color:#0f172a;"><%= s.endMonth %></span>
+            </div>
+          </div>
+        </div>
+      <% }) %>
+    <% } else { %>
+      <div style="grid-column: 1 / -1; background: #fff; padding: 40px; text-align: center; border-radius: 16px; border: 1px dashed #cbd5e1;">
+        <div style="width: 60px; height: 60px; background: #f1f5f9; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; margin-bottom: 16px;">
+          <i class="bi bi-calendar-x" style="font-size: 1.5rem; color: #94a3b8;"></i>
+        </div>
+        <h5 style="font-weight: 600; color: #475569; margin-bottom: 8px;">কোনো সেশন পাওয়া যায়নি</h5>
+        <p style="color: #94a3b8; font-size: 0.9rem; margin-bottom: 0;">উপরের বাটনটিতে ক্লিক করে নতুন সেশন যোগ করুন</p>
+      </div>
+    <% } %>
+  </div>
+</div>
+
+<!-- Add Session Modal -->
+<div class="modal-overlay" id="sessionModal">
+  <div class="modal-box" style="max-width: 450px;">
+    <div class="modal-header">
+      <span class="modal-title">নতুন সেশন যোগ করুন</span>
+      <button class="modal-close" data-modal-close="sessionModal">&times;</button>
+    </div>
+    <form id="sessionForm">
+      <div class="modal-body">
+        <div class="form-group-admin">
+          <label class="admin-label">শুরুর মাস (Start Month) *</label>
+          <select id="startMonth" class="admin-input" required>
+            <option value="">মাস নির্বাচন করুন</option>
+            <option value="January">January</option>
+            <option value="February">February</option>
+            <option value="March">March</option>
+            <option value="April">April</option>
+            <option value="May">May</option>
+            <option value="June">June</option>
+            <option value="July">July</option>
+            <option value="August">August</option>
+            <option value="September">September</option>
+            <option value="October">October</option>
+            <option value="November">November</option>
+            <option value="December">December</option>
+          </select>
+        </div>
+        <div class="form-group-admin">
+          <label class="admin-label">শেষের মাস (End Month) *</label>
+          <select id="endMonth" class="admin-input" required>
+            <option value="">মাস নির্বাচন করুন</option>
+            <option value="January">January</option>
+            <option value="February">February</option>
+            <option value="March">March</option>
+            <option value="April">April</option>
+            <option value="May">May</option>
+            <option value="June">June</option>
+            <option value="July">July</option>
+            <option value="August">August</option>
+            <option value="September">September</option>
+            <option value="October">October</option>
+            <option value="November">November</option>
+            <option value="December">December</option>
+          </select>
+        </div>
+        <div class="form-group-admin">
+          <label class="admin-label">বছর (Year) *</label>
+          <input type="number" id="year" class="admin-input" placeholder="যেমন: 2024" required min="2000" max="2100" />
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn-cancel" data-modal-close="sessionModal">বাতিল</button>
+        <button type="submit" class="btn-save">সেভ করুন</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+function openAddSessionModal() {
+  document.getElementById('sessionForm').reset();
+  document.getElementById('year').value = new Date().getFullYear();
+  if (typeof openModal === 'function') {
+    openModal('sessionModal');
+  } else {
+    document.getElementById('sessionModal').style.display = 'flex';
+  }
+}
+
+document.getElementById('sessionForm').addEventListener('submit', async e => {
+  e.preventDefault();
+  const startMonth = document.getElementById('startMonth').value;
+  const endMonth = document.getElementById('endMonth').value;
+  const year = document.getElementById('year').value;
+  
+  const btn = e.target.querySelector('.btn-save');
+  const originalHtml = btn.innerHTML;
+  btn.disabled = true;
+  btn.innerHTML = 'অপেক্ষা করুন...';
+  
+  try {
+    const res = await fetch('/admin/sessions', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ startMonth, endMonth, year })
+    });
+    const data = await res.json();
+    if(data.success) {
+      window.location.reload();
+    } else {
+      alert('Error: ' + data.message);
+      btn.disabled = false;
+      btn.innerHTML = originalHtml;
+    }
+  } catch(err) {
+    alert('Failed to save session');
+    btn.disabled = false;
+    btn.innerHTML = originalHtml;
+  }
+});
+
+async function deleteSession(id) {
+  if(!confirm('আপনি কি নিশ্চিত যে এই সেশনটি মুছে ফেলতে চান?')) return;
+  try {
+    const res = await fetch('/admin/sessions/' + id, { method: 'DELETE' });
+    const data = await res.json();
+    if(data.success) window.location.reload();
+    else alert('Error: ' + data.message);
+  } catch(err) {
+    alert('Failed to delete session');
+  }
+}
+</script>
+
+<%- include('../partials/admin-foot') %>

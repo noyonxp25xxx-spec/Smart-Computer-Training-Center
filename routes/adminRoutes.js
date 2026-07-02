@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const multer = require('multer');
-const { requireAdmin, requirePermission } = require('../middleware/authMiddleware');
+const { requireAdmin, requirePermission, requireMainAdmin } = require('../middleware/authMiddleware');
 const { auth, db, firebaseClientConfig, isMockFirebase } = require('../config/firebase');
 
 const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 10 * 1024 * 1024 } });
@@ -117,6 +117,30 @@ router.post('/courses', upload.single('image'), addCourse);
 router.put('/courses/:id', upload.single('image'), updateCourse);
 router.delete('/courses/:id', deleteCourse);
 
+// SESSIONS
+router.get('/sessions', async (req, res) => {
+  const snap = await db.collection('sessions').orderBy('createdAt', 'desc').get();
+  res.render('admin/sessions', { title: 'সেশন ম্যানেজার', admin: req.admin, sessions: snap.docs.map(d => ({ id: d.id, ...d.data() })) });
+});
+router.post('/sessions', async (req, res) => {
+  try {
+    const { startMonth, endMonth, year } = req.body;
+    const sessionName = `${startMonth} - ${endMonth} ${year}`;
+    await db.collection('sessions').add({ startMonth, endMonth, year, name: sessionName, createdAt: new Date().toISOString() });
+    res.json({ success: true, message: 'সেশন যোগ করা হয়েছে' });
+  } catch(e) {
+    res.status(500).json({ success: false, message: e.message });
+  }
+});
+router.delete('/sessions/:id', async (req, res) => {
+  try {
+    await db.collection('sessions').doc(req.params.id).delete();
+    res.json({ success: true, message: 'সেশন মুছে ফেলা হয়েছে' });
+  } catch(e) {
+    res.status(500).json({ success: false, message: e.message });
+  }
+});
+
 // NOTICES
 router.get('/notices', async (req, res) => {
   const snap = await db.collection('notices').orderBy('date', 'desc').get();
@@ -164,31 +188,118 @@ router.delete('/students/:id', student.delete);
 
 // RESULTS
 router.get('/results', async (req, res) => {
-  const snap = await db.collection('results').orderBy('updatedAt', 'desc').limit(100).get();
-  const courses = await db.collection('courses').orderBy('createdAt', 'desc').get();
+  const snap = await db.collection('results').orderBy('createdAt', 'desc').get();
+  const sessionsSnap = await db.collection('sessions').orderBy('createdAt', 'desc').get();
+  
+  // Create a map of session ID to session Name
+  const sessionMap = {};
+  sessionsSnap.docs.forEach(d => { sessionMap[d.id] = d.data().name; });
+  
+  const results = snap.docs.map(d => ({ 
+    id: d.id, 
+    sessionName: sessionMap[d.id] || d.id,
+    ...d.data() 
+  }));
+
+  const coursesSnap = await db.collection('courses').orderBy('createdAt', 'desc').get();
+
   res.render('admin/results', {
-    title: 'রেজাল্ট ম্যানেজার', admin: req.admin,
-    results: snap.docs.map(d => ({ id: d.id, ...d.data() })),
-    courses: courses.docs.map(d => ({ id: d.id, ...d.data() })),
+    title: 'রেজাল্ট ও সার্টিফিকেট পাবলিশ', 
+    admin: req.admin,
+    results,
+    sessions: sessionsSnap.docs.map(d => ({ id: d.id, ...d.data() })),
+    courses: coursesSnap.docs.map(d => ({ id: d.id, ...d.data() }))
   });
 });
-router.post('/results', upsertResult);
-router.delete('/results/:regNo', deleteResult);
-router.post('/results/import', upload.single('csv'), bulkImportResults);
 
-// RESULT — search by regNo for admin edit
-router.get('/results/search/:regNo', async (req, res) => {
-  const doc = await db.collection('results').doc(req.params.regNo.trim()).get();
-  if (!doc.exists) return res.json({ success: false });
-  return res.json({ success: true, result: { id: doc.id, ...doc.data() } });
+const { uploadImage } = require('../controllers/contentControllers');
+router.post('/results/upload-certificates', upload.array('certificates', 200), async (req, res) => {
+  try {
+    const { sessionId } = req.body;
+    if (!sessionId) return res.status(400).json({ success: false, message: 'সেশন আইডি আবশ্যক।' });
+    
+    if (!req.files || req.files.length === 0) {
+      return res.status(400).json({ success: false, message: 'কোনো ফাইল নির্বাচন করা হয়নি।' });
+    }
+
+    const docRef = db.collection('results').doc(sessionId);
+    const docSnap = await docRef.get();
+    let certificates = docSnap.exists && docSnap.data().certificates ? docSnap.data().certificates : {};
+
+    for (let file of req.files) {
+      // Extract RegNo from filename (e.g. "99999.pdf" -> "99999")
+      // We look for the first continuous block of digits
+      const match = file.originalname.match(/\d+/);
+      if (match) {
+        const regNo = match[0];
+        const url = await uploadImage(file, 'certificates');
+        certificates[regNo] = url;
+      }
+    }
+
+    await docRef.set({
+      certificates,
+      createdAt: docSnap.exists && docSnap.data().createdAt ? docSnap.data().createdAt : new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    }, { merge: true });
+
+    res.json({ success: true, message: `${req.files.length} টি ফাইল সফলভাবে আপলোড হয়েছে।` });
+  } catch (err) {
+    console.error('Upload error:', err);
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
+
+router.delete('/results/:sessionId', async (req, res) => {
+  try {
+    await db.collection('results').doc(req.params.sessionId).delete();
+    res.json({ success: true, message: 'সেশনের রেজাল্ট মুছে ফেলা হয়েছে।' });
+  } catch(e) {
+    res.json({ success: false, message: e.message });
+  }
+});
+
+router.get('/students/filter', async (req, res) => {
+  try {
+    const { session, course } = req.query;
+    let query = db.collection('students');
+    if (session) query = query.where('session', '==', session);
+    if (course) query = query.where('course', '==', course);
+    
+    const snap = await query.get();
+    const students = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    res.json({ success: true, students });
+  } catch (e) {
+    res.json({ success: false, message: e.message });
+  }
+});
+
+router.post('/results/pass-fail', async (req, res) => {
+  try {
+    const { studentIds, isPassed } = req.body;
+    if (!studentIds || studentIds.length === 0) {
+      return res.status(400).json({ success: false, message: 'কোনো স্টুডেন্ট সিলেক্ট করা হয়নি।' });
+    }
+    
+    const batch = db.batch();
+    studentIds.forEach(id => {
+      const ref = db.collection('students').doc(id);
+      batch.update(ref, { isPassed: isPassed, updatedAt: new Date().toISOString() });
+    });
+    
+    await batch.commit();
+    res.json({ success: true, message: `${studentIds.length} জন শিক্ষার্থীর রেজাল্ট স্ট্যাটাস আপডেট হয়েছে।` });
+  } catch (e) {
+    res.status(500).json({ success: false, message: e.message });
+  }
 });
 
 // ADMISSIONS
 router.get('/admissions', async (req, res) => {
   const snap = await db.collection('admissions').orderBy('submittedAt', 'desc').get();
-  const siteConfig = await db.collection('settings').doc('siteConfig').get();
-  const activeSessions = siteConfig.exists ? (siteConfig.data().activeSessions || []) : [];
-  res.render('admin/admissions', { title: 'ভর্তি আবেদন', admin: req.admin, admissions: snap.docs.map(d => ({ id: d.id, ...d.data() })), activeSessions });
+  const sessionsSnap = await db.collection('sessions').orderBy('createdAt', 'desc').get();
+  const sessionsList = sessionsSnap.docs.map(d => ({ id: d.id, ...d.data() }));
+  res.render('admin/admissions', { title: 'ভর্তি আবেদন', admin: req.admin, admissions: snap.docs.map(d => ({ id: d.id, ...d.data() })), activeSessions: sessionsList });
 });
 router.put('/admissions/:id', admissionController.updateStatus);
 router.put('/admissions/:id/payment', admissionController.updatePaymentStatus);
@@ -211,12 +322,13 @@ router.put('/messages/:id/read', contactController.markRead);
 router.delete('/messages/:id', contactController.delete);
 
 // ADMIN USERS
-router.get('/users', async (req, res) => {
+router.get('/users', requireMainAdmin, async (req, res) => {
   const snap = await db.collection('admins').get();
   res.render('admin/users', { title: 'অ্যাডমিন ব্যবস্থাপনা', admin: req.admin, admins: snap.docs.map(d => ({ id: d.id, ...d.data() })) });
 });
-router.post('/users', adminController.addAdmin);
-router.delete('/users/:uid', adminController.deleteAdmin);
+router.post('/users', requireMainAdmin, adminController.addAdmin);
+router.put('/users/:uid', requireMainAdmin, adminController.updateAdmin);
+router.delete('/users/:uid', requireMainAdmin, adminController.deleteAdmin);
 
 // ACTIVITY LOG
 router.get('/activity-log', async (req, res) => {

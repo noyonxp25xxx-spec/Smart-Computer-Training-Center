@@ -1,8 +1,6 @@
 <%- include('../partials/admin-head') %>
 
 <div class="row g-4">
-  <!-- Add Admin User (Only visible to Main Admin) -->
-  <% if (admin.uid === 'system-admin') { %>
   <div class="col-lg-4">
     <div class="table-card">
       <div class="table-card-header"><span class="table-card-title">নতুন অ্যাডমিন/স্টাফ যোগ করুন</span></div>
@@ -16,24 +14,15 @@
             <label class="admin-label">পাসওয়ার্ড *</label>
             <input type="text" name="password" class="admin-input" required autocomplete="new-password"/>
           </div>
-          <div class="form-group-admin" style="margin-top:14px">
-            <label class="admin-label">অ্যাকাউন্ট রোল</label>
-            <select name="role" class="admin-select">
-              <option value="admin">সাধারণ অ্যাডমিন (Admin)</option>
-              <option value="superadmin">সুপার অ্যাডমিন (Super Admin)</option>
-              <option value="result-manager">ফলাফল ব্যবস্থাপক (Result Manager)</option>
-            </select>
-          </div>
 
           <button type="submit" class="btn-save" style="width:100%;margin-top:14px"><i class="bi bi-person-plus me-2"></i>অ্যাকাউন্ট তৈরি করুন</button>
         </form>
       </div>
     </div>
   </div>
-  <% } %>
 
   <!-- Admins List -->
-  <div class="<%= admin.uid === 'system-admin' ? 'col-lg-8' : 'col-12' %>">
+  <div class="col-lg-8">
     <div class="table-card">
       <div class="table-card-header"><span class="table-card-title">অ্যাডমিন অ্যাকাউন্ট সমূহ</span></div>
       <table class="data-table" id="adminsTable">
@@ -41,7 +30,7 @@
           <tr>
             <th>লগইন ইমেইল</th>
             <th>লগইন পাসওয়ার্ড</th>
-            <th>রোল</th>
+            <th>স্ট্যাটাস/রোল</th>
             <th>অ্যাকশন</th>
           </tr>
         </thead>
@@ -51,26 +40,54 @@
             <td style="font-weight:600;"><%= u.email || '—' %></td>
             <td style="font-weight:600;"><%= u.password || '—' %></td>
             <td>
-              <span class="badge badge-<%= u.role === 'superadmin' ? 'success' : u.role === 'result-manager' ? 'blue' : 'gray' %>">
-                <%= u.role === 'superadmin' ? 'Super Admin' : u.role === 'result-manager' ? 'Result Manager' : 'Admin' %>
-              </span>
+              <% if(u.isMainAdmin || u.id === 'system-admin') { %>
+                <span class="badge badge-success">Main Admin</span>
+              <% } else { %>
+                <span class="badge badge-gray">Admin</span>
+              <% } %>
             </td>
             <td>
-              <% if(admin.uid === 'system-admin' && u.role !== 'superadmin') { %>
-              <button class="action-btn delete" onclick="deleteAdminAccount('<%= u.id %>')"><i class="bi bi-trash"></i></button>
-              <% } else if (u.role === 'superadmin') { %>
-              <span style="font-size: .8rem; color: var(--admin-gray-500);">সিস্টেম সুরক্ষিত</span>
+              <% if(u.id === 'system-admin') { %>
+                <span style="font-size: .8rem; color: var(--admin-gray-500);">সিস্টেম সুরক্ষিত</span>
               <% } else { %>
-              <span style="font-size: .8rem; color: var(--admin-gray-500);">অনুমতি নেই</span>
+                <button class="action-btn view" onclick="editAdmin('<%= u.id %>', '<%= u.email %>', '<%= u.password %>')" style="color:var(--admin-blue);margin-right:8px;"><i class="bi bi-pencil-square"></i></button>
+                <button class="action-btn delete" onclick="deleteAdminAccount('<%= u.id %>')"><i class="bi bi-trash"></i></button>
               <% } %>
             </td>
           </tr>
           <% }); } else { %>
-          <tr><td colspan="5" style="text-align:center;padding:24px;color:var(--admin-gray-500)">কোনো অ্যাকাউন্ট পাওয়া যায়নি</td></tr>
+          <tr><td colspan="4" style="text-align:center;padding:24px;color:var(--admin-gray-500)">কোনো অ্যাকাউন্ট পাওয়া যায়নি</td></tr>
           <% } %>
         </tbody>
       </table>
     </div>
+  </div>
+</div>
+
+<!-- Edit Admin Modal -->
+<div class="modal-overlay" id="editAdminModal">
+  <div class="modal-box">
+    <div class="modal-header">
+      <span class="modal-title">অ্যাকাউন্ট এডিট করুন</span>
+      <button class="modal-close" data-modal-close="editAdminModal">&times;</button>
+    </div>
+    <form id="editAdminForm">
+      <div class="modal-body">
+        <input type="hidden" name="uid" id="edit_uid">
+        <div class="form-group-admin">
+          <label class="admin-label">নতুন ইমেইল</label>
+          <input type="email" name="email" id="edit_email" class="admin-input" required>
+        </div>
+        <div class="form-group-admin mt-3">
+          <label class="admin-label">নতুন পাসওয়ার্ড</label>
+          <input type="text" name="password" id="edit_password" class="admin-input" required>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn-cancel" data-modal-close="editAdminModal">বাতিল</button>
+        <button type="submit" class="btn-save">পরিবর্তন সেভ করুন</button>
+      </div>
+    </form>
   </div>
 </div>
 
@@ -79,11 +96,9 @@ document.getElementById('addAdminForm').addEventListener('submit', async e => {
   e.preventDefault();
   const formData = new FormData(e.target);
   
-  // Collect multiple checkboxes manually if needed, or serialize form
   const payload = {
     email: formData.get('email'),
-    password: formData.get('password'),
-    role: formData.get('role')
+    password: formData.get('password')
   };
 
   const res = await fetch('/admin/users', {
@@ -93,6 +108,34 @@ document.getElementById('addAdminForm').addEventListener('submit', async e => {
   });
   const data = await res.json();
   showToast(data.success ? 'অ্যাডমিন অ্যাকাউন্ট সফলভাবে তৈরি হয়েছে' : 'ত্রুটি: ' + data.message, data.success ? 'success' : 'error');
+  if(data.success) setTimeout(() => location.reload(), 1200);
+});
+
+function editAdmin(uid, email, password) {
+  document.getElementById('edit_uid').value = uid;
+  document.getElementById('edit_email').value = email;
+  document.getElementById('edit_password').value = password;
+  
+  openModal('editAdminModal');
+}
+
+document.getElementById('editAdminForm').addEventListener('submit', async e => {
+  e.preventDefault();
+  const uid = document.getElementById('edit_uid').value;
+  const formData = new FormData(e.target);
+  
+  const payload = {
+    email: formData.get('email'),
+    password: formData.get('password')
+  };
+
+  const res = await fetch(`/admin/users/${uid}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload)
+  });
+  const data = await res.json();
+  showToast(data.success ? 'অ্যাকাউন্ট সফলভাবে পরিবর্তন হয়েছে' : 'ত্রুটি: ' + data.message, data.success ? 'success' : 'error');
   if(data.success) setTimeout(() => location.reload(), 1200);
 });
 

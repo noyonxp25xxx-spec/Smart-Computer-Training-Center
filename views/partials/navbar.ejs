@@ -1,8 +1,11 @@
+<%- include('./preloader') %>
+
+
 <!-- Navbar -->
 <nav class="navbar-main navbar navbar-expand-lg">
   <div class="container">
     <!-- Brand -->
-    <a class="navbar-brand-wrap" href="/">
+    <a class="navbar-brand-wrap me-auto" href="/">
       <img src="<%= site.logoUrl || '/images/default-logo.png' %>" alt="<%= site.name %> Logo" />
       <div class="brand-text">
         <div class="name"><%= site.name %></div>

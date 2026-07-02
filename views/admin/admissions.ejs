@@ -40,11 +40,13 @@
         </td>
         <td style="font-size:.78rem;color:var(--admin-gray-500);"><%= (a.submittedAt||'').substring(0,10) %></td>
         <td>
-          <button class="action-btn view" onclick="viewAdmissionDetails(<%= JSON.stringify(a) %>)" title="বিস্তারিত বিবরণ"><i class="bi bi-eye"></i></button>
-          <button class="action-btn edit" onclick="openApproveModal('<%= a.id %>')" title="অনুমোদন করুন" style="background:rgba(16,185,129,.1);color:var(--admin-success);"><i class="bi bi-check-lg"></i></button>
-          <button class="action-btn delete" onclick="updateAdmissionStatus('<%= a.id %>', 'rejected')" title="প্রত্যাখ্যান করুন"><i class="bi bi-x-lg"></i></button>
-          <button class="action-btn edit" onclick="togglePaymentStatus('<%= a.id %>', '<%= a.paymentStatus || 'unpaid' %>')" title="পেমেন্ট স্ট্যাটাস পরিবর্তন" style="background:rgba(245,158,11,.1);color:var(--admin-warning);"><i class="bi bi-currency-dollar"></i></button>
-          <button class="action-btn delete" onclick="deleteAdmissionRecord('<%= a.id %>')" title="মুছে ফেলুন"><i class="bi bi-trash"></i></button>
+            <button class="action-btn view" onclick="viewAdmissionDetails(<%= JSON.stringify(a) %>)" title="বিস্তারিত দেখুন"><i class="bi bi-eye"></i></button>
+            <% if (a.status !== 'approved') { %>
+              <button class="action-btn edit" onclick="openApproveModal('<%= a.id %>')" title="অনুমোদন করুন" style="background:rgba(16,185,129,.1);color:var(--admin-success);"><i class="bi bi-check-lg"></i></button>
+              <button class="action-btn delete" onclick="updateAdmissionStatus('<%= a.id %>', 'rejected', this)" title="প্রত্যাখ্যান করুন"><i class="bi bi-x-lg"></i></button>
+            <% } %>
+            <button class="action-btn edit" onclick="togglePaymentStatus('<%= a.id %>', '<%= a.paymentStatus || 'unpaid' %>', this)" title="পেমেন্ট স্ট্যাটাস পরিবর্তন করুন" style="background:rgba(245,158,11,.1);color:var(--admin-warning);"><i class="bi bi-currency-dollar"></i></button>
+            <button class="action-btn delete" onclick="deleteAdmissionRecord('<%= a.id %>')" title="মুছে ফেলুন"><i class="bi bi-trash"></i></button>
         </td>
       </tr>
       <% }); } else { %>
@@ -65,18 +67,15 @@
       <div class="modal-body">
         <input type="hidden" id="approveAdmissionId" />
         <div class="form-group-admin" style="margin-bottom:14px;">
-          <label class="admin-label">সেশন নির্বাচন বা টাইপ করুন *</label>
-          <input type="text" id="approveSession" class="admin-input" list="sessionSuggestions" placeholder="যেমন: 2024-2025" required autocomplete="off" />
-          <datalist id="sessionSuggestions">
+          <label class="admin-label">সেশন নির্বাচন করুন *</label>
+          <select id="approveSession" class="admin-input" required>
+            <option value="">সেশন সিলেক্ট করুন</option>
             <% if(typeof activeSessions !== 'undefined' && activeSessions.length > 0) { %>
               <% activeSessions.forEach(s => { %>
-                <option value="<%= s %>"></option>
+                <option value="<%= s.id %>" data-name="<%= s.name %>"><%= s.name %></option>
               <% }) %>
-            <% } else { %>
-              <option value="2024-2025"></option>
-              <option value="2025-2026"></option>
             <% } %>
-          </datalist>
+          </select>
         </div>
         <div class="form-group-admin">
           <label class="admin-label">Class Roll *</label>
@@ -162,6 +161,10 @@
         <div class="col-md-6"><strong>সেশন:</strong> <span id="vSession"></span></div>
       </div>
       <div class="row">
+        <div class="col-md-6"><strong>মেয়াদ:</strong> <span id="vDuration"></span></div>
+        <div class="col-md-6"><strong>কোর্স ফি:</strong> ৳<span id="vFee"></span></div>
+      </div>
+      <div class="row">
         <div class="col-md-6"><strong>Class Roll:</strong> <span id="vClassRoll"></span></div>
       </div>
 
@@ -215,6 +218,8 @@ function viewAdmissionDetails(a) {
   // Session handling
   const sessionText = a.sessionTo ? `${a.session} - ${a.sessionTo}` : (a.session || '—');
   document.getElementById('vSession').textContent = sessionText;
+  document.getElementById('vDuration').textContent = a.duration || '—';
+  document.getElementById('vFee').textContent = a.fee || '—';
   document.getElementById('vClassRoll').textContent = a.classRoll || '—';
   
   // JSC/SSC info
@@ -264,7 +269,8 @@ function viewAdmissionDetails(a) {
   openModal('viewAdmissionModal');
 }
 
-async function updateAdmissionStatus(id, status, extraData = {}) {
+async function updateAdmissionStatus(id, status, btnElement, extraData = {}) {
+  if (btnElement) btnElement.disabled = true;
   try {
     const res = await apiCall(`/admin/admissions/${id}`, 'PUT', { status, ...extraData });
     if(res.success) {
@@ -272,9 +278,11 @@ async function updateAdmissionStatus(id, status, extraData = {}) {
       setTimeout(() => location.reload(), 1200);
     } else {
       showToast(res.message || 'আপডেট ব্যর্থ হয়েছে', 'error');
+      if (btnElement) btnElement.disabled = false;
     }
   } catch {
     showToast('সংযোগ ত্রুটি', 'error');
+    if (btnElement) btnElement.disabled = false;
   }
 }
 
@@ -288,14 +296,19 @@ function openApproveModal(id) {
 
 document.getElementById('approveForm')?.addEventListener('submit', function(e) {
   e.preventDefault();
+  const btn = e.target.querySelector('button[type="submit"]');
+  if (btn) btn.disabled = true;
   const id = document.getElementById('approveAdmissionId').value;
-  const session = document.getElementById('approveSession').value;
+  const sessionSelect = document.getElementById('approveSession');
+  const sessionId = sessionSelect.value;
+  const sessionName = sessionSelect.options[sessionSelect.selectedIndex].getAttribute('data-name');
   const classRoll = document.getElementById('approveClassRoll').value;
   const registrationNo = document.getElementById('approveRegNo').value;
-  updateAdmissionStatus(id, 'approved', { session, classRoll, registrationNo });
+  updateAdmissionStatus(id, 'approved', btn, { session: sessionName, sessionId, classRoll, registrationNo });
 });
 
-async function togglePaymentStatus(id, currentStatus) {
+async function togglePaymentStatus(id, currentStatus, btnElement) {
+  if (btnElement) btnElement.disabled = true;
   const newStatus = currentStatus === 'paid' ? 'unpaid' : 'paid';
   try {
     const res = await apiCall(`/admin/admissions/${id}/payment`, 'PUT', { paymentStatus: newStatus });
@@ -304,9 +317,11 @@ async function togglePaymentStatus(id, currentStatus) {
       setTimeout(() => location.reload(), 1200);
     } else {
       showToast('আপডেট ব্যর্থ হয়েছে', 'error');
+      if (btnElement) btnElement.disabled = false;
     }
   } catch {
     showToast('সংযোগ ত্রুটি', 'error');
+    if (btnElement) btnElement.disabled = false;
   }
 }
 

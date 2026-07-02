@@ -7,22 +7,46 @@
   </div>
 </div>
 
-<div class="row">
-  <div class="col-md-6 col-lg-5">
-    <div class="card" style="border: none; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05);">
-      <div class="card-body p-4">
+<div class="row justify-content-center mt-4">
+  <div class="col-md-7 col-lg-5">
+    <div class="card" style="border: 1px solid rgba(0,0,0,0.05); border-radius: 20px; box-shadow: 0 15px 35px rgba(0,0,0,0.04); overflow: hidden; background: #fff;">
+      <div style="background: var(--admin-blue); padding: 40px 20px; text-align: center; position: relative;">
+        <!-- Background Pattern / Decoration -->
+        <div style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; opacity: 0.1; background-image: radial-gradient(#fff 1px, transparent 1px); background-size: 20px 20px;"></div>
+        
+        <div style="width: 86px; height: 86px; background: #fff; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 2.8rem; color: var(--admin-blue); box-shadow: 0 8px 25px rgba(0,0,0,0.15); position: relative; z-index: 1;">
+          <i class="bi bi-shield-lock-fill"></i>
+        </div>
+      </div>
+      <div class="card-body p-4 p-md-5" style="padding-top: 30px !important;">
+        <div class="text-center mb-4">
+          <h4 style="font-weight: 800; color: #1e293b; margin-bottom: 8px; font-size: 1.4rem;">অ্যাকাউন্ট সিকিউরিটি</h4>
+          <p style="color: #64748b; font-size: 0.95rem; font-weight: 500;">আপনার লগইন ক্রেডেনশিয়াল আপডেট করুন</p>
+        </div>
+        
         <form id="accountForm">
-          <div class="mb-3">
-            <label class="form-label" style="font-weight: 600; color: #1e293b;">নতুন ইমেইল</label>
-            <input type="email" class="form-control" id="accEmail" value="<%= admin.email || '' %>" required style="border-radius: 8px; padding: 12px;" />
-          </div>
           <div class="mb-4">
-            <label class="form-label" style="font-weight: 600; color: #1e293b;">নতুন পাসওয়ার্ড</label>
-            <input type="password" class="form-control" id="accPassword" required style="border-radius: 8px; padding: 12px;" placeholder="নতুন পাসওয়ার্ড দিন" />
+            <label class="form-label" style="font-weight: 700; color: #334155; font-size: 0.9rem; margin-bottom: 8px;">অ্যাডমিন ইমেইল <span class="badge bg-secondary ms-2" style="font-size:0.7rem; font-weight:500;">Read Only</span></label>
+            <div style="position: relative;">
+              <i class="bi bi-envelope-at" style="position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: #94a3b8; font-size: 1.1rem;"></i>
+              <input type="email" class="form-control" id="accEmail" value="<%= admin.email || '' %>" readonly disabled style="background: #f1f5f9; border: 1px solid #e2e8f0; border-radius: 12px; padding: 14px 16px 14px 44px; color: #64748b; font-weight: 600; box-shadow: none;" />
+            </div>
           </div>
-          <button type="submit" class="btn btn-primary w-100" style="padding: 12px; border-radius: 8px; font-weight: 600;" id="saveBtn">
-            <i class="bi bi-save me-2"></i>সেভ করুন
-          </button>
+          
+          <div class="mb-4">
+            <label class="form-label" style="font-weight: 700; color: #334155; font-size: 0.9rem; margin-bottom: 8px;">নতুন পাসওয়ার্ড</label>
+            <div style="position: relative;">
+              <i class="bi bi-key-fill" style="position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: var(--admin-blue); font-size: 1.2rem;"></i>
+              <input type="text" class="form-control" id="accPassword" value="<%= admin.password || '' %>" required style="background: #fff; border: 2px solid #e2e8f0; border-radius: 12px; padding: 14px 16px 14px 46px; color: #0f172a; font-weight: 700; font-size: 1.05rem; letter-spacing: 1px; transition: all 0.3s ease;" placeholder="Enter new password" onfocus="this.style.borderColor='var(--admin-blue)';" onblur="this.style.borderColor='#e2e8f0';" />
+            </div>
+            <div class="form-text mt-2" style="font-size: 0.85rem; color: #64748b; font-weight: 500;"><i class="bi bi-info-circle-fill me-1" style="color:var(--admin-blue)"></i>পাসওয়ার্ডটি মনে রাখবেন এবং গোপন রাখুন।</div>
+          </div>
+          
+          <div class="mt-5">
+            <button type="submit" class="btn btn-primary w-100" style="padding: 16px; border-radius: 12px; font-weight: 700; font-size: 1.1rem; background: var(--admin-blue); border: none; box-shadow: 0 8px 20px rgba(10,38,71,0.2); transition: all 0.3s ease; text-transform: uppercase; letter-spacing: 0.5px;" id="saveBtn" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 12px 25px rgba(10,38,71,0.3)';" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 8px 20px rgba(10,38,71,0.2)';">
+              <i class="bi bi-check2-circle me-2" style="font-size: 1.2rem; vertical-align: middle;"></i> আপডেট করুন
+            </button>
+          </div>
         </form>
       </div>
     </div>
@@ -56,7 +80,7 @@ document.getElementById('accountForm').addEventListener('submit', async e => {
     alert('Failed to save account settings.');
   } finally {
     btn.disabled = false;
-    btn.innerHTML = '<i class="bi bi-save me-2"></i>সেভ করুন';
+    btn.innerHTML = '<i class="bi bi-check2-circle me-2" style="font-size: 1.2rem; vertical-align: middle;"></i> আপডেট করুন';
   }
 });
 </script>

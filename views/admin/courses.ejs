@@ -35,7 +35,7 @@
           </span>
         </td>
         <td>
-          <button class="action-btn edit" onclick="editCourse(<%= JSON.stringify(c) %>)"><i class="bi bi-pencil"></i></button>
+          <button class="action-btn view" onclick="editCourse('<%= encodeURIComponent(JSON.stringify(c)) %>')"><i class="bi bi-pencil-square"></i></button>
           <button class="action-btn delete" onclick="deleteCourse('<%= c.id %>')"><i class="bi bi-trash"></i></button>
         </td>
       </tr>
@@ -64,16 +64,18 @@
             <label class="admin-label">কোর্স কোড</label>
             <input type="text" name="code" class="admin-input"/>
           </div>
-          <div class="col form-group-admin">
-            <label class="admin-label">মেয়াদ</label>
-            <input type="text" name="duration" class="admin-input" placeholder="যেমন: ৩ মাস"/>
+        </div>
+        <div class="form-group-admin" style="margin-top:14px">
+          <label class="admin-label">মেয়াদ ও ফি সমূহ <button type="button" class="btn btn-sm btn-outline-primary ms-2" onclick="addDurationRow('add-durations-container')"><i class="bi bi-plus"></i> যোগ করুন</button></label>
+          <div id="add-durations-container" style="display:flex; flex-direction:column; gap:8px;">
+            <div class="duration-row" style="display:flex; gap:10px; align-items:center;">
+              <input type="text" name="durations[]" class="admin-input" placeholder="মেয়াদ (উদা: ৩ মাস)" required/>
+              <input type="number" name="fees[]" class="admin-input" placeholder="ফি (টাকা)" required min="0"/>
+              <button type="button" class="btn btn-sm btn-danger" onclick="this.parentElement.remove()"><i class="bi bi-trash"></i></button>
+            </div>
           </div>
         </div>
-        <div class="row">
-          <div class="col form-group-admin">
-            <label class="admin-label">ফি (টাকা)</label>
-            <input type="number" name="fee" class="admin-input" min="0"/>
-          </div>
+        <div class="row" style="margin-top:14px">
           <div class="col form-group-admin">
             <label class="admin-label">স্ট্যাটাস</label>
             <select name="active" class="admin-select">
@@ -119,16 +121,14 @@
             <label class="admin-label">কোর্স কোড</label>
             <input type="text" name="code" id="editCourseCode" class="admin-input"/>
           </div>
-          <div class="col form-group-admin">
-            <label class="admin-label">মেয়াদ</label>
-            <input type="text" name="duration" id="editCourseDuration" class="admin-input"/>
+        </div>
+        <div class="form-group-admin" style="margin-top:14px">
+          <label class="admin-label">মেয়াদ ও ফি সমূহ <button type="button" class="btn btn-sm btn-outline-primary ms-2" onclick="addDurationRow('edit-durations-container')"><i class="bi bi-plus"></i> যোগ করুন</button></label>
+          <div id="edit-durations-container" style="display:flex; flex-direction:column; gap:8px;">
+            <!-- Dynamic rows will be added here -->
           </div>
         </div>
-        <div class="row">
-          <div class="col form-group-admin">
-            <label class="admin-label">ফি (টাকা)</label>
-            <input type="number" name="fee" id="editCourseFee" class="admin-input"/>
-          </div>
+        <div class="row" style="margin-top:14px">
           <div class="col form-group-admin">
             <label class="admin-label">স্ট্যাটাস</label>
             <select name="active" id="editCourseActive" class="admin-select">
@@ -156,23 +156,54 @@
 </div>
 
 <script>
+function addDurationRow(containerId, duration = '', fee = '') {
+  const container = document.getElementById(containerId);
+  const row = document.createElement('div');
+  row.className = 'duration-row';
+  row.style.cssText = 'display:flex; gap:10px; align-items:center;';
+  row.innerHTML = `
+    <input type="text" name="durations[]" class="admin-input" placeholder="মেয়াদ (উদা: ৩ মাস)" required value="${duration}"/>
+    <input type="number" name="fees[]" class="admin-input" placeholder="ফি (টাকা)" required min="0" value="${fee}"/>
+    <button type="button" class="btn btn-sm btn-danger" onclick="this.parentElement.remove()"><i class="bi bi-trash"></i></button>
+  `;
+  container.appendChild(row);
+}
+
 document.getElementById('addCourseForm').addEventListener('submit', async e => {
   e.preventDefault();
   const fd = new FormData(e.target);
+  
+  // Aggregate durations
+  const durationInputs = fd.getAll('durations[]');
+  const feeInputs = fd.getAll('fees[]');
+  const durationsData = durationInputs.map((dur, i) => ({ duration: dur, fee: Number(feeInputs[i]) }));
+  fd.delete('durations[]');
+  fd.delete('fees[]');
+  fd.append('durationsData', JSON.stringify(durationsData));
+
   const res = await fetch('/admin/courses', { method: 'POST', body: fd });
   const data = await res.json();
   showToast(data.message || 'কোর্স যোগ সফল হয়েছে', data.success ? 'success' : 'error');
   if(data.success) setTimeout(() => location.reload(), 1200);
 });
 
-function editCourse(c) {
+function editCourse(cStr) {
+  const c = JSON.parse(decodeURIComponent(cStr));
   document.getElementById('editCourseId').value = c.id;
   document.getElementById('editCourseName').value = c.name || '';
   document.getElementById('editCourseCode').value = c.code || '';
-  document.getElementById('editCourseDuration').value = c.duration || '';
-  document.getElementById('editCourseFee').value = c.fee || 0;
   document.getElementById('editCourseActive').value = c.active ? 'true' : 'false';
   document.getElementById('editCourseDescription').value = c.description || '';
+  
+  const cont = document.getElementById('edit-durations-container');
+  cont.innerHTML = '';
+  if (c.durations && c.durations.length > 0) {
+    c.durations.forEach(d => addDurationRow('edit-durations-container', d.duration, d.fee));
+  } else if (c.duration) {
+    addDurationRow('edit-durations-container', c.duration, c.fee || 0);
+  } else {
+    addDurationRow('edit-durations-container');
+  }
   
   const preview = document.getElementById('editCourseImgPreview');
   if(c.imageUrl) {
@@ -188,6 +219,15 @@ document.getElementById('editCourseForm').addEventListener('submit', async e => 
   e.preventDefault();
   const id = document.getElementById('editCourseId').value;
   const fd = new FormData(e.target);
+  
+  // Aggregate durations
+  const durationInputs = fd.getAll('durations[]');
+  const feeInputs = fd.getAll('fees[]');
+  const durationsData = durationInputs.map((dur, i) => ({ duration: dur, fee: Number(feeInputs[i]) }));
+  fd.delete('durations[]');
+  fd.delete('fees[]');
+  fd.append('durationsData', JSON.stringify(durationsData));
+
   const res = await fetch(`/admin/courses/${id}`, { method: 'PUT', body: fd });
   const data = await res.json();
   showToast(data.message || 'আপডেট সফল হয়েছে', data.success ? 'success' : 'error');
