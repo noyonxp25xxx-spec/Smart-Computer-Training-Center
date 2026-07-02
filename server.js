@@ -1,6 +1,6 @@
 require('dotenv').config();
 const express = require('express');
-const session = require('express-session');
+const cookieSession = require('cookie-session');
 const cookieParser = require('cookie-parser');
 const morgan = require('morgan');
 const path = require('path');
@@ -15,24 +15,16 @@ app.set('views', path.join(__dirname, 'views'));
 // Static files
 app.use(express.static(path.join(__dirname, 'public')));
 
-const FileStore = require('session-file-store')(session);
-
 // Middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use(morgan('dev'));
-const sessionPath = process.env.VERCEL ? '/tmp/.sessions' : './.sessions';
 app.use(
-  session({
-    store: new FileStore({ path: sessionPath, retries: 0 }),
-    secret: process.env.SESSION_SECRET || 'fallback_secret',
-    resave: false,
-    saveUninitialized: false,
-    cookie: {
-      httpOnly: true,
-      maxAge: 24 * 60 * 60 * 1000, // 24 hours
-    },
+  cookieSession({
+    name: 'session',
+    keys: [process.env.SESSION_SECRET || 'fallback_secret'],
+    maxAge: 24 * 60 * 60 * 1000, // 24 hours
   })
 );
 

@@ -20,7 +20,7 @@ async function requireAdmin(req, res, next) {
     const adminDoc = await db.collection('admins').doc(decoded.uid).get();
 
     if (!adminDoc.exists) {
-      req.session.destroy();
+      req.session = null;
       return res.redirect('/admin/login?error=not_admin');
     }
 
@@ -32,7 +32,7 @@ async function requireAdmin(req, res, next) {
     next();
   } catch (err) {
     console.error('Auth error:', err.message);
-    req.session.destroy();
+    req.session = null;
     return res.redirect('/admin/login?error=invalid_token');
   }
 }
