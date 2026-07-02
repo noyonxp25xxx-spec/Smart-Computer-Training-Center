@@ -224,4 +224,26 @@ router.get('/404', (req, res) => {
   res.status(404).render('public/404', { title: 'পেজ পাওয়া যায়নি' });
 });
 
+// Proxy route for html2canvas to fetch cross-origin images
+router.get('/proxy-image', async (req, res) => {
+  try {
+    const { url } = req.query;
+    if (!url) return res.status(400).send('No URL provided');
+    
+    const response = await fetch(url);
+    if (!response.ok) throw new Error('Failed to fetch image');
+    
+    const arrayBuffer = await response.arrayBuffer();
+    const buffer = Buffer.from(arrayBuffer);
+    
+    res.set('Content-Type', response.headers.get('content-type') || 'image/jpeg');
+    res.set('Access-Control-Allow-Origin', '*');
+    res.set('Cache-Control', 'public, max-age=86400');
+    res.send(buffer);
+  } catch (error) {
+    console.error('Proxy Error:', error.message);
+    res.status(500).send('Error fetching image');
+  }
+});
+
 module.exports = router;
