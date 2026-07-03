@@ -88,7 +88,6 @@ const pageBody = `
     <div class="text-center mb-5 reveal">
       <div class="section-title">আমাদের কোর্সসমূহ</div>
       <div class="section-line mx-auto"></div>
-      <p class="section-subtitle">আধুনিক ও কর্মমুখী কোর্সে নিজেকে দক্ষ করে তুলুন</p>
     </div>
     <div class="row">
       <!-- Courses Column (Left side on PC, Top on Mobile) -->
@@ -137,6 +136,86 @@ const pageBody = `
           <a href="/courses" class="btn-primary-custom">সব কোর্স দেখুন <i class="bi bi-arrow-right"></i></a>
         </div>
         <% } %>
+
+        <!-- Web Development Banner - Premium Design -->
+        <%
+          let waRaw = site.whatsappNumber || '';
+          let waUrlBase = waRaw;
+          if(waRaw && !waRaw.startsWith('http')) {
+            waUrlBase = 'https://wa.me/' + waRaw.replace(/[^\d+]/g, '');
+          }
+        %>
+        <div class="web-dev-banner mt-5 reveal position-relative" style="background: linear-gradient(145deg, #ffffff, #f8fafc); border: 1px solid rgba(226, 232, 240, 0.8); border-radius: 20px; overflow: hidden; box-shadow: 0 20px 40px rgba(0, 0, 0, 0.04), inset 0 1px 0 rgba(255, 255, 255, 1);">
+          
+          <div style="padding: 35px 30px 25px; text-align: center; position: relative; z-index: 1;">
+            <div style="position: absolute; top: -50%; left: 50%; transform: translateX(-50%); width: 250px; height: 250px; background: rgba(30, 144, 255, 0.12); filter: blur(45px); border-radius: 50%; z-index: -1;"></div>
+            
+            <h3 style="font-weight: 800; font-size: 1.4rem; color: #0f172a; margin-bottom: 0; line-height: 1.4;">
+              অভিজ্ঞ ওয়েব ডেভেলপার দ্বারা <br><span style="background: linear-gradient(135deg, var(--blue), #8b5cf6); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">প্রফেশনাল ওয়েবসাইট</span> তৈরি করা হয়
+            </h3>
+          </div>
+
+          <div style="padding: 0 30px 30px; position: relative; z-index: 1;">
+            <div style="background: #ffffff; border: 1px solid #f1f5f9; border-radius: 16px; padding: 25px; box-shadow: 0 10px 30px rgba(0,0,0,0.02);">
+              <div class="row g-3">
+                <div class="col-md-6">
+                  <ul style="list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 16px;">
+                    <li style="display: flex; align-items: center; gap: 12px; font-weight: 600; color: #334155; font-size: 0.95rem; cursor: pointer; transition: color 0.2s;" onmouseover="this.style.color='var(--blue)'" onmouseout="this.style.color='#334155'" data-bs-toggle="modal" data-bs-target="#webDevModal" onclick="document.getElementById('webDevModalLink').href='<%= waUrlBase %><%= waUrlBase.includes('?') ? '&' : '?' %>text='+encodeURIComponent('আমি স্কুল/কলেজের ওয়েবসাইট তৈরি করার বিষয়ে বিস্তারিত জানতে চাই।')">
+                      <div style="display: flex; align-items: center; justify-content: center; width: 28px; height: 28px; background: linear-gradient(135deg, #22c55e, #16a34a); border-radius: 50%; color: #fff; box-shadow: 0 4px 10px rgba(34, 197, 94, 0.2);"><i class="bi bi-check-lg" style="font-size: 0.9rem; stroke-width: 1px;"></i></div> স্কুল/কলেজের ওয়েবসাইট
+                    </li>
+                    <li style="display: flex; align-items: center; gap: 12px; font-weight: 600; color: #334155; font-size: 0.95rem; cursor: pointer; transition: color 0.2s;" onmouseover="this.style.color='var(--blue)'" onmouseout="this.style.color='#334155'" data-bs-toggle="modal" data-bs-target="#webDevModal" onclick="document.getElementById('webDevModalLink').href='<%= waUrlBase %><%= waUrlBase.includes('?') ? '&' : '?' %>text='+encodeURIComponent('আমি ব্যবসায়িক প্রতিষ্ঠানের ওয়েবসাইট তৈরি করার বিষয়ে বিস্তারিত জানতে চাই।')">
+                      <div style="display: flex; align-items: center; justify-content: center; width: 28px; height: 28px; background: linear-gradient(135deg, #22c55e, #16a34a); border-radius: 50%; color: #fff; box-shadow: 0 4px 10px rgba(34, 197, 94, 0.2);"><i class="bi bi-check-lg" style="font-size: 0.9rem; stroke-width: 1px;"></i></div> ব্যবসায়িক প্রতিষ্ঠানের ওয়েবসাইট
+                    </li>
+                    <li style="display: flex; align-items: center; gap: 12px; font-weight: 600; color: #334155; font-size: 0.95rem; cursor: pointer; transition: color 0.2s;" onmouseover="this.style.color='var(--blue)'" onmouseout="this.style.color='#334155'" data-bs-toggle="modal" data-bs-target="#webDevModal" onclick="document.getElementById('webDevModalLink').href='<%= waUrlBase %><%= waUrlBase.includes('?') ? '&' : '?' %>text='+encodeURIComponent('আমি অনলাইন ভিত্তিক প্রতিষ্ঠানের ওয়েবসাইট তৈরি করার বিষয়ে বিস্তারিত জানতে চাই।')">
+                      <div style="display: flex; align-items: center; justify-content: center; width: 28px; height: 28px; background: linear-gradient(135deg, #22c55e, #16a34a); border-radius: 50%; color: #fff; box-shadow: 0 4px 10px rgba(34, 197, 94, 0.2);"><i class="bi bi-check-lg" style="font-size: 0.9rem; stroke-width: 1px;"></i></div> অনলাইন ভিত্তিক প্রতিষ্ঠানের ওয়েবসাইট
+                    </li>
+                    <li style="display: flex; align-items: center; gap: 12px; font-weight: 600; color: #334155; font-size: 0.95rem; cursor: pointer; transition: color 0.2s;" onmouseover="this.style.color='var(--blue)'" onmouseout="this.style.color='#334155'" data-bs-toggle="modal" data-bs-target="#webDevModal" onclick="document.getElementById('webDevModalLink').href='<%= waUrlBase %><%= waUrlBase.includes('?') ? '&' : '?' %>text='+encodeURIComponent('আমি ই-কমার্স ওয়েবসাইট তৈরি করার বিষয়ে বিস্তারিত জানতে চাই।')">
+                      <div style="display: flex; align-items: center; justify-content: center; width: 28px; height: 28px; background: linear-gradient(135deg, #22c55e, #16a34a); border-radius: 50%; color: #fff; box-shadow: 0 4px 10px rgba(34, 197, 94, 0.2);"><i class="bi bi-check-lg" style="font-size: 0.9rem; stroke-width: 1px;"></i></div> ই-কমার্স ওয়েবসাইট
+                    </li>
+                  </ul>
+                </div>
+                <div class="col-md-6">
+                  <ul style="list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 16px;">
+                    <li style="display: flex; align-items: center; gap: 12px; font-weight: 600; color: #334155; font-size: 0.95rem; cursor: pointer; transition: color 0.2s;" onmouseover="this.style.color='var(--blue)'" onmouseout="this.style.color='#334155'" data-bs-toggle="modal" data-bs-target="#webDevModal" onclick="document.getElementById('webDevModalLink').href='<%= waUrlBase %><%= waUrlBase.includes('?') ? '&' : '?' %>text='+encodeURIComponent('আমি ব্লগ ওয়েবসাইট তৈরি করার বিষয়ে বিস্তারিত জানতে চাই।')">
+                      <div style="display: flex; align-items: center; justify-content: center; width: 28px; height: 28px; background: linear-gradient(135deg, #22c55e, #16a34a); border-radius: 50%; color: #fff; box-shadow: 0 4px 10px rgba(34, 197, 94, 0.2);"><i class="bi bi-check-lg" style="font-size: 0.9rem; stroke-width: 1px;"></i></div> ব্লগ ওয়েবসাইট
+                    </li>
+                    <li style="display: flex; align-items: center; gap: 12px; font-weight: 600; color: #334155; font-size: 0.95rem; cursor: pointer; transition: color 0.2s;" onmouseover="this.style.color='var(--blue)'" onmouseout="this.style.color='#334155'" data-bs-toggle="modal" data-bs-target="#webDevModal" onclick="document.getElementById('webDevModalLink').href='<%= waUrlBase %><%= waUrlBase.includes('?') ? '&' : '?' %>text='+encodeURIComponent('আমি অনলাইন সার্ভিস সংক্রান্ত ওয়েবসাইট তৈরি করার বিষয়ে বিস্তারিত জানতে চাই।')">
+                      <div style="display: flex; align-items: center; justify-content: center; width: 28px; height: 28px; background: linear-gradient(135deg, #22c55e, #16a34a); border-radius: 50%; color: #fff; box-shadow: 0 4px 10px rgba(34, 197, 94, 0.2);"><i class="bi bi-check-lg" style="font-size: 0.9rem; stroke-width: 1px;"></i></div> অনলাইন সার্ভিস সংক্রান্ত ওয়েবসাইট
+                    </li>
+                    <li style="display: flex; align-items: center; gap: 12px; font-weight: 600; color: #334155; font-size: 0.95rem; cursor: pointer; transition: color 0.2s;" onmouseover="this.style.color='var(--blue)'" onmouseout="this.style.color='#334155'" data-bs-toggle="modal" data-bs-target="#webDevModal" onclick="document.getElementById('webDevModalLink').href='<%= waUrlBase %><%= waUrlBase.includes('?') ? '&' : '?' %>text='+encodeURIComponent('আমি ক্লায়েন্টের চাহিদা অনুযায়ী ওয়েবসাইট তৈরি করার বিষয়ে বিস্তারিত জানতে চাই।')">
+                      <div style="display: flex; align-items: center; justify-content: center; width: 28px; height: 28px; background: linear-gradient(135deg, #22c55e, #16a34a); border-radius: 50%; color: #fff; box-shadow: 0 4px 10px rgba(34, 197, 94, 0.2);"><i class="bi bi-check-lg" style="font-size: 0.9rem; stroke-width: 1px;"></i></div> ক্লায়েন্টের চাহিদা অনুযায়ী ওয়েবসাইট
+                    </li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div style="padding: 0 30px 35px; text-align: center; position: relative; z-index: 1;">
+            <a href="<%= waUrlBase %>" target="_blank" style="display: inline-flex; align-items: center; justify-content: center; gap: 10px; text-decoration: none; background: linear-gradient(135deg, #25D366, #128C7E); color: #fff; padding: 15px 40px; border-radius: 50px; font-weight: 700; font-size: 1.05rem; box-shadow: 0 10px 25px rgba(37, 211, 102, 0.35); transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);" onmouseover="this.style.transform='translateY(-4px)'; this.style.boxShadow='0 15px 30px rgba(37, 211, 102, 0.45)';" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 10px 25px rgba(37, 211, 102, 0.35)';">
+              <i class="bi bi-whatsapp" style="font-size: 1.3rem;"></i> বিস্তারিত জানতে যোগাযোগ করুন
+            </a>
+          </div>
+        </div>
+
+        <!-- Web Dev WhatsApp Modal -->
+        <div class="modal fade" id="webDevModal" tabindex="-1" aria-hidden="true">
+          <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content" style="border: none; border-radius: 16px; overflow: hidden; box-shadow: 0 15px 35px rgba(0,0,0,0.2);">
+              <div class="modal-body p-5 text-center position-relative">
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" style="position: absolute; top: 15px; right: 15px; z-index: 10;"></button>
+                <div style="width: 70px; height: 70px; background: rgba(37, 211, 102, 0.1); color: #25d366; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; font-size: 2rem;">
+                  <i class="bi bi-headset"></i>
+                </div>
+                <h4 style="font-weight: 700; color: #1e293b; margin-bottom: 12px; font-size: 1.2rem;">বিস্তারিত জানতে যোগাযোগ করুন</h4>
+                <p style="color: #64748b; margin-bottom: 25px; font-size: 0.95rem;">এই সার্ভিসটি সম্পর্কে বিস্তারিত তথ্য জানতে এবং অর্ডার করতে সরাসরি আমাদের WhatsApp-এ মেসেজ দিন।</p>
+                <a href="<%= waUrlBase %>" id="webDevModalLink" target="_blank" class="btn w-100" style="background: linear-gradient(135deg, #25D366, #128C7E); color: #fff; padding: 12px; border-radius: 50px; font-weight: 600; font-size: 1.05rem; box-shadow: 0 5px 15px rgba(37, 211, 102, 0.2);">
+                  <i class="bi bi-whatsapp me-2"></i> WhatsApp-এ মেসেজ দিন
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
 
       <!-- Directors Column (Right side on PC, Bottom on Mobile) -->
@@ -313,6 +392,7 @@ const pageBody = `
     <p class="text-white-50 mb-4 reveal">যেকোনো প্রশ্ন বা তথ্যের জন্য আমাদের সাথে যোগাযোগ করুন</p>
     <div class="d-flex justify-content-center gap-3 flex-wrap reveal">
       <a href="tel:<%= site.phone %>" class="btn-hero-primary"><i class="bi bi-telephone"></i> <%= site.phone || 'কল করুন' %></a>
+      <a href="<%= typeof waUrlBase !== 'undefined' ? waUrlBase : 'https://wa.me/' + (site.whatsappNumber || '').replace(/[^\d+]/g, '') %>" target="_blank" class="btn" style="background: linear-gradient(135deg, #25D366, #128C7E); color: #fff; padding: 12px 30px; border-radius: 50px; font-weight: 600; font-size: 1.05rem; box-shadow: 0 8px 20px rgba(37, 211, 102, 0.25); transition: all 0.3s ease;" onmouseover="this.style.transform='translateY(-3px)'; this.style.boxShadow='0 12px 25px rgba(37, 211, 102, 0.35)';" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 8px 20px rgba(37, 211, 102, 0.25)';"><i class="bi bi-whatsapp"></i> WhatsApp</a>
       <a href="/contact" class="btn-hero-secondary"><i class="bi bi-envelope"></i> বার্তা পাঠান</a>
     </div>
   </div>

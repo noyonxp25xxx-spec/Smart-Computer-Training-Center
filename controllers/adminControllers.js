@@ -199,7 +199,7 @@ const siteController = {
       const data = {};
       
       // Simple fields
-      const simpleFields = ['name','tagline','code','phone','email','address','mapEmbed','footerText','fbUrl','ytUrl','activeSessions','paymentInstructions'];
+      const simpleFields = ['name','tagline','code','phone','whatsappNumber','email','address','mapEmbed','footerText','fbUrl','ytUrl','activeSessions','paymentInstructions'];
       simpleFields.forEach(f => { if (body[f] !== undefined) data[f] = body[f]; });
       // Removed counters, director, about from global site settings
       data.updatedAt = new Date().toISOString();
