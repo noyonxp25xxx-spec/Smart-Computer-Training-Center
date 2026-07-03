@@ -912,3 +912,9 @@ body {
     text-align: center;
   }
 }
+
+@media (max-width: 768px) {
+  .hero-slide {
+    aspect-ratio: 16 / 9;
+  }
+}

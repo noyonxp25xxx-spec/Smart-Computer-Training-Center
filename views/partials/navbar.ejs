@@ -5,16 +5,16 @@
 <nav class="navbar-main navbar navbar-expand-lg">
   <div class="container">
     <!-- Brand -->
-    <a class="navbar-brand-wrap me-auto" href="/">
+    <a class="navbar-brand-wrap" href="/" style="max-width: 75%; overflow: hidden;">
       <img src="<%= site.logoUrl || '/images/default-logo.png' %>" alt="<%= site.name %> Logo" />
-      <div class="brand-text">
-        <div class="name"><%= site.name %></div>
-        <div class="tagline"><%= site.tagline || '' %></div>
+      <div class="brand-text text-truncate">
+        <div class="name text-truncate"><%= site.name %></div>
+        <div class="tagline text-truncate"><%= site.tagline || '' %></div>
       </div>
     </a>
 
     <!-- Mobile toggle -->
-    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav" style="border-color:rgba(255,255,255,.3);">
+    <button class="navbar-toggler ms-auto" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav" style="border-color:rgba(255,255,255,.3);">
       <span class="navbar-toggler-icon" style="filter:invert(1)"></span>
     </button>
 
