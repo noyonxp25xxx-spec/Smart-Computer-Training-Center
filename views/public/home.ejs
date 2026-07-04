@@ -259,11 +259,12 @@ const pageBody = `
         <a href="/admission" class="btn-outline-gold ms-3 mt-2"><i class="bi bi-pen"></i> অনলাইনে ভর্তি হন</a>
       </div>
       <div class="col-lg-5 text-center mt-4 mt-lg-0 reveal">
-        <div style="background:linear-gradient(135deg,#0A1628,#112240);border-radius:20px;padding:40px;border:2px solid rgba(30,144,255,.2);">
-          <div style="font-size:4rem;margin-bottom:16px;">📋</div>
-          <div style="color:#fff;font-size:1.1rem;font-weight:700;margin-bottom:8px;">রেজিস্ট্রেশন নম্বর লিখুন</div>
-          <div style="color:rgba(255,255,255,.6);font-size:.88rem;">এবং তাৎক্ষণিক ফলাফল জানুন</div>
-        </div>
+        <form action="/result" method="GET" style="background:linear-gradient(135deg,#0A1628,#112240);border-radius:20px;padding:40px;border:2px solid rgba(30,144,255,.2);">
+          <div style="font-size:3rem;margin-bottom:16px;">📋</div>
+          <div style="color:#fff;font-size:1.1rem;font-weight:700;margin-bottom:15px;">রেজিস্ট্রেশন নম্বর লিখুন</div>
+          <input type="text" name="regNo" class="form-control mb-3" placeholder="যেমন: SCT-2024-001" required autocomplete="off" style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.2);color:#fff;text-align:center;padding:12px;border-radius:10px;">
+          <button type="submit" class="btn-primary-custom w-100" style="border:none;padding:12px;border-radius:10px;font-weight:600;"><i class="bi bi-search me-2"></i>ফলাফল দেখুন</button>
+        </form>
       </div>
     </div>
   </div>

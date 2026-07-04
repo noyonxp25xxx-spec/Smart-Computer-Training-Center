@@ -86,11 +86,25 @@ document.addEventListener('DOMContentLoaded', () => {
   const resultSpinner = document.getElementById('resultSpinner');
   const resultError   = document.getElementById('resultError');
 
-  resultForm?.addEventListener('submit', async e => {
+  resultForm?.addEventListener('submit', e => {
     e.preventDefault();
     const regNo = document.getElementById('regNoInput').value.trim();
     if (!regNo) return;
+    fetchResult(regNo);
+  });
 
+  if (resultForm) {
+    const urlParams = new URLSearchParams(window.location.search);
+    const regNoParam = urlParams.get('regNo');
+    if (regNoParam) {
+      document.getElementById('regNoInput').value = regNoParam;
+      const emptyState = document.getElementById('resultEmptyState');
+      if (emptyState) emptyState.style.display = 'none';
+      fetchResult(regNoParam);
+    }
+  }
+
+  async function fetchResult(regNo) {
     resultBox?.classList.add('d-none');
     resultError?.classList.add('d-none');
     if (resultSpinner) resultSpinner.style.display = 'block';
@@ -110,7 +124,7 @@ document.addEventListener('DOMContentLoaded', () => {
       if (resultSpinner) resultSpinner.style.display = 'none';
       if (resultError) { resultError.textContent = 'সংযোগ ত্রুটি। পুনরায় চেষ্টা করুন।'; resultError.classList.remove('d-none'); }
     }
-  });
+  }
 
   function renderMarksheet(r) {
     document.getElementById('ms-name').textContent    = r.studentName || '—';
