@@ -16,7 +16,7 @@
     <div class="row g-5 align-items-start mb-5 <%= idx > 0 ? 'pt-5 border-top' : '' %>">
       <div class="col-lg-5 reveal">
         <% if(director && director.imageUrl){ %>
-        <img src="<%= director.imageUrl %>" alt="<%= director.name||'পরিচালক' %>" class="img-fluid rounded-3 shadow w-100" style="max-height:420px;object-fit:cover"/>
+        <img src="<%= director.imageUrl %>" alt="<%= director.name||'পরিচালক' %>" class="img-fluid rounded-3 shadow w-100" style="max-height:420px;object-fit:contain;background:#f8fafc;padding:10px;"/>
         <% } else { %>
         <div style="background:linear-gradient(135deg,#0A1628,#1E90FF);border-radius:16px;height:380px;display:flex;align-items:center;justify-content:center;font-size:6rem;">👤</div>
         <% } %>
