@@ -411,7 +411,7 @@ const pageBody = `
             <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
           <div class="modal-body p-4 text-center">
-            <img src="<%= d.imageUrl || '/images/teacher-default.jpg' %>" style="width:120px;height:120px;border-radius:50%;object-fit:cover;border:3px solid #fff;box-shadow:0 5px 15px rgba(0,0,0,0.1);margin-bottom:15px;">
+            <img src="<%= d.imageUrl || '/images/teacher-default.jpg' %>" style="max-width: 250px; width: 100%; height: auto; border-radius: 8px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); margin-bottom: 15px;">
             <h4 style="font-weight:700;color:#1e293b;margin-bottom:5px;"><%= d.name %></h4>
             <p style="color:var(--primary-color);font-weight:600;margin-bottom:5px;"><%= d.designation %></p>
             <% if(d.institution) { %><p style="color:#64748b;font-size:.9rem;margin-bottom:5px;"><i class="bi bi-building me-1"></i><%= d.institution %></p><% } %>
