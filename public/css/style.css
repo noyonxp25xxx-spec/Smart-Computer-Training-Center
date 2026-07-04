@@ -785,6 +785,25 @@ body {
 }
 .btn-primary-custom:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); color: #fff; }
 
+.btn-gold {
+  background: var(--gold);
+  color: var(--navy);
+  border: 2px solid var(--gold);
+  padding: 10px 24px;
+  border-radius: 25px;
+  font-weight: 700;
+  text-decoration: none;
+  transition: var(--transition);
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.btn-gold:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(255, 215, 0, 0.3);
+  color: var(--navy);
+}
+
 .btn-outline-gold {
   background: transparent;
   color: var(--gold);
