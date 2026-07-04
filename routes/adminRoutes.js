@@ -239,19 +239,33 @@ router.post('/results/upload-certificates', upload.array('certificates', 200), a
     let uploadedCount = 0;
 
     for (let file of req.files) {
-      // Extract RegNo from filename (e.g. "AB54X.pdf" -> "AB54X", or "AB54X Rahi.pdf" -> "AB54X")
-      let regNo = file.originalname.split(' ')[0]; // Take the first word
-      regNo = regNo.replace(/\.pdf$/i, '').trim(); // Remove .pdf if there are no spaces
+      // Extract RegNo and optional Name from filename
+      let originalName = file.originalname.replace(/\.pdf$/i, '').trim();
+      let nameParts = originalName.split(' ');
+      let regNo = nameParts[0];
+      let studentName = nameParts.slice(1).join(' ').trim();
       
       if (regNo) {
         const url = await uploadImage(file, 'certificates');
         
-        await db.collection('results').doc(regNo).set({
+        let updateData = {
           regNo: regNo,
           certificateUrl: url,
           resultPayment: false,
           updatedAt: new Date().toISOString()
-        }, { merge: true });
+        };
+        
+        if (studentName) {
+          updateData.studentName = studentName;
+        }
+        
+        const docRef = db.collection('results').doc(regNo);
+        const docSnap = await docRef.get();
+        if (!docSnap.exists) {
+          updateData.publishDate = new Date().toISOString();
+        }
+        
+        await docRef.set(updateData, { merge: true });
 
         uploadedCount++;
       }

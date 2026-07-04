@@ -19,7 +19,9 @@
             <div class="col-12 form-group-admin"><label class="admin-label">Google Map Embed কোড</label><textarea name="mapEmbed" class="admin-textarea" rows="3" placeholder="&lt;iframe src=...&gt;&lt;/iframe&gt;"><%= settings.mapEmbed||'' %></textarea></div>
             <div class="col-12 form-group-admin"><label class="admin-label">ফুটার টেক্সট</label><input name="footerText" class="admin-input" value="<%= settings.footerText||'' %>"/></div>
             <div class="col-12 form-group-admin"><label class="admin-label">পেমেন্ট নির্দেশিকা (Admission)</label><textarea name="paymentInstructions" class="admin-textarea" rows="3" placeholder="বিকাশ/নগদ এ সেন্ড মানি করুন..."><%= settings.paymentInstructions||'' %></textarea></div>
-            <div class="col-12 form-group-admin"><label class="admin-label">রেজাল্ট/সার্টিফিকেট পেমেন্ট নির্দেশিকা (Result Payment)</label><textarea name="resultPaymentInstructions" class="admin-textarea" rows="3" placeholder="সার্টিফিকেট এর জন্য বিকাশ/নগদ এ..."><%= settings.resultPaymentInstructions||'' %></textarea></div>
+            <div class="col-md-4 form-group-admin"><label class="admin-label">পেমেন্ট মেথড (বিকাশ/নগদ/রকেট)</label><input name="paymentMethods" class="admin-input" value="<%= settings.paymentMethods||'' %>" placeholder="যেমন: বিকাশ/নগদ/রকেট"/></div>
+            <div class="col-md-4 form-group-admin"><label class="admin-label">পেমেন্ট নাম্বার</label><input name="paymentNumber" class="admin-input" value="<%= settings.paymentNumber||'' %>" placeholder="যেমন: 01774542513"/></div>
+            <div class="col-md-4 form-group-admin"><label class="admin-label">সার্টিফিকেট ফি (পরিমাণ)</label><input name="resultPaymentAmount" class="admin-input" value="<%= settings.resultPaymentAmount||'' %>" placeholder="যেমন: 200 ৳"/></div>
             
             <div class="col-12 mt-4">
               <h6 style="font-weight:700;color:var(--admin-navy);border-bottom:1px solid #eee;padding-bottom:10px;margin-bottom:15px;"><i class="bi bi-info-circle me-2"></i>প্রতিষ্ঠান সম্পর্কে (About Us)</h6>

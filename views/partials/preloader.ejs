@@ -25,11 +25,11 @@
   <div class="preloader-logo"></div>
 </div>
 <script>
-  window.addEventListener('load', function() {
+  window.addEventListener('load', hidePreloader); setTimeout(hidePreloader, 1500); function hidePreloader() {
     const preloader = document.getElementById('global-preloader');
     if (preloader) {
       preloader.style.opacity = '0';
       setTimeout(() => preloader.style.visibility = 'hidden', 500);
     }
-  });
+  }
 </script>

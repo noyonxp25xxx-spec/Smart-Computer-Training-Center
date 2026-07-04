@@ -146,8 +146,27 @@ const admissionController = {
   },
   resultPaymentsList: async (req, res) => {
     try {
-      const snap = await db.collection('students').orderBy('createdAt', 'desc').get();
-      const students = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      const resultsSnap = await db.collection('results').get();
+      const resultsData = resultsSnap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+
+      const studentsSnap = await db.collection('students').get();
+      const studentsMap = {};
+      studentsSnap.docs.forEach(doc => {
+        studentsMap[doc.id] = doc.data();
+      });
+
+      const students = resultsData.map(r => {
+        const s = studentsMap[r.id] || {};
+        return {
+          regNo: r.id,
+          name: s.name || 'অজানা শিক্ষার্থী',
+          course: s.course || '—',
+          session: s.session || '—',
+          isPassed: true,
+          resultPaymentStatus: r.resultPayment === true ? 'paid' : 'unpaid'
+        };
+      });
+
       res.render('admin/result-payments', {
         title: 'রেজাল্ট পেমেন্ট',
         path: '/admin/result-payments',
@@ -162,7 +181,18 @@ const admissionController = {
     try {
       const { regNo } = req.params;
       const { resultPaymentStatus } = req.body;
-      await db.collection('students').doc(regNo).update({ resultPaymentStatus, updatedAt: new Date().toISOString() });
+      
+      // Update the results collection (resultPayment is boolean)
+      await db.collection('results').doc(regNo).update({ 
+        resultPayment: resultPaymentStatus === 'paid', 
+        updatedAt: new Date().toISOString() 
+      });
+      
+      // Also update students collection if it exists
+      try {
+        await db.collection('students').doc(regNo).update({ resultPaymentStatus, updatedAt: new Date().toISOString() });
+      } catch(e) {}
+      
       await logActivity(req, 'update_result_payment_status', regNo);
       return res.json({ success: true });
     } catch (err) {
@@ -235,7 +265,7 @@ const siteController = {
       const data = {};
       
       // Simple fields
-      const simpleFields = ['name','tagline','code','phone','whatsappNumber','email','address','mapEmbed','footerText','fbUrl','ytUrl','activeSessions','paymentInstructions'];
+      const simpleFields = ['name','tagline','code','phone','whatsappNumber','email','address','mapEmbed','footerText','fbUrl','ytUrl','activeSessions','paymentInstructions', 'paymentMethods', 'paymentNumber', 'resultPaymentAmount'];
       simpleFields.forEach(f => { if (body[f] !== undefined) data[f] = body[f]; });
       // Removed counters, director, about from global site settings
       data.updatedAt = new Date().toISOString();

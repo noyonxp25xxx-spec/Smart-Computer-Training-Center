@@ -16,19 +16,31 @@ async function getResult(req, res) {
     
     // 2. Try to fetch student data for display purposes
     let studentInfo = {
-      name: 'N/A',
-      course: 'N/A',
-      session: 'N/A',
-      fatherName: 'N/A'
+      name: resultData.studentName || 'অজানা শিক্ষার্থী',
+      course: '—',
+      session: '—',
+      fatherName: '—',
+      rollNo: '—'
     };
 
     const studentDoc = await db.collection('students').doc(rNo).get();
     if (studentDoc.exists) {
       const sData = studentDoc.data();
-      studentInfo.name = sData.name || 'N/A';
-      studentInfo.course = sData.course || 'N/A';
-      studentInfo.session = sData.session || 'N/A';
-      studentInfo.fatherName = sData.fatherName || 'N/A';
+      studentInfo.name = sData.name || resultData.studentName || 'অজানা শিক্ষার্থী';
+      studentInfo.course = sData.course || '—';
+      studentInfo.session = sData.session || '—';
+      studentInfo.fatherName = sData.fatherName || '—';
+      studentInfo.rollNo = sData.classRoll || sData.rollNo || '—';
+    }
+
+    // Format publish date
+    let formattedPublishDate = '—';
+    if (resultData.publishDate) {
+      formattedPublishDate = new Date(resultData.publishDate).toLocaleDateString('en-GB');
+    } else if (resultData.createdAt) {
+      formattedPublishDate = new Date(resultData.createdAt).toLocaleDateString('en-GB');
+    } else if (resultData.updatedAt) {
+      formattedPublishDate = new Date(resultData.updatedAt).toLocaleDateString('en-GB');
     }
 
     // Return merged data
@@ -37,9 +49,11 @@ async function getResult(req, res) {
       result: { 
         studentName: studentInfo.name,
         regNo: rNo,
+        rollNo: studentInfo.rollNo,
         session: studentInfo.session,
         courseName: studentInfo.course,
         fatherName: studentInfo.fatherName,
+        publishDate: formattedPublishDate,
         isPassed: true, // Always passed if document exists in results
         resultPaymentStatus: resultData.resultPayment === true ? 'paid' : 'unpaid',
         certificateUrl: resultData.certificateUrl
