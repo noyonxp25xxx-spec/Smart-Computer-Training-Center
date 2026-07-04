@@ -45,7 +45,9 @@
               <button class="action-btn edit" onclick="openApproveModal('<%= a.id %>')" title="অনুমোদন করুন" style="background:rgba(16,185,129,.1);color:var(--admin-success);"><i class="bi bi-check-lg"></i></button>
               <button class="action-btn delete" onclick="updateAdmissionStatus('<%= a.id %>', 'rejected', this)" title="প্রত্যাখ্যান করুন"><i class="bi bi-x-lg"></i></button>
             <% } %>
-            <button class="action-btn edit" onclick="togglePaymentStatus('<%= a.id %>', '<%= a.paymentStatus || 'unpaid' %>', this)" title="পেমেন্ট স্ট্যাটাস পরিবর্তন করুন" style="background:rgba(245,158,11,.1);color:var(--admin-warning);"><i class="bi bi-currency-dollar"></i></button>
+            <% if (a.paymentStatus !== 'paid') { %>
+              <button class="action-btn edit" onclick="markAsPaid('<%= a.id %>', this)" title="পেমেন্ট সম্পন্ন করুন" style="background:rgba(245,158,11,.1);color:var(--admin-warning);"><i class="bi bi-currency-dollar"></i></button>
+            <% } %>
             <button class="action-btn delete" onclick="deleteAdmissionRecord('<%= a.id %>')" title="মুছে ফেলুন"><i class="bi bi-trash"></i></button>
         </td>
       </tr>
@@ -307,11 +309,14 @@ document.getElementById('approveForm')?.addEventListener('submit', function(e) {
   updateAdmissionStatus(id, 'approved', btn, { session: sessionName, sessionId, classRoll, registrationNo });
 });
 
-async function togglePaymentStatus(id, currentStatus, btnElement) {
+async function markAsPaid(id, btnElement) {
   if (btnElement) btnElement.disabled = true;
-  const newStatus = currentStatus === 'paid' ? 'unpaid' : 'paid';
+  if (!confirm('আপনি কি নিশ্চিত যে পেমেন্ট সম্পন্ন হয়েছে?')) {
+    if (btnElement) btnElement.disabled = false;
+    return;
+  }
   try {
-    const res = await apiCall(`/admin/admissions/${id}/payment`, 'PUT', { paymentStatus: newStatus });
+    const res = await apiCall(`/admin/admissions/${id}/payment`, 'PUT', { paymentStatus: 'paid' });
     if(res.success) {
       showToast('পেমেন্ট স্ট্যাটাস আপডেট হয়েছে', 'success');
       setTimeout(() => location.reload(), 1200);
