@@ -246,11 +246,11 @@ router.post('/results/upload-certificates', upload.array('certificates', 200), a
     let certificates = docSnap.exists && docSnap.data().certificates ? docSnap.data().certificates : {};
 
     for (let file of req.files) {
-      // Extract RegNo from filename (e.g. "99999.pdf" -> "99999")
-      // We look for the first continuous block of digits
-      const match = file.originalname.match(/\d+/);
-      if (match) {
-        const regNo = match[0];
+      // Extract RegNo from filename (e.g. "AB54X.pdf" -> "AB54X", or "AB54X Rahi.pdf" -> "AB54X")
+      let regNo = file.originalname.split(' ')[0]; // Take the first word
+      regNo = regNo.replace(/\.pdf$/i, '').trim(); // Remove .pdf if there are no spaces
+      
+      if (regNo) {
         const url = await uploadImage(file, 'certificates');
         certificates[regNo] = url;
       }
