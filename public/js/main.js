@@ -163,19 +163,29 @@ document.addEventListener('DOMContentLoaded', () => {
       bannerText.style.color = '#7F1D1D';
     }
 
-    // Certificate Preview Logic
+    // Certificate & Payment Logic
     const certContainer = document.getElementById('certificateContainer');
+    const paymentContainer = document.getElementById('resultPaymentContainer');
+    
     if (r.certificateUrl) {
-      certContainer.style.display = 'block';
-      const iframe = document.getElementById('pdfPreviewIframe');
-      if (iframe) iframe.src = r.certificateUrl + '#toolbar=0'; // #toolbar=0 hides default PDF tools
-      
-      const btnDownload = document.getElementById('btnDownloadCert');
-      if (btnDownload) {
-        btnDownload.href = r.certificateUrl;
+      if (r.resultPaymentStatus === 'paid') {
+        paymentContainer.style.display = 'none';
+        certContainer.style.display = 'block';
+        const iframe = document.getElementById('pdfPreviewIframe');
+        if (iframe) iframe.src = r.certificateUrl + '#toolbar=0';
+        
+        const btnDownload = document.getElementById('btnDownloadCert');
+        if (btnDownload) btnDownload.href = r.certificateUrl;
+        
+        bannerText.textContent = 'আপনার সার্টিফিকেট নিচে দেওয়া হলো। আপনি চাইলে এটি প্রিন্ট বা ডাউনলোড করতে পারেন।';
+      } else {
+        certContainer.style.display = 'none';
+        paymentContainer.style.display = 'block';
+        bannerText.textContent = 'আপনার রেজাল্ট সফলভাবে প্রকাশিত হয়েছে। সার্টিফিকেট দেখতে পেমেন্ট সম্পন্ন করুন।';
       }
     } else {
       certContainer.style.display = 'none';
+      paymentContainer.style.display = 'none';
     }
   }
 

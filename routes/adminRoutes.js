@@ -111,7 +111,9 @@ router.delete('/sliders/:id', slider.delete);
 // COURSES
 router.get('/courses', async (req, res) => {
   const snap = await db.collection('courses').orderBy('createdAt', 'desc').get();
-  res.render('admin/courses', { title: 'কোর্স ম্যানেজার', admin: req.admin, courses: snap.docs.map(d => ({ id: d.id, ...d.data() })) });
+  let courses = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+  courses.sort((a, b) => (a.sortOrder || 9999) - (b.sortOrder || 9999));
+  res.render('admin/courses', { title: 'কোর্স ম্যানেজার', admin: req.admin, courses });
 });
 router.post('/courses', upload.single('image'), addCourse);
 router.put('/courses/:id', upload.single('image'), updateCourse);
@@ -202,13 +204,15 @@ router.get('/results', async (req, res) => {
   }));
 
   const coursesSnap = await db.collection('courses').orderBy('createdAt', 'desc').get();
+  let coursesList = coursesSnap.docs.map(d => ({ id: d.id, ...d.data() }));
+  coursesList.sort((a, b) => (a.sortOrder || 9999) - (b.sortOrder || 9999));
 
   res.render('admin/results', {
-    title: 'রেজাল্ট ও সার্টিফিকেট পাবলিশ', 
+    title: 'রেজাল্ট ম্যানেজার', 
     admin: req.admin,
     results,
     sessions: sessionsSnap.docs.map(d => ({ id: d.id, ...d.data() })),
-    courses: coursesSnap.docs.map(d => ({ id: d.id, ...d.data() }))
+    courses: coursesList
   });
 });
 
@@ -304,6 +308,9 @@ router.get('/admissions', async (req, res) => {
 router.put('/admissions/:id', admissionController.updateStatus);
 router.put('/admissions/:id/payment', admissionController.updatePaymentStatus);
 router.delete('/admissions/:id', admissionController.delete);
+
+router.get('/result-payments', admissionController.resultPaymentsList);
+router.put('/result-payments/:regNo', admissionController.updateResultPaymentStatus);
 
 // GALLERY
 router.get('/gallery', async (req, res) => {

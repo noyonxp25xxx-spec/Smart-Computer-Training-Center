@@ -14,9 +14,12 @@ async function fetchCollection(col, orderField = 'createdAt', dir = 'desc', limi
 
 // HOME
 router.get('/', async (req, res) => {
-  const [sliders, courses, notices, teachers, posts, directors, coursesCountSnap, studentsCountSnap] = await Promise.all([
+  let allCourses = await fetchCollection('courses', 'createdAt', 'desc', 50);
+  allCourses.sort((a, b) => (a.sortOrder || 9999) - (b.sortOrder || 9999));
+  const courses = allCourses.slice(0, 6);
+
+  const [sliders, notices, teachers, posts, directors, coursesCountSnap, studentsCountSnap] = await Promise.all([
     fetchCollection('sliders', 'order', 'asc', 10),
-    fetchCollection('courses', 'createdAt', 'desc', 6),
     fetchCollection('notices', 'date', 'desc', 5),
     fetchCollection('teachers', 'order', 'asc', 8),
     fetchCollection('blogPosts', 'date', 'desc', 3),
@@ -63,6 +66,7 @@ router.get('/teachers', async (req, res) => {
 // COURSES LIST
 router.get('/courses', async (req, res) => {
   const courses = await fetchCollection('courses', 'createdAt', 'desc', 50);
+  courses.sort((a, b) => (a.sortOrder || 9999) - (b.sortOrder || 9999));
   res.render('public/courses', { title: 'কোর্সসমূহ', courses });
 });
 

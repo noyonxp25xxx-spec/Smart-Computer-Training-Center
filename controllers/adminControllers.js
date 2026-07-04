@@ -112,6 +112,7 @@ const admissionController = {
         await db.collection('students').doc(finalRegNo).set({
           ...admission,
           name: admission.name,
+          resultPaymentStatus: 'unpaid',
           regNo: finalRegNo,
           course: admission.trade || admission.course || '—',
           session: session,
@@ -138,6 +139,31 @@ const admissionController = {
       const { paymentStatus } = req.body;
       await db.collection('admissions').doc(id).update({ paymentStatus, updatedAt: new Date().toISOString() });
       await logActivity(req, 'update_payment_status', id);
+      return res.json({ success: true });
+    } catch (err) {
+      return res.status(500).json({ success: false, message: err.message });
+    }
+  },
+  resultPaymentsList: async (req, res) => {
+    try {
+      const snap = await db.collection('students').orderBy('createdAt', 'desc').get();
+      const students = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      res.render('admin/result-payments', {
+        title: 'রেজাল্ট পেমেন্ট',
+        path: '/admin/result-payments',
+        students,
+        admin: req.admin
+      });
+    } catch (err) {
+      res.status(500).send('Server Error');
+    }
+  },
+  updateResultPaymentStatus: async (req, res) => {
+    try {
+      const { regNo } = req.params;
+      const { resultPaymentStatus } = req.body;
+      await db.collection('students').doc(regNo).update({ resultPaymentStatus, updatedAt: new Date().toISOString() });
+      await logActivity(req, 'update_result_payment_status', regNo);
       return res.json({ success: true });
     } catch (err) {
       return res.status(500).json({ success: false, message: err.message });

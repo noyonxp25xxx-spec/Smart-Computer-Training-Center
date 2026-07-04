@@ -15,8 +15,9 @@
         <th>ছবি</th>
         <th>নাম</th>
         <th>কোড</th>
-        <th>মেয়াদ</th>
+        <th>মেয়াদ</th>
         <th>ফি</th>
+        <th>ক্রম (Sort Order)</th>
         <th>অবস্থা</th>
         <th>অ্যাকশন</th>
       </tr>
@@ -29,6 +30,7 @@
         <td><%= c.code || '—' %></td>
         <td><%= c.duration || '—' %></td>
         <td>৳<%= c.fee || '০' %></td>
+        <td><%= c.sortOrder || 9999 %></td>
         <td>
           <span class="badge badge-<%= c.active ? 'success' : 'danger' %>">
             <%= c.active ? 'সক্রিয়' : 'নিষ্ক্রিয়' %>
@@ -63,6 +65,10 @@
           <div class="col form-group-admin">
             <label class="admin-label">কোর্স কোড</label>
             <input type="text" name="code" class="admin-input"/>
+          </div>
+          <div class="col form-group-admin">
+            <label class="admin-label">ক্রম (Sort Order, e.g. 1, 2)</label>
+            <input type="number" name="sortOrder" class="admin-input" placeholder="যেমন: 1" value="9999"/>
           </div>
         </div>
         <div class="form-group-admin" style="margin-top:14px">
@@ -120,6 +126,10 @@
           <div class="col form-group-admin">
             <label class="admin-label">কোর্স কোড</label>
             <input type="text" name="code" id="editCourseCode" class="admin-input"/>
+          </div>
+          <div class="col form-group-admin">
+            <label class="admin-label">ক্রম (Sort Order, e.g. 1, 2)</label>
+            <input type="number" name="sortOrder" id="editCourseSortOrder" class="admin-input" placeholder="যেমন: 1"/>
           </div>
         </div>
         <div class="form-group-admin" style="margin-top:14px">
@@ -192,6 +202,7 @@ function editCourse(cStr) {
   document.getElementById('editCourseId').value = c.id;
   document.getElementById('editCourseName').value = c.name || '';
   document.getElementById('editCourseCode').value = c.code || '';
+  document.getElementById('editCourseSortOrder').value = c.sortOrder || 9999;
   document.getElementById('editCourseActive').value = c.active ? 'true' : 'false';
   document.getElementById('editCourseDescription').value = c.description || '';
   

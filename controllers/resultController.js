@@ -36,6 +36,7 @@ async function getResult(req, res) {
         courseName: student.course,
         fatherName: student.fatherName || '—',
         isPassed: student.isPassed,
+        resultPaymentStatus: student.resultPaymentStatus || 'unpaid',
         certificateUrl 
       } 
     });

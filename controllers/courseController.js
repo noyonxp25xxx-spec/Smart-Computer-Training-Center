@@ -15,7 +15,7 @@ async function listCourses(req, res) {
 // Add course
 async function addCourse(req, res) {
   try {
-    const { name, code, description, active, durationsData } = req.body;
+    const { name, code, description, active, durationsData, sortOrder } = req.body;
     let imageUrl = '';
     if (req.file) imageUrl = await uploadImage(req.file, 'courses');
 
@@ -27,6 +27,7 @@ async function addCourse(req, res) {
       durations,
       imageUrl,
       active: active === 'true' || active === true,
+      sortOrder: sortOrder ? parseInt(sortOrder) : 9999,
       createdAt: new Date().toISOString(),
     });
     await logActivity(req, 'add_course', ref.id);
@@ -40,12 +41,12 @@ async function addCourse(req, res) {
 async function updateCourse(req, res) {
   try {
     const { id } = req.params;
-    const { name, code, description, active, durationsData } = req.body;
+    const { name, code, description, active, durationsData, sortOrder } = req.body;
     
     let durations = [];
     if (durationsData) durations = JSON.parse(durationsData);
 
-    const update = { name, code, description, durations, active: active === 'true' || active === true, updatedAt: new Date().toISOString() };
+    const update = { name, code, description, durations, active: active === 'true' || active === true, sortOrder: sortOrder ? parseInt(sortOrder) : 9999, updatedAt: new Date().toISOString() };
     if (req.file) update.imageUrl = await uploadImage(req.file, 'courses');
     await db.collection('courses').doc(id).update(update);
     await logActivity(req, 'update_course', id);
