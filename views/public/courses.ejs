@@ -20,24 +20,21 @@
         </div>
         <div class="course-card-body">
           <h3 class="course-card-title"><%= c.name %></h3>
-          <div class="course-meta fw-bold text-primary mb-3" style="font-size: .95rem; gap: 20px;">
-            <% 
-              let durText = c.duration || '';
-              let feeText = c.fee ? '৳' + c.fee : '';
-              if (c.durations && c.durations.length > 0) {
-                durText = c.durations.map(d => d.duration).join(', ');
-                if (c.durations.length === 1) feeText = '৳' + c.durations[0].fee;
-                else {
-                  const fees = c.durations.map(d => d.fee);
-                  const minFee = Math.min(...fees);
-                  const maxFee = Math.max(...fees);
-                  feeText = minFee === maxFee ? '৳' + minFee : '৳' + minFee + ' - ৳' + maxFee;
-                }
-              }
-            %>
-            <% if(durText) { %><span><i class="bi bi-clock me-1"></i> <%= durText %></span><% } %>
-            <% if(feeText) { %><span><%= feeText %></span><% } %>
-          </div>
+            <div class="course-meta fw-bold text-primary mb-3" style="font-size: .95rem; flex-direction: column; gap: 8px;">
+              <% if (c.durations && c.durations.length > 0) { %>
+                <% c.durations.forEach(d => { %>
+                  <div class="d-flex justify-content-between align-items-center w-100">
+                    <span><i class="bi bi-clock me-1"></i> <%= d.duration %></span>
+                    <span>৳<%= d.fee %></span>
+                  </div>
+                <% }); %>
+              <% } else { %>
+                <div class="d-flex justify-content-between align-items-center w-100">
+                  <% if(c.duration) { %><span><i class="bi bi-clock me-1"></i> <%= c.duration %></span><% } %>
+                  <% if(c.fee) { %><span>৳<%= c.fee %></span><% } %>
+                </div>
+              <% } %>
+            </div>
           <a href="/courses/<%= c.id %>" class="btn-course">বিস্তারিত দেখুন <i class="bi bi-arrow-right"></i></a>
         </div>
       </div>
