@@ -129,48 +129,93 @@ document.addEventListener('DOMContentLoaded', () => {
   function renderMarksheet(r) {
     document.getElementById('ms-name').textContent    = r.studentName || '—';
     document.getElementById('ms-regno').textContent   = r.regNo       || '—';
+    
+    const msRoll = document.getElementById('ms-roll');
+    if (msRoll) msRoll.textContent = r.rollNo || '—';
+    const msPublish = document.getElementById('ms-publish');
+    if (msPublish) msPublish.textContent = r.publishDate || '—';
+    
     document.getElementById('ms-course').textContent  = r.courseName  || '—';
     document.getElementById('ms-session').textContent = r.session     || '—';
     document.getElementById('ms-father').textContent  = r.fatherName  || '—';
 
-    // Pass/Fail Banner Logic
     const bannerContainer = document.getElementById('pfBannerContainer');
-    const bannerIcon = document.getElementById('pfBannerIcon');
-    const bannerTitle = document.getElementById('pfBannerTitle');
-    const bannerText = document.getElementById('pfBannerText');
-    
-    bannerContainer.style.display = 'block';
-    
-    if (r.isPassed === true) {
-      bannerContainer.style.background = 'rgba(16, 185, 129, 0.1)';
-      bannerContainer.style.border = '1px solid #10B981';
-      bannerIcon.className = 'bi bi-patch-check-fill';
-      bannerIcon.style.color = '#10B981';
-      bannerTitle.textContent = 'অভিনন্দন! আপনি উত্তীর্ণ হয়েছেন।';
-      bannerTitle.style.color = '#065F46';
-      bannerText.textContent = r.certificateUrl 
-        ? 'আপনার সার্টিফিকেট নিচে দেওয়া হলো। আপনি চাইলে এটি প্রিন্ট বা ডাউনলোড করতে পারেন।' 
-        : 'আপনার রেজাল্ট সফলভাবে প্রকাশিত হয়েছে।';
-      bannerText.style.color = '#047857';
+    const tableContainer = document.getElementById('ms-table-container');
+
+    if (bannerContainer) bannerContainer.style.display = 'none';
+    if (tableContainer) tableContainer.style.display = 'none';
+
+    if (r.subjects && r.subjects.length > 0) {
+      // Manual Result (Subjects Table)
+      if (tableContainer) tableContainer.style.display = 'block';
+      document.getElementById('ms-gpa').textContent = r.totalGPA || '—';
+      
+      const verdict = document.getElementById('ms-verdict');
+      if (verdict) {
+        verdict.textContent = r.status === 'Pass' ? '✅ উত্তীর্ণ' : '❌ অনুত্তীর্ণ';
+        verdict.className = r.status === 'Pass' ? 'verdict-pass' : 'verdict-fail';
+      }
+
+      const tbody = document.getElementById('ms-subjects');
+      if (tbody) {
+        tbody.innerHTML = r.subjects.map((s, i) => `
+          <tr>
+            <td>${i + 1}</td>
+            <td>${s.name || ''}</td>
+            <td>${s.marks || ''}</td>
+            <td class="grade-${s.grade?.charAt(0) || 'A'}">${s.grade || ''}</td>
+          </tr>`).join('');
+      }
     } else {
-      bannerContainer.style.background = 'rgba(239, 68, 68, 0.1)';
-      bannerContainer.style.border = '1px solid #EF4444';
-      bannerIcon.className = 'bi bi-x-circle-fill';
-      bannerIcon.style.color = '#EF4444';
-      bannerTitle.textContent = 'দুঃখিত! আপনি উত্তীর্ণ হতে পারেননি।';
-      bannerTitle.style.color = '#991B1B';
-      bannerText.textContent = 'আপনার রেজাল্ট অকৃতকার্য এসেছে। অনুগ্রহ করে প্রতিষ্ঠান কর্তৃপক্ষের সাথে যোগাযোগ করুন।';
-      bannerText.style.color = '#7F1D1D';
+      // Bulk Result (Pass/Fail Banner)
+      if (bannerContainer) {
+        bannerContainer.style.display = 'block';
+        const bannerIcon = document.getElementById('pfBannerIcon');
+        const bannerTitle = document.getElementById('pfBannerTitle');
+        const bannerText = document.getElementById('pfBannerText');
+
+        if (r.isPassed === true) {
+          bannerContainer.style.background = 'rgba(16, 185, 129, 0.1)';
+          bannerContainer.style.border = '1px solid #10B981';
+          if (bannerIcon) {
+            bannerIcon.className = 'bi bi-patch-check-fill';
+            bannerIcon.style.color = '#10B981';
+          }
+          if (bannerTitle) {
+            bannerTitle.textContent = 'অভিনন্দন! আপনি উত্তীর্ণ হয়েছেন।';
+            bannerTitle.style.color = '#065F46';
+          }
+          if (bannerText) {
+            bannerText.style.color = '#047857';
+          }
+        } else {
+          bannerContainer.style.background = 'rgba(239, 68, 68, 0.1)';
+          bannerContainer.style.border = '1px solid #EF4444';
+          if (bannerIcon) {
+            bannerIcon.className = 'bi bi-x-circle-fill';
+            bannerIcon.style.color = '#EF4444';
+          }
+          if (bannerTitle) {
+            bannerTitle.textContent = 'দুঃখিত! আপনি উত্তীর্ণ হতে পারেননি।';
+            bannerTitle.style.color = '#7F1D1D';
+          }
+          if (bannerText) {
+            bannerText.textContent = 'দয়া করে আপনার প্রতিষ্ঠান কর্তৃপক্ষের সাথে যোগাযোগ করুন।';
+            bannerText.style.color = '#991B1B';
+          }
+        }
+      }
     }
 
-    // Certificate & Payment Logic
+    // Certificate & Payment Logic (Applies to both if they have a certificate)
     const certContainer = document.getElementById('certificateContainer');
     const paymentContainer = document.getElementById('resultPaymentContainer');
+    const bannerText = document.getElementById('pfBannerText');
     
     if (r.certificateUrl) {
       if (r.resultPaymentStatus === 'paid') {
-        paymentContainer.style.display = 'none';
-        certContainer.style.display = 'block';
+        if (paymentContainer) paymentContainer.style.display = 'none';
+        if (certContainer) certContainer.style.display = 'block';
         const iframe = document.getElementById('pdfPreviewIframe');
         if (iframe) iframe.src = r.certificateUrl + '#toolbar=0';
         

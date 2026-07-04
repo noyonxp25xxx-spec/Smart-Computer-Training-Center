@@ -1,0 +1,169 @@
+﻿<%- include('../partials/admin-head') %>
+
+<div class="row g-4">
+  <!-- CSV Bulk Import -->
+  <div class="col-lg-12">
+    <div class="table-card">
+      <div class="table-card-header"><span class="table-card-title">αª¼αª╛αª▓αºìαªò αª░αºçαª£αª╛αª▓αºìαªƒ αªåαª¬αª▓αºïαªí (CSV αª½αª╛αªçαª▓)</span></div>
+      <div style="padding: 20px; display: flex; gap: 16px; align-items: center; flex-wrap: wrap;">
+        <form id="bulkImportForm" enctype="multipart/form-data" style="display: flex; gap: 12px; align-items: center;">
+          <input type="file" name="csv" class="admin-input" accept=".csv" required style="width: auto;"/>
+          <button type="submit" class="topbar-btn gold"><i class="bi bi-upload me-2"></i>CSV αªåαª¬αª▓αºïαªí αªòαª░αºüαª¿</button>
+        </form>
+        <span style="font-size: .82rem; color: var(--admin-gray-500);">
+          * CSV αª½αª░αª«αºìαª»αª╛αªƒ: <code>regNo,studentName,courseName,session,rollNo,totalGPA,status,publishDate</code>
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Result Entry Form -->
+  <div class="col-lg-7">
+    <div class="table-card">
+      <div class="table-card-header">
+        <span class="table-card-title">αª¬αª░αºÇαªòαºìαª╖αª╛αª░ αª½αª▓αª╛αª½αª▓ αªÅαª¿αºìαªƒαºìαª░αª┐ αªô αªÅαªíαª┐αªƒ αª½αª░αª«</span>
+      </div>
+      <div style="padding: 24px">
+        <form id="resultForm">
+          <div class="form-group-admin" style="position: relative;">
+            <label class="admin-label">αª░αºçαª£αª┐αª╕αºìαªƒαºìαª░αºçαª╢αª¿ αª¿αª«αºìαª¼αª░ (Search to Edit / Enter to Add) *</label>
+            <div style="display: flex; gap: 10px;">
+              <input type="text" id="adminRegSearch" class="admin-input" placeholder="αª░αºçαª£αª┐αª╕αºìαªƒαºìαª░αºçαª╢αª¿ αª¿αª«αºìαª¼αª░ αª▓αª┐αªûαºüαª¿..." required/>
+            </div>
+          </div>
+          <hr/>
+          <div class="row">
+            <div class="col form-group-admin">
+              <label class="admin-label">αª╢αª┐αªòαºìαª╖αª╛αª░αºìαªÑαºÇαª░ αª¿αª╛αª« *</label>
+              <input type="text" id="formStudentName" class="admin-input" required/>
+            </div>
+            <div class="col form-group-admin">
+              <label class="admin-label">αª¬αª┐αªñαª╛αª░ αª¿αª╛αª«</label>
+              <input type="text" id="formFatherName" class="admin-input"/>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col form-group-admin">
+              <label class="admin-label">αª«αºïαª¼αª╛αªçαª▓ αª¿αª«αºìαª¼αª░</label>
+              <input type="tel" id="formPhone" class="admin-input"/>
+            </div>
+            <div class="col form-group-admin">
+              <label class="admin-label">αª░αºïαª▓ αª¿αª«αºìαª¼αª░</label>
+              <input type="text" id="formRollNo" class="admin-input"/>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col form-group-admin">
+              <label class="admin-label">αªòαºïαª░αºìαª╕αºçαª░ αª¿αª╛αª« *</label>
+              <select id="formCourseName" class="admin-select" required>
+                <option value="">ΓÇö αªòαºïαª░αºìαª╕ αª¼αºçαª¢αºç αª¿αª┐αª¿ ΓÇö</option>
+                <% courses.forEach(c => { %>
+                <option value="<%= c.name %>"><%= c.name %></option>
+                <% }); %>
+              </select>
+            </div>
+            <div class="col form-group-admin">
+              <label class="admin-label">αª╕αºçαª╢αª¿</label>
+              <input type="text" id="formSession" class="admin-input" placeholder="αª»αºçαª«αª¿: αª£αª╛αª¿αºüαª»αª╝αª╛αª░αª┐-αª£αºüαª¿ αº¿αºªαº¿αº¬"/>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col form-group-admin">
+              <label class="admin-label">αª«αºïαªƒ GPA / αªùαºìαª░αºçαªí</label>
+              <input type="text" id="formGPA" class="admin-input" placeholder="αª»αºçαª«αª¿: A+ / 5.00"/>
+            </div>
+            <div class="col form-group-admin">
+              <label class="admin-label">αª½αª▓αª╛αª½αª▓ αª╕αºìαªƒαºìαª»αª╛αªƒαª╛αª╕</label>
+              <select id="formStatus" class="admin-select">
+                <option value="Pass">Pass (αªëαªñαºìαªñαºÇαª░αºìαªú)</option>
+                <option value="Fail">Fail (αªàαª¿αºüαªñαºìαªñαºÇαª░αºìαªú)</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Subject Marks Builder -->
+          <div class="form-group-admin">
+            <label class="admin-label">αª¼αª┐αª╖αª»αª╝αª¡αª┐αªñαºìαªñαª┐αªò αª¿αª«αºìαª¼αª░ αªô αªùαºìαª░αºçαªí</label>
+            <div class="subjects-builder">
+              <div id="subjectsContainer">
+                <!-- Subject rows dynamically appended here -->
+              </div>
+              <button type="button" class="btn-add-subject" onclick="addSubjectRow()"><i class="bi bi-plus-lg me-1"></i>αª¿αªñαºüαª¿ αª¼αª┐αª╖αª»αª╝ αª»αºïαªù αªòαª░αºüαª¿</button>
+            </div>
+          </div>
+
+          <button type="submit" class="btn-save" style="width:100%;margin-top:14px"><i class="bi bi-check-lg me-2"></i>αª░αºçαª£αª╛αª▓αºìαªƒ αª╕αªéαª░αªòαºìαª╖αªú αªòαª░αºüαª¿</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Existing Results List -->
+  <div class="col-lg-5">
+    <div class="table-card">
+      <div class="table-card-header">
+        <span class="table-card-title">αª╕αª░αºìαª¼αª╢αºçαª╖ αªÅαª¿αºìαªƒαºìαª░αª┐ αªòαª░αª╛ αª░αºçαª£αª╛αª▓αºìαªƒαª╕αª«αºéαª╣</span>
+        <div class="search-bar" style="max-width: 160px; padding: 4px 8px;">
+          <input type="text" data-search-table="resultsListTable" placeholder="αªûαºüαªüαª£αºüαª¿..." style="font-size: .8rem;">
+        </div>
+      </div>
+      <table class="data-table" id="resultsListTable">
+        <thead>
+          <tr>
+            <th>αª░αºçαª£αª┐αªâ αª¿αª«αºìαª¼αª░</th>
+            <th>αª¿αª╛αª«</th>
+            <th>GPA</th>
+            <th>αªàαºìαª»αª╛αªòαª╢αª¿</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% if(results && results.length > 0) { results.forEach(r => { %>
+          <tr id="result-row-<%= r.regNo %>">
+            <td style="font-weight:600;"><%= r.regNo %></td>
+            <td><%= r.studentName %></td>
+            <td><span class="badge badge-blue"><%= r.totalGPA || 'ΓÇö' %></span></td>
+            <td>
+              <button class="action-btn edit" onclick="loadRegNoIntoForm('<%= r.regNo %>')"><i class="bi bi-pencil"></i></button>
+              <button class="action-btn delete" onclick="deleteResultRecord('<%= r.regNo %>')"><i class="bi bi-trash"></i></button>
+            </td>
+          </tr>
+          <% }); } else { %>
+          <tr><td colspan="4" style="text-align:center;padding:24px;color:var(--admin-gray-500)">αªòαºïαª¿αºï αª░αºçαª£αª╛αª▓αºìαªƒ αª¬αª╛αªôαºƒαª╛ αª»αª╛αºƒαª¿αª┐</td></tr>
+          <% } %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<script>
+document.getElementById('bulkImportForm').addEventListener('submit', async e => {
+  e.preventDefault();
+  const fd = new FormData(e.target);
+  const res = await fetch('/admin/results/import', { method: 'POST', body: fd });
+  const data = await res.json();
+  showToast(data.message || 'αªåαª«αªªαª╛αª¿αª┐ αª╕αª«αºìαª¬αª¿αºìαª¿ αª╣αºƒαºçαª¢αºç', data.success ? 'success' : 'error');
+  if(data.success) setTimeout(() => location.reload(), 1200);
+});
+
+function loadRegNoIntoForm(regNo) {
+  const searchInput = document.getElementById('adminRegSearch');
+  searchInput.value = regNo;
+  // Trigger change event to load data
+  const event = new Event('change');
+  searchInput.dispatchEvent(event);
+}
+
+function deleteResultRecord(regNo) {
+  confirmDelete(`/admin/results/${regNo}`, () => {
+    document.getElementById(`result-row-${regNo}`)?.remove();
+  });
+}
+
+// Add a default subject row when loading empty form
+document.addEventListener('DOMContentLoaded', () => {
+  addSubjectRow();
+});
+</script>
+
+<%- include('../partials/admin-foot') %>

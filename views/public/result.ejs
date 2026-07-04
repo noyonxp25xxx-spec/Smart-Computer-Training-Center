@@ -48,12 +48,36 @@
           <div class="result-title">📋 পরীক্ষার ফলাফল</div>
         </div>
         <div class="marksheet-body">
-          <div class="student-info-grid" style="margin-bottom: 24px;">
+          <div class="student-info-grid">
             <div class="info-row"><span class="info-label">শিক্ষার্থীর নাম</span><span class="info-value" id="ms-name">—</span></div>
             <div class="info-row"><span class="info-label">রেজিস্ট্রেশন নম্বর</span><span class="info-value" id="ms-regno">—</span></div>
+            <div class="info-row"><span class="info-label">রোল নম্বর</span><span class="info-value" id="ms-roll">—</span></div>
             <div class="info-row"><span class="info-label">কোর্সের নাম</span><span class="info-value" id="ms-course">—</span></div>
             <div class="info-row"><span class="info-label">সেশন</span><span class="info-value" id="ms-session">—</span></div>
             <div class="info-row"><span class="info-label">পিতার নাম</span><span class="info-value" id="ms-father">—</span></div>
+            <div class="info-row"><span class="info-label">ফলাফল প্রকাশের তারিখ</span><span class="info-value" id="ms-publish">—</span></div>
+          </div>
+
+          <div id="ms-table-container" style="display:none; margin-top:24px;">
+            <table class="subject-table">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>বিষয়</th>
+                  <th>নম্বর</th>
+                  <th>গ্রেড</th>
+                </tr>
+              </thead>
+              <tbody id="ms-subjects"></tbody>
+            </table>
+
+            <div class="result-verdict">
+              <div>
+                <div class="gpa-label">মোট GPA / গ্রেড</div>
+                <div class="gpa-display" id="ms-gpa">—</div>
+              </div>
+              <div id="ms-verdict" class="verdict-pass">—</div>
+            </div>
           </div>
 
           <div id="pfBannerContainer" style="display:none; text-align: center; border-radius: 12px; padding: 24px; margin-bottom: 24px;">

@@ -190,14 +190,18 @@ router.delete('/students/:id', student.delete);
 
 // RESULTS
 router.get('/results', async (req, res) => {
-  const snap = await db.collection('results').orderBy('createdAt', 'desc').get();
-  const sessionsSnap = await db.collection('sessions').orderBy('createdAt', 'desc').get();
+  // Fetch individual results (manual entry)
+  const resultsSnap = await db.collection('results').orderBy('updatedAt', 'desc').limit(100).get();
+  const individualResults = resultsSnap.docs.map(d => ({ id: d.id, ...d.data() }));
+
+  // Fetch published certificates (bulk upload)
+  const certSnap = await db.collection('publishedCertificates').orderBy('createdAt', 'desc').get();
   
-  // Create a map of session ID to session Name
+  const sessionsSnap = await db.collection('sessions').orderBy('createdAt', 'desc').get();
   const sessionMap = {};
   sessionsSnap.docs.forEach(d => { sessionMap[d.id] = d.data().name; });
   
-  const results = snap.docs.map(d => ({ 
+  const publishedCertificates = certSnap.docs.map(d => ({ 
     id: d.id, 
     sessionName: sessionMap[d.id] || d.id,
     ...d.data() 
@@ -208,12 +212,23 @@ router.get('/results', async (req, res) => {
   coursesList.sort((a, b) => (a.sortOrder || 9999) - (b.sortOrder || 9999));
 
   res.render('admin/results', {
-    title: 'রেজাল্ট ম্যানেজার', 
+    title: 'রেজাল্ট ও সার্টিফিকেট পাবলিশ', 
     admin: req.admin,
-    results,
+    results: individualResults,
+    publishedCertificates,
     sessions: sessionsSnap.docs.map(d => ({ id: d.id, ...d.data() })),
     courses: coursesList
   });
+});
+
+router.post('/results', upsertResult);
+router.delete('/results/:regNo', deleteResult);
+router.post('/results/import', upload.single('csv'), bulkImportResults);
+
+router.get('/results/search/:regNo', async (req, res) => {
+  const doc = await db.collection('results').doc(req.params.regNo.trim()).get();
+  if (!doc.exists) return res.json({ success: false });
+  return res.json({ success: true, result: { id: doc.id, ...doc.data() } });
 });
 
 const { uploadImage } = require('../controllers/contentControllers');
@@ -226,7 +241,7 @@ router.post('/results/upload-certificates', upload.array('certificates', 200), a
       return res.status(400).json({ success: false, message: 'কোনো ফাইল নির্বাচন করা হয়নি।' });
     }
 
-    const docRef = db.collection('results').doc(sessionId);
+    const docRef = db.collection('publishedCertificates').doc(sessionId);
     const docSnap = await docRef.get();
     let certificates = docSnap.exists && docSnap.data().certificates ? docSnap.data().certificates : {};
 

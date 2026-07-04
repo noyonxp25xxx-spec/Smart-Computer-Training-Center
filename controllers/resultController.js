@@ -5,22 +5,56 @@ async function getResult(req, res) {
   try {
     const rNo = regNo.trim();
     
-    // 1. Find student directly using regNo as Document ID
+    // 1. Try to find a manual result in 'results' collection first
+    const manualResultDoc = await db.collection('results').doc(rNo).get();
+    if (manualResultDoc.exists) {
+      return res.json({
+        success: true,
+        result: manualResultDoc.data()
+      });
+    }
+
+    // 2. Fallback: Find student for bulk pass/fail or certificate upload
     const studentDoc = await db.collection('students').doc(rNo).get();
     if (!studentDoc.exists) {
-      return res.status(404).json({ success: false, message: 'এই রেজিস্ট্রেশন নম্বরে কোনো স্টুডেন্ট পাওয়া যায়নি।' });
+      return res.status(404).json({ success: false, message: 'এই রেজিস্ট্রেশন নম্বরে কোনো ফলাফল পাওয়া যায়নি।' });
     }
     const student = studentDoc.data();
     
-    // 2. Check if Pass/Fail status is updated
-    if (typeof student.isPassed !== 'boolean') {
-      return res.status(404).json({ success: false, message: 'আপনার রেজাল্ট এখনো পাবলিশ করা হয়নি।' });
+    if (typeof student.isPassed !== 'boolean' && !student.certificateUrl) {
+      // If neither pass/fail is set nor certificate exists
+      // Wait, let's just check if there is a certificate in publishedCertificates
+      let certificateUrl = null;
+      if (student.sessionId) {
+        const certDoc = await db.collection('publishedCertificates').doc(student.sessionId).get();
+        if (certDoc.exists && certDoc.data().certificates && certDoc.data().certificates[rNo]) {
+          certificateUrl = certDoc.data().certificates[rNo];
+        }
+      }
+      
+      if (typeof student.isPassed !== 'boolean' && !certificateUrl) {
+        return res.status(404).json({ success: false, message: 'আপনার রেজাল্ট এখনো পাবলিশ করা হয়নি।' });
+      }
+
+      return res.json({ 
+        success: true, 
+        result: { 
+          studentName: student.name,
+          regNo: student.regNo,
+          session: student.session,
+          courseName: student.course,
+          fatherName: student.fatherName || '—',
+          isPassed: student.isPassed,
+          resultPaymentStatus: student.resultPaymentStatus || 'unpaid',
+          certificateUrl 
+        } 
+      });
     }
 
     // 3. Try to get Certificate URL if available
     let certificateUrl = null;
     if (student.sessionId) {
-      const resultDoc = await db.collection('results').doc(student.sessionId).get();
+      const resultDoc = await db.collection('publishedCertificates').doc(student.sessionId).get();
       if (resultDoc.exists && resultDoc.data().certificates && resultDoc.data().certificates[rNo]) {
         certificateUrl = resultDoc.data().certificates[rNo];
       }

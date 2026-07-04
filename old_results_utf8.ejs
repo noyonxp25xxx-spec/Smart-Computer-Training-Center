@@ -1,0 +1,265 @@
+﻿<%- include('../partials/admin-head') %>
+
+<div class="row g-4">
+  <div class="col-lg-12">
+    <div class="table-card">
+      <div class="table-card-header">
+        <span class="table-card-title">αª╕αª╛αª░αºìαªƒαª┐αª½αª┐αªòαºçαªƒ αªåαª¬αª▓αºïαªí (αª░αºçαª£αª╛αª▓αºìαªƒ αª¬αª╛αª¼αª▓αª┐αª╢)</span>
+      </div>
+      <div style="padding: 24px">
+        <form id="certificateUploadForm" enctype="multipart/form-data">
+          <div class="row">
+            <div class="col-md-6 form-group-admin">
+              <label class="admin-label">αª╕αºçαª╢αª¿ αª¿αª┐αª░αºìαª¼αª╛αªÜαª¿ αªòαª░αºüαª¿ *</label>
+              <select name="sessionId" id="sessionId" class="admin-select" required>
+                <option value="">ΓÇö αª╕αºçαª╢αª¿ αª¼αºçαª¢αºç αª¿αª┐αª¿ ΓÇö</option>
+                <% if(typeof sessions !== 'undefined' && sessions.length > 0) { %>
+                  <% sessions.forEach(s => { %>
+                    <option value="<%= s.id %>"><%= s.name %></option>
+                  <% }); %>
+                <% } %>
+              </select>
+            </div>
+            <div class="col-md-6 form-group-admin">
+              <label class="admin-label">αª╕αª╛αª░αºìαªƒαª┐αª½αª┐αªòαºçαªƒ αª½αª╛αªçαª▓αªùαºüαª▓αºï αª¿αª┐αª░αºìαª¼αª╛αªÜαª¿ αªòαª░αºüαª¿ (.pdf) *</label>
+              <input type="file" name="certificates" id="certificatesInput" class="admin-input" accept=".pdf" multiple required />
+              <small style="color:var(--admin-gray-500); display:block; margin-top:6px;">
+                αª½αª╛αªçαª▓αºçαª░ αª¿αª╛αª«αºç αªàαª¼αª╢αºìαª»αªç αª╕αºìαªƒαºüαªíαºçαª¿αºìαªƒαºçαª░ αª░αºçαª£αª┐αª╕αºìαªƒαºìαª░αºçαª╢αª¿ αª¿αª«αºìαª¼αª░ αªÑαª╛αªòαªñαºç αª╣αª¼αºç (αª»αºçαª«αª¿: <code>99999.pdf</code> αª¼αª╛ <code>99999 MD RAHI.pdf</code>)
+              </small>
+            </div>
+          </div>
+          
+          <button type="submit" id="btnUpload" class="btn-save" style="margin-top:14px">
+            <i class="bi bi-cloud-arrow-up-fill me-2"></i> αªåαª¬αª▓αºïαªí αªô αª¬αª╛αª¼αª▓αª┐αª╢ αªòαª░αºüαª¿
+          </button>
+        </form>
+        
+        <!-- Upload Progress Area -->
+        <div id="uploadProgress" class="mt-4" style="display:none;">
+          <div class="d-flex justify-content-between mb-1">
+            <span style="font-weight:600; font-size:0.9rem" id="uploadStatusText">αªåαª¬αª▓αºïαªí αª╣αªÜαºìαª¢αºç...</span>
+            <span style="font-weight:600; font-size:0.9rem" id="uploadPercentage">0%</span>
+          </div>
+          <div class="progress" style="height: 10px; border-radius: 5px;">
+            <div class="progress-bar progress-bar-striped progress-bar-animated bg-primary" id="uploadProgressBar" role="progressbar" style="width: 0%"></div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <div class="col-lg-12">
+    <div class="table-card">
+      <div class="table-card-header">
+        <span class="table-card-title">αª¬αª╛αª╕/αª½αºçαªçαª▓ αª╕αºìαªƒαºìαª»αª╛αªƒαª╛αª╕ αªåαª¬αªíαºçαªƒ (Bulk Update)</span>
+      </div>
+      <div style="padding: 24px">
+        <div class="row align-items-end" style="margin-bottom: 20px;">
+          <div class="col-md-4 form-group-admin mb-0">
+            <label class="admin-label">αª╕αºçαª╢αª¿ αª¿αª┐αª░αºìαª¼αª╛αªÜαª¿ αªòαª░αºüαª¿</label>
+            <select id="filterSession" class="admin-select">
+              <option value="">ΓÇö αª»αºçαªòαºïαª¿αºï αª╕αºçαª╢αª¿ ΓÇö</option>
+              <% if(typeof sessions !== 'undefined' && sessions.length > 0) { %>
+                <% sessions.forEach(s => { %>
+                  <option value="<%= s.name %>"><%= s.name %></option>
+                <% }); %>
+              <% } %>
+            </select>
+          </div>
+          <div class="col-md-4 form-group-admin mb-0">
+            <label class="admin-label">αªòαºïαª░αºìαª╕ αª¿αª┐αª░αºìαª¼αª╛αªÜαª¿ αªòαª░αºüαª¿ (αªÉαªÜαºìαª¢αª┐αªò)</label>
+            <select id="filterCourse" class="admin-select">
+              <option value="">ΓÇö αª╕αª¼ αªòαºïαª░αºìαª╕ ΓÇö</option>
+              <% if(typeof courses !== 'undefined' && courses.length > 0) { %>
+                <% courses.forEach(c => { %>
+                  <option value="<%= c.name %>"><%= c.name %></option>
+                <% }); %>
+              <% } %>
+            </select>
+          </div>
+          <div class="col-md-4">
+            <button type="button" class="btn-save" onclick="loadStudentsForPassFail()" style="width:100%;"><i class="bi bi-search me-2"></i>αª╕αºìαªƒαºüαªíαºçαª¿αºìαªƒ αªûαºüαªüαª£αºüαª¿</button>
+          </div>
+        </div>
+
+        <div id="pfStudentsContainer" style="display:none;">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th style="width: 50px;"><input type="checkbox" id="selectAllStudents" onclick="toggleAllStudents(this)"></th>
+                <th>αª░αºçαª£αª┐αªâ αª¿αª«αºìαª¼αª░</th>
+                <th>αª¿αª╛αª«</th>
+                <th>αªòαºïαª░αºìαª╕</th>
+                <th>αª¼αª░αºìαªñαª«αª╛αª¿ αª╕αºìαªƒαºìαª»αª╛αªƒαª╛αª╕</th>
+              </tr>
+            </thead>
+            <tbody id="pfStudentsList">
+              <!-- Students loaded via AJAX -->
+            </tbody>
+          </table>
+          
+          <div style="margin-top: 20px; display: flex; gap: 12px; justify-content: flex-end;">
+            <button type="button" class="btn btn-danger" onclick="updatePassFail(false)" style="padding: 10px 24px; border-radius: 8px;"><i class="bi bi-x-circle me-2"></i>αª«αª╛αª░αºìαªò: Failed</button>
+            <button type="button" class="btn btn-success" onclick="updatePassFail(true)" style="padding: 10px 24px; border-radius: 8px;"><i class="bi bi-check-circle me-2"></i>αª«αª╛αª░αºìαªò: Passed</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-lg-12">
+    <div class="table-card">
+      <div class="table-card-header">
+        <span class="table-card-title">αª¬αª╛αª¼αª▓αª┐αª╢ αªòαª░αª╛ αª╕αºçαª╢αª¿αª╕αª«αºéαª╣</span>
+      </div>
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>αª╕αºçαª╢αª¿</th>
+            <th>αª«αºïαªƒ αª╕αª╛αª░αºìαªƒαª┐αª½αª┐αªòαºçαªƒ</th>
+            <th>αª¬αª╛αª¼αª▓αª┐αª╢αºçαª░ αªñαª╛αª░αª┐αªû</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% if(results && results.length > 0) { %>
+            <% results.forEach(r => { %>
+              <tr>
+                <td style="font-weight:600;"><%= r.sessionName || r.id %></td>
+                <td><span class="badge badge-blue"><%= r.certificates ? Object.keys(r.certificates).length : 0 %> αªƒαª┐</span></td>
+                <td><%= r.createdAt ? new Date(r.createdAt).toLocaleDateString('bn-BD') : 'ΓÇö' %></td>
+              </tr>
+            <% }); %>
+          <% } else { %>
+            <tr><td colspan="3" style="text-align:center;padding:24px;color:var(--admin-gray-500)">αªòαºïαª¿αºï αª░αºçαª£αª╛αª▓αºìαªƒ αª¬αª╛αª¼αª▓αª┐αª╢ αªòαª░αª╛ αª╣αºƒαª¿αª┐</td></tr>
+          <% } %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<script>
+document.getElementById('certificateUploadForm').addEventListener('submit', async e => {
+  e.preventDefault();
+  
+  const form = e.target;
+  const formData = new FormData(form);
+  const btn = document.getElementById('btnUpload');
+  const progressArea = document.getElementById('uploadProgress');
+  const progressBar = document.getElementById('uploadProgressBar');
+  const progressText = document.getElementById('uploadPercentage');
+  
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span> αªåαª¬αª▓αºïαªí αª╣αªÜαºìαª¢αºç...';
+  progressArea.style.display = 'block';
+  progressBar.style.width = '10%';
+  progressText.textContent = '10%';
+
+  try {
+    const res = await fetch('/admin/results/upload-certificates', {
+      method: 'POST',
+      body: formData
+    });
+    
+    progressBar.style.width = '90%';
+    progressText.textContent = '90%';
+
+    const data = await res.json();
+    
+    progressBar.style.width = '100%';
+    progressText.textContent = '100%';
+
+    if (data.success) {
+      showToast(data.message, 'success');
+      setTimeout(() => location.reload(), 1500);
+    } else {
+      showToast(data.message || 'αªåαª¬αª▓αºïαªí αª¼αºìαª»αª░αºìαªÑ αª╣αª»αª╝αºçαª¢αºç', 'error');
+      btn.disabled = false;
+      btn.innerHTML = '<i class="bi bi-cloud-arrow-up-fill me-2"></i> αªåαª¬αª▓αºïαªí αªô αª¬αª╛αª¼αª▓αª┐αª╢ αªòαª░αºüαª¿';
+    }
+  } catch (err) {
+    showToast('αª╕αª╛αª░αºìαª¡αª╛αª░ αªñαºìαª░αºüαªƒαª┐, αª¬αºüαª¿αª░αª╛αª»αª╝ αªÜαºçαª╖αºìαªƒαª╛ αªòαª░αºüαª¿', 'error');
+    btn.disabled = false;
+    btn.innerHTML = '<i class="bi bi-cloud-arrow-up-fill me-2"></i> αªåαª¬αª▓αºïαªí αªô αª¬αª╛αª¼αª▓αª┐αª╢ αªòαª░αºüαª¿';
+  }
+});
+
+async function loadStudentsForPassFail() {
+  const session = document.getElementById('filterSession').value;
+  const course = document.getElementById('filterCourse').value;
+  
+  const container = document.getElementById('pfStudentsContainer');
+  const tbody = document.getElementById('pfStudentsList');
+  
+  try {
+    const res = await fetch(`/admin/students/filter?session=${encodeURIComponent(session)}&course=${encodeURIComponent(course)}`);
+    const data = await res.json();
+    
+    if (data.success) {
+      if (data.students.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:#666;">αªòαºïαª¿αºï αª╕αºìαªƒαºüαªíαºçαª¿αºìαªƒ αª¬αª╛αªôαºƒαª╛ αª»αª╛αºƒαª¿αª┐</td></tr>';
+      } else {
+        tbody.innerHTML = data.students.map(s => {
+          let statusBadge = 'ΓÇö';
+          if (s.isPassed === true) statusBadge = '<span class="badge badge-success">Passed</span>';
+          if (s.isPassed === false) statusBadge = '<span class="badge badge-danger">Failed</span>';
+          
+          return `
+            <tr>
+              <td><input type="checkbox" class="student-pf-checkbox" value="${s.id}"></td>
+              <td style="font-weight:600;">${s.regNo}</td>
+              <td>${s.name}</td>
+              <td>${s.course}</td>
+              <td>${statusBadge}</td>
+            </tr>
+          `;
+        }).join('');
+      }
+      container.style.display = 'block';
+      document.getElementById('selectAllStudents').checked = false;
+    } else {
+      showToast(data.message, 'error');
+    }
+  } catch(e) {
+    showToast('αª╕αª╛αª░αºìαª¡αª╛αª░ αªñαºìαª░αºüαªƒαª┐', 'error');
+  }
+}
+
+function toggleAllStudents(source) {
+  const checkboxes = document.querySelectorAll('.student-pf-checkbox');
+  checkboxes.forEach(cb => cb.checked = source.checked);
+}
+
+async function updatePassFail(isPassed) {
+  const checkboxes = document.querySelectorAll('.student-pf-checkbox:checked');
+  const studentIds = Array.from(checkboxes).map(cb => cb.value);
+  
+  if (studentIds.length === 0) {
+    return showToast('αªòαª«αª¬αªòαºìαª╖αºç αªÅαªòαª£αª¿ αª╕αºìαªƒαºüαªíαºçαª¿αºìαªƒ αª╕αª┐αª▓αºçαªòαºìαªƒ αªòαª░αºüαª¿', 'error');
+  }
+  
+  const confirmMsg = isPassed ? `αªåαª¬αª¿αª┐ αªòαª┐ αª¿αª┐αª╢αºìαªÜαª┐αªñ ${studentIds.length} αª£αª¿ αª╕αºìαªƒαºüαªíαºçαª¿αºìαªƒαªòαºç Passed αª«αª╛αª░αºìαªò αªòαª░αª¼αºçαª¿?` : `αªåαª¬αª¿αª┐ αªòαª┐ αª¿αª┐αª╢αºìαªÜαª┐αªñ ${studentIds.length} αª£αª¿ αª╕αºìαªƒαºüαªíαºçαª¿αºìαªƒαªòαºç Failed αª«αª╛αª░αºìαªò αªòαª░αª¼αºçαª¿?`;
+  if (!confirm(confirmMsg)) return;
+  
+  try {
+    const res = await fetch('/admin/results/pass-fail', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ studentIds, isPassed })
+    });
+    
+    const data = await res.json();
+    if (data.success) {
+      showToast(data.message, 'success');
+      loadStudentsForPassFail(); // Reload list
+    } else {
+      showToast(data.message, 'error');
+    }
+  } catch(e) {
+    showToast('αª╕αª╛αª░αºìαª¡αª╛αª░ αªñαºìαª░αºüαªƒαª┐', 'error');
+  }
+}
+</script>
+
+<%- include('../partials/admin-foot') %>
