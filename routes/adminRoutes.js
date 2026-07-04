@@ -215,8 +215,6 @@ router.get('/results', async (req, res) => {
     title: 'রেজাল্ট ও সার্টিফিকেট পাবলিশ', 
     admin: req.admin,
     results: individualResults,
-    publishedCertificates,
-    sessions: sessionsSnap.docs.map(d => ({ id: d.id, ...d.data() })),
     courses: coursesList
   });
 });
@@ -234,16 +232,11 @@ router.get('/results/search/:regNo', async (req, res) => {
 const { uploadImage } = require('../controllers/contentControllers');
 router.post('/results/upload-certificates', upload.array('certificates', 200), async (req, res) => {
   try {
-    const { sessionId } = req.body;
-    if (!sessionId) return res.status(400).json({ success: false, message: 'সেশন আইডি আবশ্যক।' });
-    
     if (!req.files || req.files.length === 0) {
       return res.status(400).json({ success: false, message: 'কোনো ফাইল নির্বাচন করা হয়নি।' });
     }
 
-    const docRef = db.collection('publishedCertificates').doc(sessionId);
-    const docSnap = await docRef.get();
-    let certificates = docSnap.exists && docSnap.data().certificates ? docSnap.data().certificates : {};
+    let uploadedCount = 0;
 
     for (let file of req.files) {
       // Extract RegNo from filename (e.g. "AB54X.pdf" -> "AB54X", or "AB54X Rahi.pdf" -> "AB54X")
@@ -252,17 +245,19 @@ router.post('/results/upload-certificates', upload.array('certificates', 200), a
       
       if (regNo) {
         const url = await uploadImage(file, 'certificates');
-        certificates[regNo] = url;
+        
+        await db.collection('results').doc(regNo).set({
+          regNo: regNo,
+          certificateUrl: url,
+          resultPayment: false,
+          updatedAt: new Date().toISOString()
+        }, { merge: true });
+
+        uploadedCount++;
       }
     }
 
-    await docRef.set({
-      certificates,
-      createdAt: docSnap.exists && docSnap.data().createdAt ? docSnap.data().createdAt : new Date().toISOString(),
-      updatedAt: new Date().toISOString()
-    }, { merge: true });
-
-    res.json({ success: true, message: `${req.files.length} টি ফাইল সফলভাবে আপলোড হয়েছে।` });
+    res.json({ success: true, message: `${uploadedCount} টি রেজাল্ট সফলভাবে আপলোড হয়েছে।` });
   } catch (err) {
     console.error('Upload error:', err);
     res.status(500).json({ success: false, message: err.message });

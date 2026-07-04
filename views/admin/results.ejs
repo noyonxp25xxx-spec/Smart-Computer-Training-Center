@@ -1,151 +1,19 @@
-<%- include('../partials/admin-head') %>
+﻿<%- include('../partials/admin-head') %>
 
 <div class="row g-4">
-<!-- Main Result Entry Form -->
-  <div class="col-lg-7">
-    <div class="table-card">
-      <div class="table-card-header">
-        <span class="table-card-title">পরীক্ষার ফলাফল এন্ট্রি ও এডিট ফরম</span>
-      </div>
-      <div style="padding: 24px">
-        <form id="resultForm">
-          <div class="form-group-admin" style="position: relative;">
-            <label class="admin-label">রেজিস্ট্রেশন নম্বর (Search to Edit / Enter to Add) *</label>
-            <div style="display: flex; gap: 10px;">
-              <input type="text" id="adminRegSearch" class="admin-input" placeholder="রেজিস্ট্রেশন নম্বর লিখুন..." required/>
-            </div>
-          </div>
-          <hr/>
-          <div class="row">
-            <div class="col form-group-admin">
-              <label class="admin-label">শিক্ষার্থীর নাম *</label>
-              <input type="text" id="formStudentName" class="admin-input" required/>
-            </div>
-            <div class="col form-group-admin">
-              <label class="admin-label">পিতার নাম</label>
-              <input type="text" id="formFatherName" class="admin-input"/>
-            </div>
-          </div>
-          <div class="row">
-            <div class="col form-group-admin">
-              <label class="admin-label">মোবাইল নম্বর</label>
-              <input type="tel" id="formPhone" class="admin-input"/>
-            </div>
-            <div class="col form-group-admin">
-              <label class="admin-label">রোল নম্বর</label>
-              <input type="text" id="formRollNo" class="admin-input"/>
-            </div>
-          </div>
-          <div class="row">
-            <div class="col form-group-admin">
-              <label class="admin-label">কোর্সের নাম *</label>
-              <select id="formCourseName" class="admin-select" required>
-                <option value="">— কোর্স বেছে নিন —</option>
-                <% courses.forEach(c => { %>
-                <option value="<%= c.name %>"><%= c.name %></option>
-                <% }); %>
-              </select>
-            </div>
-            <div class="col form-group-admin">
-              <label class="admin-label">সেশন</label>
-              <input type="text" id="formSession" class="admin-input" placeholder="যেমন: জানুয়ারি-জুন ২০২৪"/>
-            </div>
-          </div>
-          <div class="row">
-            <div class="col form-group-admin">
-              <label class="admin-label">মোট GPA / গ্রেড</label>
-              <input type="text" id="formGPA" class="admin-input" placeholder="যেমন: A+ / 5.00"/>
-            </div>
-            <div class="col form-group-admin">
-              <label class="admin-label">ফলাফল স্ট্যাটাস</label>
-              <select id="formStatus" class="admin-select">
-                <option value="Pass">Pass (উত্তীর্ণ)</option>
-                <option value="Fail">Fail (অনুত্তীর্ণ)</option>
-              </select>
-            </div>
-          </div>
-
-          <!-- Subject Marks Builder -->
-          <div class="form-group-admin">
-            <label class="admin-label">বিষয়ভিত্তিক নম্বর ও গ্রেড</label>
-            <div class="subjects-builder">
-              <div id="subjectsContainer">
-                <!-- Subject rows dynamically appended here -->
-              </div>
-              <button type="button" class="btn-add-subject" onclick="addSubjectRow()"><i class="bi bi-plus-lg me-1"></i>নতুন বিষয় যোগ করুন</button>
-            </div>
-          </div>
-
-          <button type="submit" class="btn-save" style="width:100%;margin-top:14px"><i class="bi bi-check-lg me-2"></i>রেজাল্ট সংরক্ষণ করুন</button>
-        </form>
-      </div>
-    </div>
-  </div>
-
-  
-<!-- Existing Results List -->
-  <div class="col-lg-5">
-    <div class="table-card">
-      <div class="table-card-header">
-        <span class="table-card-title">সর্বশেষ এন্ট্রি করা রেজাল্টসমূহ</span>
-        <div class="search-bar" style="max-width: 160px; padding: 4px 8px;">
-          <input type="text" data-search-table="resultsListTable" placeholder="খুঁজুন..." style="font-size: .8rem;">
-        </div>
-      </div>
-      <table class="data-table" id="resultsListTable">
-        <thead>
-          <tr>
-            <th>রেজিঃ নম্বর</th>
-            <th>নাম</th>
-            <th>GPA</th>
-            <th>অ্যাকশন</th>
-          </tr>
-        </thead>
-        <tbody>
-          <% if(results && results.length > 0) { results.forEach(r => { %>
-          <tr id="result-row-<%= r.regNo %>">
-            <td style="font-weight:600;"><%= r.regNo %></td>
-            <td><%= r.studentName %></td>
-            <td><span class="badge badge-blue"><%= r.totalGPA || '—' %></span></td>
-            <td>
-              <button class="action-btn edit" onclick="loadRegNoIntoForm('<%= r.regNo %>')"><i class="bi bi-pencil"></i></button>
-              <button class="action-btn delete" onclick="deleteResultRecord('<%= r.regNo %>')"><i class="bi bi-trash"></i></button>
-            </td>
-          </tr>
-          <% }); } else { %>
-          <tr><td colspan="4" style="text-align:center;padding:24px;color:var(--admin-gray-500)">কোনো রেজাল্ট পাওয়া যায়নি</td></tr>
-          <% } %>
-        </tbody>
-      </table>
-    </div>
-  </div>
-</div>
-
-
   <div class="col-lg-12">
     <div class="table-card">
       <div class="table-card-header">
-        <span class="table-card-title">সার্টিফিকেট আপলোড (রেজাল্ট পাবলিশ)</span>
+        <span class="table-card-title">সার্টিফিকেট / রেজাল্ট পিডিএফ আপলোড</span>
       </div>
       <div style="padding: 24px">
         <form id="certificateUploadForm" enctype="multipart/form-data">
           <div class="row">
-            <div class="col-md-6 form-group-admin">
-              <label class="admin-label">সেশন নির্বাচন করুন *</label>
-              <select name="sessionId" id="sessionId" class="admin-select" required>
-                <option value="">— সেশন বেছে নিন —</option>
-                <% if(typeof sessions !== 'undefined' && sessions.length > 0) { %>
-                  <% sessions.forEach(s => { %>
-                    <option value="<%= s.id %>"><%= s.name %></option>
-                  <% }); %>
-                <% } %>
-              </select>
-            </div>
-            <div class="col-md-6 form-group-admin">
-              <label class="admin-label">সার্টিফিকেট ফাইলগুলো নির্বাচন করুন (.pdf) *</label>
+            <div class="col-md-12 form-group-admin">
+              <label class="admin-label">সার্টিফিকেট বা রেজাল্ট পিডিএফ ফাইল (.pdf) *</label>
               <input type="file" name="certificates" id="certificatesInput" class="admin-input" accept=".pdf" multiple required />
               <small style="color:var(--admin-gray-500); display:block; margin-top:6px;">
-                ফাইলের নামে অবশ্যই স্টুডেন্টের রেজিস্ট্রেশন নম্বর থাকতে হবে (যেমন: <code>99999.pdf</code> বা <code>99999 MD RAHI.pdf</code>)
+                একাধিক ফাইল একসাথে সিলেক্ট করা যাবে। ফাইলের নাম অনুযায়ী রেজাল্ট সেভ হবে (উদাহরণ: <code>99999.pdf</code> বা <code>99999 MD RAHI.pdf</code>)
               </small>
             </div>
           </div>
@@ -169,128 +37,9 @@
       </div>
     </div>
   </div>
-
-  <div class="col-lg-12">
-    <div class="table-card">
-      <div class="table-card-header">
-        <span class="table-card-title">পাস/ফেইল স্ট্যাটাস আপডেট (Bulk Update)</span>
-      </div>
-      <div style="padding: 24px">
-        <div class="row align-items-end" style="margin-bottom: 20px;">
-          <div class="col-md-4 form-group-admin mb-0">
-            <label class="admin-label">সেশন নির্বাচন করুন</label>
-            <select id="filterSession" class="admin-select">
-              <option value="">— যেকোনো সেশন —</option>
-              <% if(typeof sessions !== 'undefined' && sessions.length > 0) { %>
-                <% sessions.forEach(s => { %>
-                  <option value="<%= s.name %>"><%= s.name %></option>
-                <% }); %>
-              <% } %>
-            </select>
-          </div>
-          <div class="col-md-4 form-group-admin mb-0">
-            <label class="admin-label">কোর্স নির্বাচন করুন (ঐচ্ছিক)</label>
-            <select id="filterCourse" class="admin-select">
-              <option value="">— সব কোর্স —</option>
-              <% if(typeof courses !== 'undefined' && courses.length > 0) { %>
-                <% courses.forEach(c => { %>
-                  <option value="<%= c.name %>"><%= c.name %></option>
-                <% }); %>
-              <% } %>
-            </select>
-          </div>
-          <div class="col-md-4">
-            <button type="button" class="btn-save" onclick="loadStudentsForPassFail()" style="width:100%;"><i class="bi bi-search me-2"></i>স্টুডেন্ট খুঁজুন</button>
-          </div>
-        </div>
-
-        <div id="pfStudentsContainer" style="display:none;">
-          <table class="data-table">
-            <thead>
-              <tr>
-                <th style="width: 50px;"><input type="checkbox" id="selectAllStudents" onclick="toggleAllStudents(this)"></th>
-                <th>রেজিঃ নম্বর</th>
-                <th>নাম</th>
-                <th>কোর্স</th>
-                <th>বর্তমান স্ট্যাটাস</th>
-              </tr>
-            </thead>
-            <tbody id="pfStudentsList">
-              <!-- Students loaded via AJAX -->
-            </tbody>
-          </table>
-          
-          <div style="margin-top: 20px; display: flex; gap: 12px; justify-content: flex-end;">
-            <button type="button" class="btn btn-danger" onclick="updatePassFail(false)" style="padding: 10px 24px; border-radius: 8px;"><i class="bi bi-x-circle me-2"></i>মার্ক: Failed</button>
-            <button type="button" class="btn btn-success" onclick="updatePassFail(true)" style="padding: 10px 24px; border-radius: 8px;"><i class="bi bi-check-circle me-2"></i>মার্ক: Passed</button>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <div class="col-lg-12">
-    <div class="table-card">
-      <div class="table-card-header">
-        <span class="table-card-title">পাবলিশ করা সেশনসমূহ</span>
-      </div>
-      <table class="data-table">
-        <thead>
-          <tr>
-            <th>সেশন</th>
-            <th>মোট সার্টিফিকেট</th>
-            <th>পাবলিশের তারিখ</th>
-          </tr>
-        </thead>
-        <tbody>
-          <% if(publishedCertificates && publishedCertificates.length > 0) { %>
-            <% publishedCertificates.forEach(r => { %>
-              <tr>
-                <td style="font-weight:600;"><%= r.sessionName || r.id %></td>
-                <td><span class="badge badge-blue"><%= r.certificates ? Object.keys(r.certificates).length : 0 %> টি</span></td>
-                <td><%= r.createdAt ? new Date(r.createdAt).toLocaleDateString('bn-BD') : '—' %></td>
-              </tr>
-            <% }); %>
-          <% } else { %>
-            <tr><td colspan="3" style="text-align:center;padding:24px;color:var(--admin-gray-500)">কোনো রেজাল্ট পাবলিশ করা হয়নি</td></tr>
-          <% } %>
-        </tbody>
-      </table>
-    </div>
-  </div>
 </div>
 
 <script>
-
-document.getElementById('bulkImportForm').addEventListener('submit', async e => {
-  e.preventDefault();
-  const fd = new FormData(e.target);
-  const res = await fetch('/admin/results/import', { method: 'POST', body: fd });
-  const data = await res.json();
-  showToast(data.message || 'আমদানি সম্পন্ন হয়েছে', data.success ? 'success' : 'error');
-  if(data.success) setTimeout(() => location.reload(), 1200);
-});
-
-function loadRegNoIntoForm(regNo) {
-  const searchInput = document.getElementById('adminRegSearch');
-  searchInput.value = regNo;
-  // Trigger change event to load data
-  const event = new Event('change');
-  searchInput.dispatchEvent(event);
-}
-
-function deleteResultRecord(regNo) {
-  confirmDelete(`/admin/results/${regNo}`, () => {
-    document.getElementById(`result-row-${regNo}`)?.remove();
-  });
-}
-
-// Add a default subject row when loading empty form
-document.addEventListener('DOMContentLoaded', () => {
-  addSubjectRow();
-});
-
-
 document.getElementById('certificateUploadForm').addEventListener('submit', async e => {
   e.preventDefault();
   
@@ -325,92 +74,16 @@ document.getElementById('certificateUploadForm').addEventListener('submit', asyn
       showToast(data.message, 'success');
       setTimeout(() => location.reload(), 1500);
     } else {
-      showToast(data.message || 'আপলোড ব্যর্থ হয়েছে', 'error');
+      showToast(data.message || 'আপলোড ব্যর্থ হয়েছে', 'error');
       btn.disabled = false;
       btn.innerHTML = '<i class="bi bi-cloud-arrow-up-fill me-2"></i> আপলোড ও পাবলিশ করুন';
     }
   } catch (err) {
-    showToast('সার্ভার ত্রুটি, পুনরায় চেষ্টা করুন', 'error');
+    showToast('সংযোগ ত্রুটি, পুনরায় চেষ্টা করুন', 'error');
     btn.disabled = false;
     btn.innerHTML = '<i class="bi bi-cloud-arrow-up-fill me-2"></i> আপলোড ও পাবলিশ করুন';
   }
 });
-
-async function loadStudentsForPassFail() {
-  const session = document.getElementById('filterSession').value;
-  const course = document.getElementById('filterCourse').value;
-  
-  const container = document.getElementById('pfStudentsContainer');
-  const tbody = document.getElementById('pfStudentsList');
-  
-  try {
-    const res = await fetch(`/admin/students/filter?session=${encodeURIComponent(session)}&course=${encodeURIComponent(course)}`);
-    const data = await res.json();
-    
-    if (data.success) {
-      if (data.students.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:#666;">কোনো স্টুডেন্ট পাওয়া যায়নি</td></tr>';
-      } else {
-        tbody.innerHTML = data.students.map(s => {
-          let statusBadge = '—';
-          if (s.isPassed === true) statusBadge = '<span class="badge badge-success">Passed</span>';
-          if (s.isPassed === false) statusBadge = '<span class="badge badge-danger">Failed</span>';
-          
-          return `
-            <tr>
-              <td><input type="checkbox" class="student-pf-checkbox" value="${s.id}"></td>
-              <td style="font-weight:600;">${s.regNo}</td>
-              <td>${s.name}</td>
-              <td>${s.course}</td>
-              <td>${statusBadge}</td>
-            </tr>
-          `;
-        }).join('');
-      }
-      container.style.display = 'block';
-      document.getElementById('selectAllStudents').checked = false;
-    } else {
-      showToast(data.message, 'error');
-    }
-  } catch(e) {
-    showToast('সার্ভার ত্রুটি', 'error');
-  }
-}
-
-function toggleAllStudents(source) {
-  const checkboxes = document.querySelectorAll('.student-pf-checkbox');
-  checkboxes.forEach(cb => cb.checked = source.checked);
-}
-
-async function updatePassFail(isPassed) {
-  const checkboxes = document.querySelectorAll('.student-pf-checkbox:checked');
-  const studentIds = Array.from(checkboxes).map(cb => cb.value);
-  
-  if (studentIds.length === 0) {
-    return showToast('কমপক্ষে একজন স্টুডেন্ট সিলেক্ট করুন', 'error');
-  }
-  
-  const confirmMsg = isPassed ? `আপনি কি নিশ্চিত ${studentIds.length} জন স্টুডেন্টকে Passed মার্ক করবেন?` : `আপনি কি নিশ্চিত ${studentIds.length} জন স্টুডেন্টকে Failed মার্ক করবেন?`;
-  if (!confirm(confirmMsg)) return;
-  
-  try {
-    const res = await fetch('/admin/results/pass-fail', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ studentIds, isPassed })
-    });
-    
-    const data = await res.json();
-    if (data.success) {
-      showToast(data.message, 'success');
-      loadStudentsForPassFail(); // Reload list
-    } else {
-      showToast(data.message, 'error');
-    }
-  } catch(e) {
-    showToast('সার্ভার ত্রুটি', 'error');
-  }
-}
 </script>
 
 <%- include('../partials/admin-foot') %>

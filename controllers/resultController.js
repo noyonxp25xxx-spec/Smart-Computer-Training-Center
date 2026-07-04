@@ -5,76 +5,46 @@ async function getResult(req, res) {
   try {
     const rNo = regNo.trim();
     
-    // 1. Try to find a manual result in 'results' collection first
-    const manualResultDoc = await db.collection('results').doc(rNo).get();
-    if (manualResultDoc.exists) {
-      return res.json({
-        success: true,
-        result: manualResultDoc.data()
-      });
+    // 1. Check 'results' collection first
+    const resultDoc = await db.collection('results').doc(rNo).get();
+    
+    if (!resultDoc.exists) {
+      return res.status(404).json({ success: false, message: 'রেজাল্ট পাওয়া যায়নি। দয়া করে সঠিক রেজিস্ট্রেশন নম্বর দিন।' });
     }
 
-    // 2. Fallback: Find student for bulk pass/fail or certificate upload
-    let student = null;
-    let certificateUrl = null;
+    const resultData = resultDoc.data();
+    
+    // 2. Try to fetch student data for display purposes
+    let studentInfo = {
+      name: 'N/A',
+      course: 'N/A',
+      session: 'N/A',
+      fatherName: 'N/A'
+    };
 
     const studentDoc = await db.collection('students').doc(rNo).get();
     if (studentDoc.exists) {
-      student = studentDoc.data();
+      const sData = studentDoc.data();
+      studentInfo.name = sData.name || 'N/A';
+      studentInfo.course = sData.course || 'N/A';
+      studentInfo.session = sData.session || 'N/A';
+      studentInfo.fatherName = sData.fatherName || 'N/A';
     }
 
-    // 3. Find certificate URL
-    if (student && student.sessionId) {
-      // If student is found and has a sessionId, check that specific session
-      const certDoc = await db.collection('publishedCertificates').doc(student.sessionId).get();
-      if (certDoc.exists && certDoc.data().certificates && certDoc.data().certificates[rNo]) {
-        certificateUrl = certDoc.data().certificates[rNo];
-      }
-    } else {
-      // If student not found or no sessionId, search all sessions for the certificate
-      const allCertsSnap = await db.collection('publishedCertificates').get();
-      for (const doc of allCertsSnap.docs) {
-        const certs = doc.data().certificates || {};
-        if (certs[rNo]) {
-          certificateUrl = certs[rNo];
-          break;
-        }
-      }
-    }
-
-    // 4. Handle cases based on what we found
-    if (!student && !certificateUrl) {
-      return res.status(404).json({ success: false, message: 'এই রেজিস্ট্রেশন নম্বরে কোনো ফলাফল পাওয়া যায়নি।' });
-    }
-
-    if (!student && certificateUrl) {
-      // Create a fallback student object if only certificate exists
-      student = {
-        name: 'অজানা শিক্ষার্থী',
-        regNo: rNo,
-        session: '—',
-        course: '—',
-        fatherName: '—',
-        isPassed: true,
-        resultPaymentStatus: 'paid' // Assuming direct certificate upload implies it can be viewed
-      };
-    } else if (student && typeof student.isPassed !== 'boolean' && !certificateUrl) {
-      return res.status(404).json({ success: false, message: 'আপনার রেজাল্ট এখনো পাবলিশ করা হয়নি।' });
-    }
-
-    // Return success with pass/fail status and optional certificate
+    // Return merged data
     return res.json({ 
       success: true, 
       result: { 
-        studentName: student.name,
-        regNo: student.regNo || rNo,
-        session: student.session || '—',
-        courseName: student.course || '—',
-        fatherName: student.fatherName || '—',
-        isPassed: typeof student.isPassed === 'boolean' ? student.isPassed : !!certificateUrl,
-        resultPaymentStatus: student.resultPaymentStatus || 'unpaid',
-        certificateUrl 
+        studentName: studentInfo.name,
+        regNo: rNo,
+        session: studentInfo.session,
+        courseName: studentInfo.course,
+        fatherName: studentInfo.fatherName,
+        isPassed: true, // Always passed if document exists in results
+        resultPaymentStatus: resultData.resultPayment === true ? 'paid' : 'unpaid',
+        certificateUrl: resultData.certificateUrl
       } 
+    });
   } catch (err) {
     console.error('getResult error:', err);
     return res.status(500).json({ success: false, message: 'সার্ভার ত্রুটি। পুনরায় চেষ্টা করুন।' });
