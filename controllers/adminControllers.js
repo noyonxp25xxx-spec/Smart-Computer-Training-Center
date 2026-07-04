@@ -11,10 +11,19 @@ const fs = require('fs');
 const { uploadImage } = require('./contentControllers');
 
 async function generateApplicationId() {
-  const year = new Date().getFullYear();
-  const snap = await db.collection('admissions').get();
-  const seq = String(snap.size + 1).padStart(4, '0');
-  return `SCT-${year}-${seq}`;
+  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+  let result = '';
+  while (true) {
+    result = '';
+    for (let i = 0; i < 6; i++) {
+      result += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    if (/[A-Z]/.test(result) && /[0-9]/.test(result)) break;
+  }
+  const id = result;
+  const check = await db.collection('admissions').where('applicationId', '==', id).get();
+  if (!check.empty) return generateApplicationId();
+  return id;
 }
 
 const admissionController = {
@@ -99,6 +108,7 @@ const admissionController = {
       // If approved and wasn't already approved, add/update to students collection
       if (status === 'approved' && admission.status !== 'approved') {
         const finalRegNo = registrationNo || admission.applicationId || id;
+        updates.paymentStatus = 'paid';
         await db.collection('students').doc(finalRegNo).set({
           ...admission,
           name: admission.name,
