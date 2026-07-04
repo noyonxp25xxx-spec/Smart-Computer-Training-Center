@@ -18,6 +18,26 @@
             <div class="col-12 form-group-admin"><label class="admin-label">ঠিকানা</label><textarea name="address" class="admin-textarea" rows="2"><%= settings.address||'' %></textarea></div>
             <div class="col-12 form-group-admin"><label class="admin-label">Google Map Embed কোড</label><textarea name="mapEmbed" class="admin-textarea" rows="3" placeholder="&lt;iframe src=...&gt;&lt;/iframe&gt;"><%= settings.mapEmbed||'' %></textarea></div>
             <div class="col-12 form-group-admin"><label class="admin-label">ফুটার টেক্সট</label><input name="footerText" class="admin-input" value="<%= settings.footerText||'' %>"/></div>
+            
+            <div class="col-12 mt-4">
+              <h6 style="font-weight:700;color:var(--admin-navy);border-bottom:1px solid #eee;padding-bottom:10px;margin-bottom:15px;"><i class="bi bi-info-circle me-2"></i>প্রতিষ্ঠান সম্পর্কে (About Us)</h6>
+            </div>
+            <div class="col-12 form-group-admin">
+              <label class="admin-label">আমাদের পরিচিতি (History)</label>
+              <textarea name="about.history" class="admin-textarea" rows="4" placeholder="আমাদের প্রতিষ্ঠান সম্পর্কে বিস্তারিত তথ্য..."><%= settings.about ? settings.about.history : '' %></textarea>
+            </div>
+            <div class="col-md-4 form-group-admin">
+              <label class="admin-label">অবকাঠামো (Infrastructure)</label>
+              <textarea name="about.infrastructure" class="admin-textarea" rows="3" placeholder="আধুনিক কম্পিউটার ল্যাব..."><%= settings.about ? settings.about.infrastructure : '' %></textarea>
+            </div>
+            <div class="col-md-4 form-group-admin">
+              <label class="admin-label">কার্যক্রম (Activities)</label>
+              <textarea name="about.activities" class="admin-textarea" rows="3" placeholder="নিয়মিত ক্লাস..."><%= settings.about ? settings.about.activities : '' %></textarea>
+            </div>
+            <div class="col-md-4 form-group-admin">
+              <label class="admin-label">লক্ষ্য ও উদ্দেশ্য (Mission)</label>
+              <textarea name="about.mission" class="admin-textarea" rows="3" placeholder="দক্ষ মানবসম্পদ তৈরি..."><%= settings.about ? settings.about.mission : '' %></textarea>
+            </div>
           </div>
           <div style="margin-top:20px;display:flex;gap:10px">
             <button type="submit" class="btn-save"><i class="bi bi-check-lg me-2"></i>সংরক্ষণ করুন</button>
