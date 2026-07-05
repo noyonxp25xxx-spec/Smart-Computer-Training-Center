@@ -1,6 +1,9 @@
-<!DOCTYPE html><html lang="bn"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
-<title><%= title %> | <%= site.name %></title>
-<link rel="icon" href="<%= site.faviconUrl||'/images/favicon.png' %>"/>
+<!DOCTYPE html><html lang="bn"><head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<%- include('../partials/seo-head') %>
+
+"/>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"/>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"/>
 <link rel="stylesheet" href="/css/style.css"/>
@@ -8,13 +11,10 @@
   @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap');
   *{box-sizing:border-box;margin:0;padding:0;}
   body{font-family:'Inter',sans-serif;background:#f0f4f8;}
-
   /* ── Page wrapper ── */
   .adm-page{max-width:900px;margin:32px auto;padding:0 16px 60px;}
-
   /* ── Form Card ── */
   .adm-card{background:#fff;border-radius:12px;box-shadow:0 4px 32px rgba(0,0,0,.10);overflow:hidden;}
-
   /* ── Header band ── */
   .adm-header{background:linear-gradient(135deg,#1a237e 0%,#283593 60%,#1565c0 100%);padding:24px 28px;display:flex;align-items:center;gap:20px;color:#fff;}
   .adm-header-logo{width:76px;height:76px;object-fit:contain;border-radius:50%;border:3px solid rgba(255,255,255,.3);background:#fff;padding:4px;}
@@ -25,7 +25,6 @@
   .adm-header-text .subtitle{font-size:.82rem;opacity:.8;margin-top:3px;}
   .adm-header-text .inst{font-size:.92rem;font-weight:700;color:#ffd54f;margin-top:4px;}
   .adm-header-text .note{font-size:.76rem;opacity:.65;margin-top:2px;}
-
   /* ── Photo/Sig boxes ── */
   .adm-photo-col{display:flex;flex-direction:column;gap:10px;align-items:center;}
   .adm-upload-box{width:110px;cursor:pointer;text-align:center;}
@@ -37,18 +36,15 @@
   .adm-sig-preview{width:110px;height:52px;border:2px dashed rgba(255,255,255,.5);border-radius:6px;background:rgba(255,255,255,.08);display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,.5);font-size:.65rem;cursor:pointer;overflow:hidden;position:relative;}
   .adm-sig-preview img{width:100%;height:100%;object-fit:contain;position:absolute;top:0;left:0;}
   input[type=file]{display:none;}
-
   /* ── Form body ── */
   .adm-body{padding:28px;}
   .adm-section-title{font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:#1a237e;background:#e8eaf6;padding:6px 12px;border-radius:4px;margin:20px 0 14px;}
-
   /* ── Field grid ── */
   .adm-grid{display:grid;gap:14px;}
   .adm-grid-2{grid-template-columns:1fr 1fr;}
   .adm-grid-3{grid-template-columns:1fr 1fr 1fr;}
   .adm-grid-4{grid-template-columns:1fr 1fr 1fr 1fr;}
   @media(max-width:640px){.adm-grid-2,.adm-grid-3,.adm-grid-4{grid-template-columns:1fr;}}
-
   /* ── Input styles ── */
   .adm-field label{display:block;font-size:.74rem;font-weight:600;color:#455a64;margin-bottom:5px;}
   .adm-field label span{color:#e53935;}
@@ -56,23 +52,19 @@
     width:100%;padding:9px 12px;border:1.5px solid #cfd8dc;border-radius:7px;font-size:.85rem;font-family:inherit;color:#263238;background:#fafafa;transition:.2s;outline:none;}
   .adm-field input:focus,.adm-field select:focus,.adm-field textarea:focus{border-color:#1565c0;background:#fff;box-shadow:0 0 0 3px rgba(21,101,192,.08);}
   .adm-field textarea{resize:vertical;min-height:64px;}
-
   /* ── Radio/Checkbox groups ── */
   .adm-radio-group,.adm-check-group{display:flex;flex-wrap:wrap;gap:10px 18px;align-items:center;padding:9px 12px;border:1.5px solid #cfd8dc;border-radius:7px;background:#fafafa;min-height:42px;}
   .adm-radio-group label,.adm-check-group label{display:flex;align-items:center;gap:5px;font-size:.83rem;font-weight:500;color:#37474f;cursor:pointer;white-space:nowrap;}
   .adm-radio-group input,.adm-check-group input{accent-color:#1565c0;width:15px;height:15px;}
-
   /* ── Session range ── */
   .session-range{display:flex;align-items:center;gap:8px;}
   .session-range span{font-size:.8rem;color:#78909c;white-space:nowrap;}
   .session-range input{flex:1;}
-
   /* ── Submit button ── */
   .adm-submit-row{margin-top:28px;display:flex;justify-content:center;}
   .adm-submit-btn{background:linear-gradient(135deg,#1565c0,#283593);color:#fff;border:none;padding:14px 48px;border-radius:30px;font-size:1rem;font-weight:700;cursor:pointer;letter-spacing:.03em;transition:.25s;display:flex;align-items:center;gap:10px;box-shadow:0 6px 20px rgba(21,101,192,.35);}
   .adm-submit-btn:hover{transform:translateY(-2px);box-shadow:0 10px 28px rgba(21,101,192,.45);}
   .adm-submit-btn:disabled{opacity:.6;cursor:not-allowed;transform:none;}
-
   /* ── Success card ── */
   .success-card{display:none;background:linear-gradient(135deg,#1a237e,#1565c0);color:#fff;border-radius:12px;padding:40px 32px;text-align:center;margin:0 28px 28px;}
   .success-card.show{display:block;}
@@ -83,25 +75,19 @@
   .success-msg{font-size:.9rem;opacity:.8;margin-top:12px;}
   .success-print-btn{margin-top:20px;background:rgba(255,255,255,.2);border:1.5px solid rgba(255,255,255,.4);color:#fff;padding:10px 28px;border-radius:24px;font-size:.88rem;font-weight:600;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;gap:8px;}
   .success-print-btn:hover{background:rgba(255,255,255,.3);}
-
   /* ── Error alert ── */
   .adm-error{background:#fce4ec;border:1px solid #e91e63;color:#880e4f;padding:12px 16px;border-radius:8px;font-size:.85rem;margin-bottom:16px;display:none;}
   .adm-error.show{display:block;}
-
   /* ── Required note ── */
   .required-note{font-size:.75rem;color:#78909c;margin-bottom:18px;}
 </style>
 </head><body>
-
 <% if(tickerNotices&&tickerNotices.length>0){%><div class="notice-ticker"><div class="d-flex align-items-center"><span class="ticker-label"><i class="bi bi-bell-fill me-1"></i>নোটিশ</span><div class="ticker-wrap"><div class="ticker-track"><%tickerNotices.forEach(n=>{%><span><%=n.title%></span><%});tickerNotices.forEach(n=>{%><span><%=n.title%></span><%});%></div></div></div></div><%}%>
 <%- include('../partials/navbar') %>
-
 <main>
 <section class="breadcrumb-section"><div class="container"><h1 class="breadcrumb-title">অনলাইন ভর্তি আবেদন</h1><ul class="breadcrumb-nav"><li><a href="/">হোম</a></li><li>ভর্তি আবেদন</li></ul></div></section>
-
 <div class="adm-page">
   <div class="adm-card">
-
     <!-- ═══ HEADER ═══ -->
     <div class="adm-header">
       <div>
@@ -136,7 +122,6 @@
         <input type="file" id="signatureInput" accept="image/*" onchange="previewFile(this,'sigPreview')"/>
       </div>
     </div>
-
     <!-- ═══ SUCCESS CARD (hidden initially) ═══ -->
     <div class="success-card" id="successCard">
       <div class="success-icon">🎉</div>
@@ -148,15 +133,11 @@
       <p class="success-msg">এই নম্বরটি সংরক্ষণ করুন। ভবিষ্যতে এই নম্বর দিয়ে আবেদনের অবস্থা জানতে পারবেন।<br>আমরা শীঘ্রই আপনার সাথে যোগাযোগ করব।</p>
       <button class="success-print-btn" onclick="window.print()"><i class="bi bi-printer"></i> প্রিন্ট করুন</button>
     </div>
-
     <!-- ═══ FORM BODY ═══ -->
     <div class="adm-body" id="formBody">
       <p class="required-note"><span style="color:#e53935">*</span> চিহ্নিত ঘরগুলো অবশ্যই পূরণ করতে হবে।</p>
       <div class="adm-error" id="formError"></div>
-
       <form id="admissionForm" enctype="multipart/form-data">
-
-
         <!-- ── SECTION 2: Personal Info ── -->
         <div class="adm-section-title">ব্যক্তিগত তথ্য</div>
         <div class="adm-grid adm-grid-2">
@@ -177,7 +158,6 @@
             <input type="date" name="dob" required/>
           </div>
         </div>
-
         <!-- ── Gender & Religion ── -->
         <div class="adm-grid adm-grid-2" style="margin-top:14px;">
           <div class="adm-field">
@@ -197,7 +177,6 @@
             </div>
           </div>
         </div>
-
         <!-- ── Nationality / Medium / Blood Group ── -->
         <div class="adm-grid adm-grid-3" style="margin-top:14px;">
           <div class="adm-field">
@@ -219,7 +198,6 @@
             </select>
           </div>
         </div>
-
         <!-- ── SECTION 3: Trade ── -->
         <div class="adm-section-title">Trade / কোর্স</div>
         <div class="adm-grid adm-grid-2">
@@ -246,7 +224,6 @@
           <label style="margin-bottom: 0;">কোর্স ফি: <span id="feeDisplay" style="font-size: 1.25rem; font-weight: 700; color: var(--gold); margin-left: 10px;">—</span></label>
           <input type="hidden" name="fee" id="feeInput" value="">
         </div>
-
         <!-- ── SECTION 4: Education ── -->
         <div class="adm-section-title">শিক্ষাগত যোগ্যতা (JSC / SSC বা সমমান)</div>
         <div class="adm-grid adm-grid-4">
@@ -267,7 +244,6 @@
             <input type="text" name="jscResult" placeholder="GPA / Grade" required/>
           </div>
         </div>
-
         <!-- ── SECTION 5: Contact ── -->
         <div class="adm-section-title">যোগাযোগের তথ্য</div>
         <div class="adm-grid adm-grid-2">
@@ -288,7 +264,6 @@
             <input type="text" name="address" placeholder="বর্তমান ঠিকানা" required/>
           </div>
         </div>
-
         <!-- ── Submit ── -->
         <div class="adm-submit-row">
           <button type="submit" class="adm-submit-btn" id="submitBtn">
@@ -297,27 +272,21 @@
         </div>
       </form>
     </div><!-- /adm-body -->
-
   </div><!-- /adm-card -->
 </div><!-- /adm-page -->
-
 </main>
 <%- include('../partials/footer') %>
-
 <script type="application/json" id="coursesDataJson"><%- JSON.stringify(courses || []) %></script>
-
 <script>
 // ── File preview ──
 function previewFile(input, previewId) {
   const preview = document.getElementById(previewId);
   if (input.files && input.files[0]) {
     const file = input.files[0];
-    
     // Check file size (5MB limit = 5 * 1024 * 1024 bytes)
     if (file.size > 5 * 1024 * 1024) {
       alert('ফাইল সাইজ ৫ মেগাবাইট (5 MB) এর চেয়ে বেশি হতে পারবে না। দয়া করে ছোট সাইজের ছবি আপলোড করুন।');
       input.value = ''; // Clear the input
-      
       // Remove existing preview if any
       const existing = preview.querySelector('img');
       if (existing) existing.remove();
@@ -325,7 +294,6 @@ function previewFile(input, previewId) {
       Array.from(preview.children).forEach(c => { if(c.tagName !== 'IMG') c.style.display = ''; });
       return;
     }
-
     const reader = new FileReader();
     reader.onload = e => {
       // Remove existing img if any
@@ -340,7 +308,6 @@ function previewFile(input, previewId) {
     reader.readAsDataURL(file);
   }
 }
-
 // ── Form submit ──
 document.getElementById('admissionForm').addEventListener('submit', async function(e) {
   e.preventDefault();
@@ -349,7 +316,6 @@ document.getElementById('admissionForm').addEventListener('submit', async functi
   btn.disabled = true;
   btn.innerHTML = '<i class="bi bi-hourglass-split"></i> জমা হচ্ছে...';
   errEl.classList.remove('show');
-
   // Collect selected trade and duration
   const tradeVal = document.getElementById('courseSelect').value;
   const durVal = document.getElementById('durationSelect').value;
@@ -360,11 +326,9 @@ document.getElementById('admissionForm').addEventListener('submit', async functi
     btn.innerHTML = '<i class="bi bi-send-fill"></i> আবেদন জমা দিন';
     return;
   }
-
   // Attach files
   const photoFile = document.getElementById('photoInput').files[0];
   const sigFile = document.getElementById('signatureInput').files[0];
-  
   if (!photoFile || !sigFile) {
     errEl.textContent = 'অনুগ্রহ করে ছবি এবং স্বাক্ষর উভয়টি আপলোড করুন।';
     errEl.classList.add('show');
@@ -372,11 +336,9 @@ document.getElementById('admissionForm').addEventListener('submit', async functi
     btn.innerHTML = '<i class="bi bi-send-fill"></i> আবেদন জমা দিন';
     return;
   }
-  
   const fd = new FormData(this);
   if (photoFile) { fd.delete('photo'); fd.append('photo', photoFile); }
   if (sigFile) { fd.delete('signature'); fd.append('signature', sigFile); }
-
   try {
     const res = await fetch('/api/admission', { method: 'POST', body: fd });
     const data = await res.json();
@@ -395,7 +357,6 @@ document.getElementById('admissionForm').addEventListener('submit', async functi
     btn.innerHTML = '<i class="bi bi-send-fill"></i> আবেদন জমা দিন';
   }
 });
-
 // 🌟 Dynamic Course & Duration JS 🌟
 const coursesDataStr = document.getElementById('coursesDataJson').textContent;
 const coursesData = coursesDataStr ? JSON.parse(coursesDataStr) : [];
@@ -403,12 +364,10 @@ const courseSelect = document.getElementById('courseSelect');
 const durationSelect = document.getElementById('durationSelect');
 const feeDisplay = document.getElementById('feeDisplay');
 const feeInput = document.getElementById('feeInput');
-
 courseSelect.addEventListener('change', function() {
   durationSelect.innerHTML = '<option value="">— Select Duration —</option>';
   feeDisplay.textContent = '—';
   feeInput.value = '';
-  
   const idx = this.options[this.selectedIndex].getAttribute('data-idx');
   if (idx !== null && coursesData[idx]) {
     const c = coursesData[idx];
@@ -429,7 +388,6 @@ courseSelect.addEventListener('change', function() {
     }
   }
 });
-
 durationSelect.addEventListener('change', function() {
   if (this.selectedIndex > 0) {
     const fee = this.options[this.selectedIndex].dataset.fee;

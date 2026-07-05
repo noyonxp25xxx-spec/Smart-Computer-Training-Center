@@ -1,0 +1,1069 @@
+You are a Senior Technical SEO Engineer, Senior Next.js Engineer, and Express.js Backend Engineer.
+
+Your task is to audit and implement complete production-grade CODEBASE-LEVEL SEO for an existing website.
+
+PROJECT:
+
+Website:
+https://smartcomputertraining.online
+
+Business:
+Smart Computer Training Center
+
+Architecture:
+- Frontend: Next.js
+- Backend/API: Express.js
+- Production domain: https://smartcomputertraining.online
+- Deployment environment currently includes Vercel
+
+IMPORTANT:
+First inspect the actual repository structure before making assumptions.
+
+Determine whether:
+- Next.js uses App Router or Pages Router
+- frontend and backend are in one repository or separate directories
+- Express is a standalone API server, custom Next.js server, serverless API, or separately deployed backend
+- public page data comes from Express APIs
+- content is static, database-driven, or mixed
+- pages are SSR, SSG, ISR, or CSR
+- there is an authentication/dashboard section
+- there are admin routes
+- there are dynamic course or content routes
+
+Do not assume architecture details that are not confirmed by the repository.
+
+==================================================
+PRIMARY OBJECTIVE
+==================================================
+
+Make the website technically optimized for search engines at codebase level while preserving:
+
+- existing UI design
+- existing functionality
+- existing business logic
+- existing authentication
+- existing API behavior
+- existing responsive design
+- existing deployment compatibility
+
+This task covers CODEBASE SEO ONLY.
+
+DO NOT perform external tasks such as:
+
+- Google Search Console account setup
+- domain property verification
+- sitemap submission to Google
+- manual indexing requests
+- Google Business Profile setup
+- backlink building
+- directory submissions
+- DNS changes
+- registrar changes
+
+The website owner will perform those tasks separately.
+
+==================================================
+PHASE 1 — COMPLETE SEO AUDIT BEFORE CODING
+==================================================
+
+Before changing files, audit the entire repository.
+
+Inspect:
+
+1. Next.js version
+2. React version
+3. App Router vs Pages Router
+4. Express.js architecture and purpose
+5. repository structure
+6. frontend/backend integration
+7. routing structure
+8. dynamic routes
+9. metadata implementation
+10. existing title and description tags
+11. canonical implementation
+12. robots implementation
+13. sitemap implementation
+14. structured data / JSON-LD
+15. Open Graph metadata
+16. Twitter/X metadata
+17. favicon and web manifest
+18. heading hierarchy
+19. semantic HTML
+20. internal linking
+21. image optimization
+22. font loading
+23. client-side rendering dependencies
+24. Server Components usage
+25. API-dependent SEO content
+26. loading states
+27. error states
+28. 404 handling
+29. redirect behavior
+30. duplicate URL risks
+31. query parameter indexing risks
+32. authentication routes
+33. admin/dashboard routes
+34. staging or test routes
+35. Core Web Vitals risks
+36. third-party scripts
+37. analytics scripts
+38. advertisement scripts, if present
+39. mobile usability
+40. accessibility issues affecting discoverability
+
+After the audit:
+
+A. Create a concise implementation plan.
+B. Then implement the changes.
+C. Do not stop after the audit.
+
+==================================================
+ARCHITECTURE RULE: NEXT.JS VS EXPRESS.JS
+==================================================
+
+Understand the responsibility boundary.
+
+NEXT.JS FRONTEND SHOULD HANDLE:
+
+- HTML metadata
+- page titles
+- meta descriptions
+- canonical tags
+- robots directives
+- sitemap generation
+- robots.txt generation
+- Open Graph metadata
+- Twitter/X metadata
+- structured data rendering
+- semantic HTML
+- internal linking
+- server-rendered public content
+- image optimization
+- page-level SEO
+- public route rendering
+- breadcrumb markup
+
+EXPRESS.JS BACKEND SHOULD BE AUDITED FOR:
+
+- API response performance
+- cache headers where appropriate
+- stable public content API behavior
+- correct HTTP status codes
+- public content availability during SSR/SSG/ISR
+- API failure behavior
+- redirects only if Express actually controls relevant routes
+- avoiding SEO-critical content being available only after client-side API calls
+- correct content data needed for dynamic metadata
+- slug stability
+- updated timestamps for sitemap generation
+- avoiding accidental exposure of private/admin data
+
+Do NOT put frontend metadata logic inside Express.js unless the architecture genuinely uses Express to render HTML.
+
+Do NOT convert the architecture unnecessarily.
+
+==================================================
+CENTRAL SEO CONFIGURATION
+==================================================
+
+Create a reusable SEO configuration using the project's existing conventions.
+
+Use the canonical production origin:
+
+https://smartcomputertraining.online
+
+Include verified values such as:
+
+- site name
+- site URL
+- default title
+- title template
+- default description
+- locale
+- logo path
+- default social sharing image
+- verified contact information
+- verified physical address
+- verified official social profiles
+
+Do NOT invent missing information.
+
+Never fabricate:
+
+- phone numbers
+- addresses
+- emails
+- social URLs
+- business hours
+- ratings
+- reviews
+- prices
+- course durations
+- certificates
+- affiliations
+- instructor qualifications
+- geographic coordinates
+
+If information is unavailable, add a TODO to the final report instead of inventing it.
+
+==================================================
+NEXT.JS GLOBAL METADATA
+==================================================
+
+Use the native SEO capabilities of the detected Next.js architecture.
+
+IF APP ROUTER:
+
+Use:
+- metadata export
+- generateMetadata()
+- metadataBase
+- alternates
+- openGraph
+- twitter
+- robots
+
+Use app/layout.tsx for appropriate global defaults.
+
+Use page-level metadata or generateMetadata() for specific routes.
+
+IF PAGES ROUTER:
+
+Use:
+- next/head
+- reusable SEO component if appropriate
+- _app and page-level Head usage carefully
+
+Prevent duplicate tags.
+
+DO NOT install unnecessary SEO packages if native Next.js APIs are sufficient.
+
+==================================================
+TITLE STRATEGY
+==================================================
+
+Create unique, human-readable titles.
+
+Example patterns:
+
+Homepage:
+Smart Computer Training Center | Computer Training & Courses
+
+Courses page:
+Computer Courses | Smart Computer Training Center
+
+Individual course:
+{Actual Course Name} | Smart Computer Training Center
+
+About:
+About Smart Computer Training Center
+
+Contact:
+Contact Smart Computer Training Center
+
+If the actual verified location exists in the project, naturally use location intent where appropriate.
+
+Example:
+
+Computer Training Center in {Verified Location} | Smart Computer Training Center
+
+Do not use an unverified location.
+
+Do not use unsupported claims such as:
+
+- No. 1
+- Best in Bangladesh
+- Top Rated
+- Most Trusted
+
+unless there is strong verifiable evidence.
+
+==================================================
+META DESCRIPTION STRATEGY
+==================================================
+
+Create a unique description for every important indexable page.
+
+Requirements:
+
+- accurately describe visible page content
+- natural language
+- useful to search users
+- no keyword stuffing
+- no duplicate descriptions
+- no unsupported claims
+- no list of keywords disguised as a sentence
+
+For dynamic course pages, derive descriptions from actual course data where suitable.
+
+If course descriptions are too long, create a safe summary strategy without generating false claims.
+
+==================================================
+CANONICAL URL IMPLEMENTATION
+==================================================
+
+Canonical origin:
+
+https://smartcomputertraining.online
+
+Implement correct self-referencing canonical URLs.
+
+Examples:
+
+Homepage:
+https://smartcomputertraining.online/
+
+Courses:
+https://smartcomputertraining.online/courses
+
+About:
+https://smartcomputertraining.online/about
+
+Course page:
+https://smartcomputertraining.online/courses/{slug}
+
+IMPORTANT:
+
+Do not set the homepage canonical on every page.
+
+Audit:
+
+- www vs non-www
+- HTTP vs HTTPS
+- trailing slash behavior
+- uppercase/lowercase route duplicates
+- query parameter duplicates
+- filter URLs
+- pagination
+- tracking parameters
+
+Use a consistent canonical strategy.
+
+==================================================
+SITEMAP.XML
+==================================================
+
+Implement a production-ready sitemap.
+
+If App Router is used, prefer:
+
+app/sitemap.ts
+
+unless the actual architecture requires a different solution.
+
+The sitemap must be accessible at:
+
+https://smartcomputertraining.online/sitemap.xml
+
+Include:
+
+- homepage
+- important static public pages
+- course listing page
+- real course detail pages
+- real blog/article pages, if they exist
+- other genuinely useful public indexable pages
+
+Exclude:
+
+- /admin
+- /dashboard
+- /login
+- /signup when not useful for search
+- /api
+- internal utility routes
+- test routes
+- preview routes
+- private user pages
+- redirect URLs
+- 404 URLs
+- noindex pages
+- duplicate parameterized URLs
+
+DYNAMIC CONTENT:
+
+If courses or articles come from Express.js APIs or a database:
+
+- inspect the actual data architecture
+- generate sitemap entries from the real content source
+- use stable slugs
+- use accurate lastModified timestamps when available
+- handle API failure safely
+
+Do not hardcode fake dynamic URLs.
+
+Do not invent lastModified dates.
+
+Do not assign fake daily changeFrequency to every URL.
+
+Do not set maximum priority for all pages.
+
+==================================================
+ROBOTS.TXT
+==================================================
+
+Implement a safe robots configuration.
+
+If App Router is used, prefer:
+
+app/robots.ts
+
+Expected public URL:
+
+https://smartcomputertraining.online/robots.txt
+
+Requirements:
+
+- allow crawling of public pages
+- reference:
+  https://smartcomputertraining.online/sitemap.xml
+- block only routes that genuinely should not be crawled
+- do not block required JS
+- do not block required CSS
+- do not block public images
+- do not accidentally block course pages
+- do not use robots.txt as an authentication or security mechanism
+
+Review existing robots behavior before replacing anything.
+
+==================================================
+PUBLIC CONTENT RENDERING
+==================================================
+
+This is extremely important.
+
+Audit whether important public content is rendered:
+
+- on the server
+- at build time
+- through ISR
+- or only after browser-side JavaScript fetches Express APIs
+
+SEO-critical content should not unnecessarily depend on client-only rendering.
+
+Important content includes:
+
+- course title
+- course description
+- syllabus summary
+- course category
+- learning outcomes
+- visible FAQ content
+- business description
+- location information
+- contact information
+
+If currently fetched only with useEffect after page load, evaluate whether it can safely use:
+
+- Server Components
+- server-side fetch
+- generateStaticParams
+- ISR
+- SSR
+
+Choose the correct strategy based on how frequently the content changes.
+
+Do not blindly convert every page to static generation.
+
+Do not expose authenticated API data during server rendering.
+
+==================================================
+EXPRESS API INTEGRATION FOR SEO
+==================================================
+
+Audit Express endpoints used by public pages.
+
+For public content endpoints:
+
+- return correct HTTP status codes
+- return 404 for missing content
+- avoid returning 200 with empty content for nonexistent resources
+- keep slug behavior stable
+- expose updatedAt where useful for sitemap accuracy
+- ensure public course data is accessible during server rendering
+- avoid unnecessary authentication for genuinely public content
+- implement appropriate caching only where safe
+- avoid excessive latency
+- handle timeout/failure gracefully
+
+If the frontend needs course metadata, ensure the API provides enough truthful fields to generate:
+
+- page title
+- meta description
+- canonical path
+- Open Graph data
+- structured data
+
+Do not duplicate the entire database model into metadata code.
+
+==================================================
+STRUCTURED DATA / JSON-LD
+==================================================
+
+Implement structured data only when supported by real visible content.
+
+Create reusable typed JSON-LD utilities/components.
+
+Potential schema types:
+
+1. WebSite
+2. Organization
+3. EducationalOrganization or appropriate LocalBusiness subtype
+4. BreadcrumbList
+5. Course
+6. FAQPage only when appropriate
+
+Choose schema based on actual content and business model.
+
+Do not add every possible schema type.
+
+----------------------------------
+WEBSITE SCHEMA
+----------------------------------
+
+Use verified:
+
+- name
+- url
+
+Do not add SearchAction unless the site has a real functional site search feature.
+
+----------------------------------
+ORGANIZATION / EDUCATIONAL ORGANIZATION
+----------------------------------
+
+Use only verified fields:
+
+- name
+- url
+- logo
+- telephone
+- email
+- address
+- sameAs
+
+Only include fields that actually exist and are confirmed.
+
+----------------------------------
+COURSE SCHEMA
+----------------------------------
+
+Use Course structured data only on real course detail pages.
+
+Use actual course information.
+
+Do not fabricate:
+
+- prices
+- duration
+- provider details
+- ratings
+- review counts
+- certification claims
+
+----------------------------------
+BREADCRUMBLIST
+----------------------------------
+
+Add BreadcrumbList to logical nested routes.
+
+Example:
+
+Home
+→ Courses
+→ Actual Course Name
+
+Ensure breadcrumb URLs match canonical URLs.
+
+----------------------------------
+FAQPAGE
+----------------------------------
+
+Only use FAQ structured data when:
+
+- questions and answers are visible on the page
+- content is genuine
+- markup matches visible content exactly
+- implementation is appropriate under current search engine guidelines
+
+Do not add hidden FAQ content only for SEO.
+
+==================================================
+OPEN GRAPH AND SOCIAL METADATA
+==================================================
+
+Implement:
+
+- og:title
+- og:description
+- og:url
+- og:site_name
+- og:type
+- og:image
+
+Implement Twitter/X metadata:
+
+- card: summary_large_image
+- title
+- description
+- image
+
+Use absolute URLs.
+
+Use real existing images.
+
+If no valid social preview image exists:
+
+- do not reference a broken file
+- document the required asset in the final report
+
+For course pages, use a real course image if appropriate.
+
+==================================================
+SEMANTIC HTML AUDIT
+==================================================
+
+Improve semantics without changing visual design.
+
+Use correct elements where appropriate:
+
+<header>
+<nav>
+<main>
+<section>
+<article>
+<aside>
+<footer>
+
+Audit all pages for:
+
+- one logical primary H1
+- correct H2/H3 hierarchy
+- descriptive link text
+- crawlable navigation
+- semantic sections
+- text content available as HTML
+- correct buttons vs links
+
+Use Next.js Link for internal navigation where appropriate.
+
+Do not use button elements for standard page navigation.
+
+Do not use headings only for visual font sizing.
+
+==================================================
+IMAGE SEO
+==================================================
+
+Audit all images.
+
+Implement:
+
+- meaningful alt text for informative images
+- alt="" for decorative images
+- descriptive filenames where practical
+- next/image where appropriate
+- explicit dimensions or stable aspect ratios
+- responsive sizes
+- lazy loading below the fold
+- correct LCP image priority/loading strategy
+- compression of oversized assets
+- modern formats where practical
+
+Do not keyword-stuff alt text.
+
+Do not use the same alt text for unrelated images.
+
+If images come from an external storage/CDN:
+
+- inspect next.config configuration
+- preserve security
+- configure remotePatterns only as narrowly as needed
+- do not whitelist all remote hosts unnecessarily
+
+==================================================
+INTERNAL LINKING
+==================================================
+
+Build a logical internal link structure using existing real pages.
+
+Recommended relationship:
+
+Homepage
+→ Courses
+→ Individual Course Pages
+
+Homepage
+→ About
+→ Contact
+
+Course listing
+→ Course detail pages
+
+Course detail
+→ Relevant related courses
+
+Blog article, if available
+→ Relevant course
+→ Related articles
+
+Use natural descriptive anchor text.
+
+Avoid repetitive keyword-heavy sitewide links.
+
+Avoid generic text such as "click here" when a descriptive anchor is possible.
+
+==================================================
+COURSE PAGE SEO
+==================================================
+
+If course pages exist, audit each course detail template.
+
+A strong course page should support real content fields such as:
+
+- course name
+- clear summary
+- actual syllabus/modules
+- learning outcomes
+- target audience or eligibility
+- actual duration if verified
+- class format if verified
+- admission process
+- real FAQ
+- related courses
+- clear contact/admission action
+
+Do not invent missing data.
+
+If the current backend data model lacks useful SEO content fields, report recommended schema/data-model additions separately.
+
+Do not make destructive database migrations without approval unless the task environment explicitly allows safe schema changes.
+
+==================================================
+LOCAL SEO CODEBASE SUPPORT
+==================================================
+
+If the training center has a verified physical location in existing data:
+
+- display consistent business name
+- display consistent address
+- display consistent phone number
+- use location naturally in relevant title/content
+- implement appropriate structured data
+- ensure Contact page contains useful location information
+
+Do not create dozens of city pages.
+
+Do not create doorway pages.
+
+Do not target locations where the business has no real relevance.
+
+==================================================
+CORE WEB VITALS
+==================================================
+
+Audit and improve:
+
+- LCP
+- INP
+- CLS
+
+Inspect:
+
+- hero image loading
+- image dimensions
+- font loading
+- excessive JavaScript
+- unnecessary Client Components
+- unnecessary useEffect usage
+- hydration-heavy components
+- large animation libraries
+- third-party scripts
+- analytics
+- ad scripts
+- layout shifts
+- API waterfalls
+- slow Express API calls
+- duplicate data fetching
+
+For Next.js:
+
+- prefer Server Components where suitable
+- minimize unnecessary "use client"
+- use next/image correctly
+- use next/font where appropriate
+- dynamically load genuinely non-critical heavy UI
+- preserve server rendering for search-critical content
+
+For Express:
+
+- inspect public endpoint latency
+- avoid unnecessary sequential database queries
+- use safe caching where appropriate
+- do not cache user-specific/private responses publicly
+
+IMPORTANT:
+Do not break advertising, analytics, authentication, or business functionality while optimizing performance.
+
+==================================================
+MOBILE SEO AND ACCESSIBILITY
+==================================================
+
+Audit:
+
+- viewport configuration
+- mobile navigation
+- horizontal overflow
+- readable text
+- tap target usability
+- form labels
+- button names
+- link accessibility
+- image alt behavior
+- keyboard navigation
+- focus visibility
+- semantic landmarks
+
+Do not redesign the website unnecessarily.
+
+==================================================
+404 AND HTTP STATUS HANDLING
+==================================================
+
+Audit both Next.js and Express.
+
+NEXT.JS:
+
+Ensure missing pages return proper 404 behavior.
+
+For App Router, use not-found.tsx where appropriate.
+
+The 404 page should provide useful navigation.
+
+Do not redirect every missing page to the homepage.
+
+EXPRESS:
+
+Ensure missing API resources return correct status codes.
+
+Examples:
+
+GET /api/courses/nonexistent-slug
+
+should return a proper 404 response, not:
+
+200 OK
+{
+  "data": null
+}
+
+unless the existing API contract absolutely requires otherwise.
+
+Do not expose stack traces in production errors.
+
+==================================================
+REDIRECT AUDIT
+==================================================
+
+Check:
+
+- HTTP → HTTPS behavior
+- www → canonical hostname behavior
+- old routes
+- duplicate slugs
+- uppercase URL variants
+- trailing slash consistency
+- redirect chains
+
+Use permanent redirects only where appropriate.
+
+Do not create unnecessary redirect chains.
+
+==================================================
+CONTENT QUALITY AUDIT
+==================================================
+
+Inspect visible content for:
+
+- duplicate paragraphs
+- placeholder content
+- lorem ipsum
+- generic AI-generated filler
+- copied course descriptions
+- keyword stuffing
+- vague headings
+- thin pages
+- unsupported claims
+
+Do not rewrite factual business information incorrectly.
+
+Do not fabricate missing information.
+
+Create a "Human Content Needed" section in the final report.
+
+==================================================
+LANGUAGE AND LOCALE
+==================================================
+
+Detect the actual website language.
+
+Set the correct HTML lang attribute.
+
+If the site genuinely has multiple language versions:
+
+- audit URL structure
+- implement hreflang correctly
+- add self references
+- add reciprocal alternate references
+- use x-default only where appropriate
+
+Do not add hreflang for translations that do not actually exist.
+
+If the website mixes Bangla and English on the same page, preserve the actual content and use the document language that best represents the primary content.
+
+==================================================
+AUTHENTICATED ROUTES
+==================================================
+
+If the project contains login, dashboard, admin, student portal, or private account pages:
+
+- identify which pages should not appear in search
+- use appropriate noindex directives where necessary
+- do not rely only on robots.txt for privacy
+- preserve authentication protection
+- never expose private data for SEO purposes
+
+==================================================
+SECURITY AND SEO CONSISTENCY
+==================================================
+
+Ensure:
+
+- canonical URLs use HTTPS
+- sitemap URLs use HTTPS
+- Open Graph URLs use HTTPS
+- JSON-LD URLs use HTTPS
+- no mixed content
+- no secrets exposed in frontend bundles
+- no server-only Express environment variables exposed through NEXT_PUBLIC variables
+- no internal API URLs accidentally used as public canonicals
+
+==================================================
+VALIDATION AND TESTING
+==================================================
+
+Inspect package.json files before running commands.
+
+Use the repository's actual package manager.
+
+Run available checks such as:
+
+- lint
+- typecheck
+- frontend production build
+- backend build if applicable
+- backend tests if available
+
+Do not invent npm scripts.
+
+Verify:
+
+1. homepage metadata
+2. unique page metadata
+3. canonical tags
+4. robots.txt
+5. sitemap.xml
+6. JSON-LD output
+7. Open Graph output
+8. Twitter/X metadata
+9. 404 behavior
+10. public dynamic course page rendering
+11. Express API 404 behavior
+12. no accidental noindex
+13. no broken internal links introduced
+14. no broken images
+15. no hydration errors
+16. no build errors
+17. no TypeScript errors introduced
+
+If possible in the existing environment, inspect rendered HTML to confirm SEO-critical content exists in the server response and is not dependent only on client-side JavaScript execution.
+
+==================================================
+FINAL REPORT
+==================================================
+
+After implementation, provide:
+
+1. Architecture discovered
+2. SEO problems found
+3. Implementation plan executed
+4. Files created
+5. Files modified
+6. Global metadata implementation
+7. Page-level metadata implementation
+8. Canonical strategy
+9. Sitemap implementation
+10. Robots implementation
+11. Structured data added
+12. Server rendering improvements
+13. Express API improvements
+14. Internal linking improvements
+15. Image SEO improvements
+16. Core Web Vitals improvements
+17. Accessibility improvements
+18. Redirect/404 improvements
+19. Human content still required
+20. External SEO tasks for the website owner
+
+For external tasks, only list them.
+Do not perform them.
+
+Possible examples:
+
+- Google Search Console verification
+- sitemap submission
+- URL inspection
+- indexing request for important pages
+- Google Business Profile setup
+- monitoring indexing reports
+- acquiring legitimate local citations/backlinks
+
+==================================================
+NON-NEGOTIABLE RULES
+==================================================
+
+1. Audit before modifying.
+2. Do not rewrite the entire application.
+3. Do not change the UI design unnecessarily.
+4. Do not break existing functionality.
+5. Do not fabricate business information.
+6. Do not create fake reviews.
+7. Do not create fake ratings.
+8. Do not keyword-stuff.
+9. Do not create doorway pages.
+10. Do not generate mass thin location pages.
+11. Do not add meta keywords.
+12. Do not add irrelevant schema.
+13. Do not mark hidden content as structured data.
+14. Do not install unnecessary SEO libraries.
+15. Prefer native Next.js SEO APIs.
+16. Do not put frontend SEO metadata logic into Express unless Express actually renders the HTML.
+17. Do not expose private API data.
+18. Do not hardcode incorrect canonical URLs.
+19. Do not use the homepage canonical for all pages.
+20. Do not accidentally block public pages.
+21. Do not accidentally add noindex to public pages.
+22. Do not make destructive database changes without explicit need and approval.
+23. Keep TypeScript types strict where TypeScript is used.
+24. Preserve deployment compatibility.
+25. Preserve existing monetization and analytics functionality.
+26. Use real data only.
+27. Validate all changes with production builds.
+
+START NOW:
+
+Step 1: Inspect the repository architecture.
+Step 2: Produce a short audit summary and implementation plan.
+Step 3: Implement all appropriate codebase-level SEO improvements.
+Step 4: Validate frontend and backend builds.
+Step 5: Provide the final technical SEO report.

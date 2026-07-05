@@ -33,7 +33,6 @@ const pageBody = `
       </div>
     </div>
   </div>`}
-
   <!-- Slider controls -->
   ${sliders.length > 1 ? `
   <button class="slider-arrow prev"><i class="bi bi-chevron-left"></i></button>
@@ -47,20 +46,19 @@ const pageBody = `
 <!DOCTYPE html>
 <html lang="bn">
 <head>
-  <meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title><%= title %> | <%= site.name %></title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<%- include('../partials/seo-head') %>
+
   <meta name="description" content="<%= site.tagline %>" />
-  <link rel="icon" href="<%= site.faviconUrl || '/images/favicon.png' %>" />
+  " />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
   <link rel="stylesheet" href="/css/style.css" />
   <style>.reveal{opacity:0;transform:translateY(24px);transition:opacity .6s ease,transform .6s ease}.reveal.revealed{opacity:1;transform:none}</style>
 </head>
 <body>
-
-
 <%- include('../partials/navbar') %>
-
 <main>
 <!-- ── HERO SLIDER ─────────────────────────────────── -->
 <section class="hero-slider-wrap position-relative">
@@ -81,7 +79,6 @@ const pageBody = `
   </div>
   <% } %>
 </section>
-
 <!-- ── COURSES ──────────────────────────────────────── -->
 <section class="section">
   <div class="container">
@@ -133,7 +130,6 @@ const pageBody = `
           <a href="/courses" class="btn-primary-custom">সব কোর্স দেখুন <i class="bi bi-arrow-right"></i></a>
         </div>
         <% } %>
-
         <!-- Web Development Banner - Premium Design -->
         <%
           let waRaw = site.whatsappNumber || '';
@@ -143,15 +139,12 @@ const pageBody = `
           }
         %>
         <div class="web-dev-banner mt-5 reveal position-relative" style="background: linear-gradient(145deg, #ffffff, #f8fafc); border: 1px solid rgba(226, 232, 240, 0.8); border-radius: 20px; overflow: hidden; box-shadow: 0 20px 40px rgba(0, 0, 0, 0.04), inset 0 1px 0 rgba(255, 255, 255, 1);">
-          
           <div style="padding: 35px 30px 25px; text-align: center; position: relative; z-index: 1;">
             <div style="position: absolute; top: -50%; left: 50%; transform: translateX(-50%); width: 250px; height: 250px; background: rgba(30, 144, 255, 0.12); filter: blur(45px); border-radius: 50%; z-index: -1;"></div>
-            
             <h3 style="font-weight: 800; font-size: 1.4rem; color: #0f172a; margin-bottom: 0; line-height: 1.4;">
               অভিজ্ঞ ওয়েব ডেভেলপার দ্বারা <br><span style="background: linear-gradient(135deg, var(--blue), #8b5cf6); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">প্রফেশনাল ওয়েবসাইট</span> তৈরি করা হয়
             </h3>
           </div>
-
           <div style="padding: 0 30px 30px; position: relative; z-index: 1;">
             <div style="background: #ffffff; border: 1px solid #f1f5f9; border-radius: 16px; padding: 25px; box-shadow: 0 10px 30px rgba(0,0,0,0.02);">
               <div class="row g-3">
@@ -187,14 +180,12 @@ const pageBody = `
               </div>
             </div>
           </div>
-
           <div style="padding: 0 30px 35px; text-align: center; position: relative; z-index: 1;">
             <a href="<%= waUrlBase %>" target="_blank" style="display: inline-flex; align-items: center; justify-content: center; gap: 10px; text-decoration: none; background: linear-gradient(135deg, #25D366, #128C7E); color: #fff; padding: 15px 40px; border-radius: 50px; font-weight: 700; font-size: 1.05rem; box-shadow: 0 10px 25px rgba(37, 211, 102, 0.35); transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);" onmouseover="this.style.transform='translateY(-4px)'; this.style.boxShadow='0 15px 30px rgba(37, 211, 102, 0.45)';" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 10px 25px rgba(37, 211, 102, 0.35)';">
               <i class="bi bi-whatsapp" style="font-size: 1.3rem;"></i> বিস্তারিত জানতে যোগাযোগ করুন
             </a>
           </div>
         </div>
-
         <!-- Web Dev WhatsApp Modal -->
         <div class="modal fade" id="webDevModal" tabindex="-1" aria-hidden="true">
           <div class="modal-dialog modal-dialog-centered">
@@ -214,7 +205,6 @@ const pageBody = `
           </div>
         </div>
       </div>
-
       <!-- Directors Column (Right side on PC, Bottom on Mobile) -->
       <div class="col-lg-3">
         <% if (directors && directors.length > 0) { %>
@@ -235,7 +225,6 @@ const pageBody = `
                   </button>
                 </div>
               </div>
-
             <% }); %>
           </div>
         <% } %>
@@ -243,7 +232,6 @@ const pageBody = `
     </div>
   </div>
 </section>
-
 <!-- ── RESULT CTA ───────────────────────────────────── -->
 <section class="section section-alt">
   <div class="container">
@@ -266,7 +254,6 @@ const pageBody = `
     </div>
   </div>
 </section>
-
 <!-- ── COUNTERS ─────────────────────────────────────── -->
 <section class="counters-section">
   <div class="container">
@@ -304,7 +291,6 @@ const pageBody = `
     </div>
   </div>
 </section>
-
 <!-- ── NOTICES ──────────────────────────────────────── -->
 <% if (notices && notices.length > 0) { %>
 <section class="section">
@@ -336,7 +322,7 @@ const pageBody = `
           <div class="col-6 reveal">
             <div class="teacher-card">
               <div class="teacher-img-wrap" style="height:140px">
-                <img src="<%= t.imageUrl || '/images/teacher-default.jpg' %>" alt="<%= t.name %>" onerror="this.src='/images/teacher-default.jpg'" />
+                <img src="<%= t.imageUrl || '/images/teacher-default.jpg' %>" alt="<%= t.name %>" onerror="this.onerror=null;this.src='/images/teacher-default.jpg'" />
               </div>
               <div class="teacher-info" style="padding:12px">
                 <div class="teacher-name" style="font-size:.85rem"><%= t.name %></div>
@@ -352,7 +338,6 @@ const pageBody = `
   </div>
 </section>
 <% } %>
-
 <!-- ── BLOG POSTS ────────────────────────────────────── -->
 <% if (posts && posts.length > 0) { %>
 <section class="section section-alt">
@@ -381,7 +366,6 @@ const pageBody = `
   </div>
 </section>
 <% } %>
-
 <!-- ── CONTACT STRIP ─────────────────────────────────── -->
 <section class="section" style="background:linear-gradient(135deg,#0A1628,#112240)">
   <div class="container text-center">
@@ -395,9 +379,7 @@ const pageBody = `
     </div>
   </div>
 </section>
-
 </main>
-
 <!-- ── DIRECTOR MODALS (Placed outside sticky containers) ── -->
 <% if (typeof directors !== 'undefined' && directors && directors.length > 0) { %>
   <% directors.forEach((d) => { %>
@@ -423,7 +405,6 @@ const pageBody = `
     </div>
   <% }); %>
 <% } %>
-
 <%- include('../partials/footer') %>
 <div class="lightbox" id="lightbox"><button class="lightbox-close" id="lightboxClose">&times;</button><img src="" id="lightboxImg" alt="" /></div>
 <div class="alert-placeholder" style="position:fixed;top:20px;left:50%;transform:translateX(-50%);z-index:9999;width:90%;max-width:500px;"></div>

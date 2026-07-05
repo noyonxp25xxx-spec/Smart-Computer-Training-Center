@@ -1,0 +1,97 @@
+<%
+  // SEO Configuration Defaults
+  const siteUrl = 'https://smartcomputertraining.online';
+  const siteName = (typeof site !== 'undefined' && site && site.name) ? site.name : 'Smart Computer Training Center';
+  
+  // Resolve Title
+  const defaultTitle = typeof title !== 'undefined' ? (title + ' | ' + siteName) : siteName;
+  const pageTitle = (typeof seo !== 'undefined' && seo.title) ? seo.title : defaultTitle;
+  
+  // Resolve Description
+  const defaultDesc = (typeof site !== 'undefined' && site && site.tagline) ? site.tagline : 'দক্ষ শিক্ষকমণ্ডলী ও আধুনিক সিলেবাসে কম্পিউটার প্রশিক্ষণ নিন। আপনার ক্যারিয়ার গড়ুন আমাদের সাথে।';
+  // Fallback to a substring if no description is provided for safety
+  const pageDescription = (typeof seo !== 'undefined' && seo.description) ? seo.description.replace(/(<([^>]+)>)/gi, "").substring(0, 160) : defaultDesc;
+  
+  // Resolve Canonical URL
+  const canonicalUrl = (typeof seo !== 'undefined' && seo.url) ? (siteUrl + seo.url) : siteUrl;
+  
+  // Resolve OG Image
+  const defaultImage = (typeof site !== 'undefined' && site && site.logoUrl) ? site.logoUrl : '/logo.png';
+  let ogImage = (typeof seo !== 'undefined' && seo.image) ? seo.image : defaultImage;
+  if (ogImage && !ogImage.startsWith('http')) {
+      ogImage = siteUrl + ogImage;
+  }
+
+  // Schema Type
+  const schemaType = (typeof seo !== 'undefined' && seo.type) ? seo.type : 'WebPage';
+%>
+<!-- SEO Metadata -->
+<title><%= pageTitle %></title>
+<meta name="description" content="<%= pageDescription %>">
+<link rel="canonical" href="<%= canonicalUrl %>">
+
+<!-- Open Graph -->
+<meta property="og:title" content="<%= pageTitle %>">
+<meta property="og:description" content="<%= pageDescription %>">
+<meta property="og:url" content="<%= canonicalUrl %>">
+<meta property="og:site_name" content="<%= siteName %>">
+<meta property="og:type" content="<%= (typeof seo !== 'undefined' && seo.ogType) ? seo.ogType : 'website' %>">
+<% if (ogImage) { %>
+<meta property="og:image" content="<%= ogImage %>">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="<%= ogImage %>">
+<% } %>
+
+<!-- Twitter -->
+<meta name="twitter:title" content="<%= pageTitle %>">
+<meta name="twitter:description" content="<%= pageDescription %>">
+
+<link rel="icon" href="<%= (typeof site !== 'undefined' && site && site.faviconUrl) ? site.faviconUrl : '/images/favicon.png' %>">
+
+<!-- JSON-LD Structured Data: Organization -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "EducationalOrganization",
+  "name": "<%- siteName %>",
+  "url": "<%- siteUrl %>",
+  "logo": "<%- siteUrl + defaultImage %>"
+}
+</script>
+
+<% if (schemaType === 'Course' && typeof seo !== 'undefined' && seo.courseData) { %>
+<!-- JSON-LD Structured Data: Course -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Course",
+  "name": "<%- seo.courseData.name %>",
+  "description": "<%- seo.courseData.description ? seo.courseData.description.replace(/(<([^>]+)>)/gi, '').substring(0, 200) : pageDescription %>",
+  "provider": {
+    "@type": "EducationalOrganization",
+    "name": "<%- siteName %>",
+    "url": "<%- siteUrl %>"
+  }
+}
+</script>
+<% } %>
+
+<% if (typeof seo !== 'undefined' && seo.breadcrumbs && seo.breadcrumbs.length > 0) { %>
+<!-- JSON-LD Structured Data: Breadcrumbs -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    <% seo.breadcrumbs.forEach(function(crumb, index) { %>
+    {
+      "@type": "ListItem",
+      "position": <%= index + 1 %>,
+      "name": "<%- crumb.name %>",
+      "item": "<%- siteUrl + crumb.url %>"
+    }<%= index < seo.breadcrumbs.length - 1 ? ',' : '' %>
+    <% }); %>
+  ]
+}
+</script>
+<% } %>

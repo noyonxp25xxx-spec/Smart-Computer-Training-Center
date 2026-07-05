@@ -74,10 +74,22 @@ router.get('/courses', async (req, res) => {
 router.get('/courses/:id', async (req, res) => {
   try {
     const doc = await db.collection('courses').doc(req.params.id).get();
-    if (!doc.exists) return res.redirect('/courses');
+    if (!doc.exists) return res.status(404).render('public/404', { title: 'কোর্স পাওয়া যায়নি' });
     const course = { id: doc.id, ...doc.data() };
-    res.render('public/course-detail', { title: course.name, course });
-  } catch { res.redirect('/courses'); }
+    
+    // SEO Data for Course
+    const seo = {
+      title: course.name,
+      description: course.shortDesc || course.description || '',
+      url: `/courses/${course.id}`,
+      image: course.imageUrl || null,
+      type: 'Course',
+      courseData: { name: course.name, description: course.shortDesc || course.description || '' },
+      breadcrumbs: [{ name: 'Home', url: '/' }, { name: 'Courses', url: '/courses' }, { name: course.name, url: `/courses/${course.id}` }]
+    };
+    
+    res.render('public/course-detail', { title: course.name, course, seo });
+  } catch { res.status(500).render('public/error', { title: 'সার্ভার ত্রুটি', message: 'সার্ভার ত্রুটি' }); }
 });
 
 // BLOG LIST
@@ -90,10 +102,21 @@ router.get('/blog', async (req, res) => {
 router.get('/blog/:id', async (req, res) => {
   try {
     const doc = await db.collection('blogPosts').doc(req.params.id).get();
-    if (!doc.exists) return res.redirect('/blog');
+    if (!doc.exists) return res.status(404).render('public/404', { title: 'পোস্ট পাওয়া যায়নি' });
     const post = { id: doc.id, ...doc.data() };
-    res.render('public/blog-detail', { title: post.title, post });
-  } catch { res.redirect('/blog'); }
+    
+    // SEO Data for Blog
+    const seo = {
+      title: post.title,
+      description: post.excerpt || post.content || '',
+      url: `/blog/${post.id}`,
+      image: post.imageUrl || null,
+      type: 'Article',
+      breadcrumbs: [{ name: 'Home', url: '/' }, { name: 'Blog', url: '/blog' }, { name: post.title, url: `/blog/${post.id}` }]
+    };
+    
+    res.render('public/blog-detail', { title: post.title, post, seo });
+  } catch { res.status(500).render('public/error', { title: 'সার্ভার ত্রুটি', message: 'সার্ভার ত্রুটি' }); }
 });
 
 // NOTICES
@@ -235,7 +258,7 @@ router.get('/404', (req, res) => {
   res.status(404).render('public/404', { title: 'পেজ পাওয়া যায়নি' });
 });
 
-// Proxy route for html2canvas to fetch cross-origin images
+// PROXY IMAGE ROUTE
 router.get('/proxy-image', async (req, res) => {
   try {
     const { url } = req.query;
@@ -255,6 +278,58 @@ router.get('/proxy-image', async (req, res) => {
     console.error('Proxy Error:', error.message);
     res.status(500).send('Error fetching image');
   }
+});
+
+// SITEMAP.XML
+router.get('/sitemap.xml', async (req, res) => {
+  try {
+    const baseUrl = 'https://smartcomputertraining.online';
+    const courses = await fetchCollection('courses', 'createdAt', 'desc', 100);
+    const blogs = await fetchCollection('blogPosts', 'date', 'desc', 100);
+    
+    let xml = `<?xml version="1.0" encoding="UTF-8"?>\n`;
+    xml += `<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n`;
+    
+    // Static Routes
+    const staticRoutes = [
+      '/', '/about', '/director', '/committee', '/teachers',
+      '/courses', '/blog', '/notices', '/admission', '/students',
+      '/result', '/gallery', '/contact'
+    ];
+    
+    staticRoutes.forEach(route => {
+      xml += `  <url>\n    <loc>${baseUrl}${route}</loc>\n    <changefreq>weekly</changefreq>\n    <priority>${route === '/' ? '1.0' : '0.8'}</priority>\n  </url>\n`;
+    });
+    
+    // Dynamic Course Routes
+    courses.forEach(course => {
+      xml += `  <url>\n    <loc>${baseUrl}/courses/${course.id}</loc>\n    <changefreq>monthly</changefreq>\n    <priority>0.9</priority>\n  </url>\n`;
+    });
+    
+    // Dynamic Blog Routes
+    blogs.forEach(post => {
+      xml += `  <url>\n    <loc>${baseUrl}/blog/${post.id}</loc>\n    <changefreq>monthly</changefreq>\n    <priority>0.7</priority>\n  </url>\n`;
+    });
+    
+    xml += `</urlset>`;
+    
+    res.header('Content-Type', 'application/xml');
+    res.send(xml);
+  } catch (err) {
+    console.error(err);
+    res.status(500).end();
+  }
+});
+
+// ROBOTS.TXT
+router.get('/robots.txt', (req, res) => {
+  const robots = `User-agent: *
+Allow: /
+
+Sitemap: https://smartcomputertraining.online/sitemap.xml
+`;
+  res.header('Content-Type', 'text/plain');
+  res.send(robots);
 });
 
 module.exports = router;
