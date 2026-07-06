@@ -271,7 +271,7 @@ const siteController = {
       data.updatedAt = new Date().toISOString();
       
       if (req.files && req.files.logo) data.logoUrl = await uploadImage(req.files.logo[0], 'site');
-      if (req.files && req.files.favicon) data.faviconUrl = await uploadImage(req.files.favicon[0], 'site');
+
       
       await db.collection('settings').doc('siteConfig').set(data, { merge: true });
       await logActivity(req, 'update_site_settings', 'siteConfig');

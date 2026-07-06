@@ -98,7 +98,7 @@ router.get('/settings', async (req, res) => {
   const doc = await db.collection('settings').doc('siteConfig').get();
   res.render('admin/settings', { title: 'সাইট সেটিংস', admin: req.admin, settings: doc.exists ? doc.data() : {} });
 });
-router.post('/settings', upload.fields([{ name: 'logo', maxCount: 1 }, { name: 'favicon', maxCount: 1 }]), siteController.updateSettings);
+router.post('/settings', upload.fields([{ name: 'logo', maxCount: 1 }]), siteController.updateSettings);
 
 // SLIDERS
 router.get('/sliders', async (req, res) => {
